@@ -1,0 +1,19 @@
+{
+  "app": { "untitled": "Documento{{n}}", "loading": "Abriendo documento…" },
+  "tabs": {
+    "file": "Archivo",
+    "home": "Inicio",
+    "insert": "Insertar",
+    "layout": "Disposición",
+    "references": "Referencias",
+    "view": "Vista"
+  },
+  "ribbon": { "comingSoon": "Las herramientas de esta pestaña llegan en los próximos hitos." },
+  "status": {
+    "page": "Página {{current}} de {{total}}",
+    "words_one": "{{count}} palabra",
+    "words_other": "{{count}} palabras",
+    "zoom": "Zoom",
+    "language": "Español"
+  }
+}

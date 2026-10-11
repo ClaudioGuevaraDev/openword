@@ -1,0 +1,11 @@
+.workspace {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  background: var(--ow-bg-canvas);
+}
+
+.viewport {
+  flex: 1;
+}

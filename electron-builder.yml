@@ -1,0 +1,86 @@
+appId: dev.openword.app
+productName: OpenWord
+copyright: Copyright © 2026 OpenWord
+directories:
+  output: dist
+  buildResources: build
+# La app no tiene dependencias en tiempo de ejecución: Vite empaqueta todo en out/.
+files:
+  - out/**
+  - package.json
+  - '!**/*.map'
+asar: true
+# Endurecimiento del binario (Electron Fuses).
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableCookieEncryption: true
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+fileAssociations:
+  - ext: docx
+    name: Documento de Word
+    description: Documento de Word
+    mimeType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    role: Editor
+    rank: Alternate
+  - ext: dotx
+    name: Plantilla de Word
+    mimeType: application/vnd.openxmlformats-officedocument.wordprocessingml.template
+    role: Editor
+    rank: Alternate
+  - ext: docm
+    name: Documento de Word habilitado para macros
+    mimeType: application/vnd.ms-word.document.macroEnabled.12
+    role: Editor
+    rank: Alternate
+  - ext: dotm
+    name: Plantilla de Word habilitada para macros
+    mimeType: application/vnd.ms-word.template.macroEnabled.12
+    role: Editor
+    rank: Alternate
+  - ext: doc
+    name: Documento de Word 97-2003
+    mimeType: application/msword
+    role: Editor
+    rank: Alternate
+  - ext: rtf
+    name: Texto enriquecido
+    mimeType: application/rtf
+    role: Editor
+    rank: Alternate
+  - ext: odt
+    name: Texto OpenDocument
+    mimeType: application/vnd.oasis.opendocument.text
+    role: Editor
+    rank: Alternate
+win:
+  target:
+    - target: nsis
+      arch: [x64, arm64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+mac:
+  category: public.app-category.productivity
+  hardenedRuntime: true
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+  # La firma y notarización se configuran con variables de entorno en CI (CSC_LINK, APPLE_API_KEY…).
+linux:
+  category: Office
+  maintainer: OpenWord
+  target: [AppImage, deb]
+  mimeTypes:
+    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    - application/vnd.openxmlformats-officedocument.wordprocessingml.template
+    - application/vnd.ms-word.document.macroEnabled.12
+    - application/msword
+    - application/rtf
+    - application/vnd.oasis.opendocument.text

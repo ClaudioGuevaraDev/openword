@@ -1,0 +1,19 @@
+{
+  "app": { "untitled": "Document{{n}}", "loading": "Opening document…" },
+  "tabs": {
+    "file": "File",
+    "home": "Home",
+    "insert": "Insert",
+    "layout": "Layout",
+    "references": "References",
+    "view": "View"
+  },
+  "ribbon": { "comingSoon": "This tab's tools arrive in upcoming milestones." },
+  "status": {
+    "page": "Page {{current}} of {{total}}",
+    "words_one": "{{count}} word",
+    "words_other": "{{count}} words",
+    "zoom": "Zoom",
+    "language": "English"
+  }
+}

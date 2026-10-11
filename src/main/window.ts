@@ -1,0 +1,30 @@
+import { BrowserWindow } from 'electron';
+import { join } from 'node:path';
+import { APP_ORIGIN } from './protocol';
+import { hardenWebContents } from './security';
+
+export function createDocumentWindow(devServerUrl: string | undefined): BrowserWindow {
+  const win = new BrowserWindow({
+    width: 1280,
+    height: 900,
+    minWidth: 720,
+    minHeight: 480,
+    show: false,
+    title: 'Documento1 - OpenWord',
+    backgroundColor: '#f3f3f3',
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.cjs'),
+      contextIsolation: true,
+      sandbox: true,
+      nodeIntegration: false,
+      webviewTag: false,
+      spellcheck: false, // el corrector propio llega en el hito 7
+    },
+  });
+  hardenWebContents(win.webContents);
+  win.once('ready-to-show', () => win.show());
+  // El título lo controla main (nombre del documento); ignoramos <title> del HTML.
+  win.on('page-title-updated', (event) => event.preventDefault());
+  void win.loadURL(devServerUrl ? `${devServerUrl}/index.html` : `${APP_ORIGIN}/index.html`);
+  return win;
+}
