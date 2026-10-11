@@ -1,7 +1,7 @@
 {
   "name": "openword",
   "productName": "OpenWord",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Procesador de textos de escritorio compatible con Word",
   "author": "OpenWord",
