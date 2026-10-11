@@ -50,12 +50,15 @@
     "exportPdfTitle": "Create PDF document",
     "exportPdfHint": "Preserves layout, formatting and fonts: the PDF looks the same on any computer.",
     "exportPdfButton": "Create PDF",
-    "exported": "Saved «{{name}}»."
+    "exported": "Saved «{{name}}».",
+    "options": "Options"
   },
   "notices": {
     "macros": "This document contains macros. OpenWord never runs them, but keeps them when saving.",
     "template": "New document based on a template: saving creates a separate document and leaves the template unchanged.",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "converted": "Converted with LibreOffice. Saving creates a Word document (.docx); the original file is unchanged.",
+    "recovered": "Recovered after an unexpected shutdown. Save it to keep your changes."
   },
   "home": {
     "clipboard": {
@@ -360,5 +363,27 @@
     "replacedAll_one": "Made {{count}} replacement.",
     "replacedAll_other": "Made {{count}} replacements.",
     "failed": "Couldn't replace."
+  },
+  "options": {
+    "title": "Options",
+    "general": "General",
+    "uiLanguage": "Display language",
+    "languageAuto": "Automatic (system)",
+    "proofing": "Proofing",
+    "checkSpelling": "Check spelling as you type",
+    "ignoreUppercase": "Ignore words in UPPERCASE",
+    "ignoreNumbers": "Ignore words that contain numbers",
+    "dictionaries": "Dictionaries",
+    "macDictionaries": "On macOS the system dictionaries are used (System Settings › Keyboard › Text).",
+    "save": "Save",
+    "autoRecover": "Save AutoRecover information every",
+    "minutes": "minutes",
+    "autoRecoverHint": "If OpenWord closes unexpectedly, documents with unsaved changes are recovered the next time you open it. 0 turns it off."
+  },
+  "spelling": {
+    "group": "Spelling: «{{word}}»",
+    "noSuggestions": "(No suggestions)",
+    "ignoreAll": "Ignore All",
+    "addToDictionary": "Add to Dictionary"
   }
 }

@@ -13,12 +13,13 @@ export function sandboxArgs(): string[] {
 
 /** Arranca el build de producción (out/) con una carpeta de datos propia. */
 export async function launchApp(
-  options: { args?: string[]; userData?: string } = {},
+  options: { args?: string[]; userData?: string; env?: Record<string, string> } = {},
 ): Promise<ElectronApplication & { userData: string }> {
   const userData = options.userData ?? mkdtempSync(join(tmpdir(), 'ow-e2e-'));
   const app = await electron.launch({
     args: [MAIN_ENTRY, ...(options.args ?? []), ...sandboxArgs()],
-    env: { ...process.env, OPENWORD_USER_DATA: userData },
+    // Sin LibreOffice salvo que la prueba lo pida (resultado igual en cualquier máquina).
+    env: { ...process.env, OPENWORD_SOFFICE: 'none', OPENWORD_USER_DATA: userData, ...options.env },
   });
   return Object.assign(app, { userData });
 }

@@ -58,3 +58,9 @@ body {
   font-weight: 600;
   color: var(--ow-fg-muted);
 }
+
+/* Subrayado del corrector ortográfico (capa de resaltado del motor). */
+.ow-misspelled {
+  background: none !important;
+  border-bottom: 2px dotted #e81123;
+}

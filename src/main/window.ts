@@ -18,7 +18,9 @@ export function createDocumentWindow(devServerUrl: string | undefined, title: st
       sandbox: true,
       nodeIntegration: false,
       webviewTag: false,
-      spellcheck: false, // el corrector propio llega en el hito 7
+      // El corrector de Chromium se usa como diccionario (webFrame.isWordMisspelled); el motor
+      // desactiva el subrayado nativo y OpenWord pinta el suyo.
+      spellcheck: true,
     },
   });
   hardenWebContents(win.webContents);

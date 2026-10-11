@@ -50,12 +50,15 @@
     "exportPdfTitle": "Crear documento PDF",
     "exportPdfHint": "Conserva el diseño, el formato y las fuentes: el PDF se ve igual en cualquier equipo.",
     "exportPdfButton": "Crear PDF",
-    "exported": "Se guardó «{{name}}»."
+    "exported": "Se guardó «{{name}}».",
+    "options": "Opciones"
   },
   "notices": {
     "macros": "Este documento contiene macros. OpenWord no las ejecuta, pero las conserva al guardar.",
     "template": "Documento nuevo basado en una plantilla: al guardar se crea un documento aparte y la plantilla no cambia.",
-    "dismiss": "Cerrar aviso"
+    "dismiss": "Cerrar aviso",
+    "converted": "Documento convertido con LibreOffice. Al guardarlo se creará un documento de Word (.docx); el archivo original no cambia.",
+    "recovered": "Documento recuperado tras un cierre inesperado. Guárdalo para conservar los cambios."
   },
   "home": {
     "clipboard": {
@@ -360,5 +363,27 @@
     "replacedAll_one": "Se realizó {{count}} reemplazo.",
     "replacedAll_other": "Se realizaron {{count}} reemplazos.",
     "failed": "No se pudo reemplazar."
+  },
+  "options": {
+    "title": "Opciones",
+    "general": "General",
+    "uiLanguage": "Idioma de la interfaz",
+    "languageAuto": "Automático (el del sistema)",
+    "proofing": "Revisión",
+    "checkSpelling": "Revisar la ortografía mientras escribe",
+    "ignoreUppercase": "Omitir palabras en MAYÚSCULAS",
+    "ignoreNumbers": "Omitir palabras que contienen números",
+    "dictionaries": "Diccionarios",
+    "macDictionaries": "En macOS se usan los diccionarios del sistema (Preferencias del Sistema › Teclado › Texto).",
+    "save": "Guardar",
+    "autoRecover": "Guardar información de autorrecuperación cada",
+    "minutes": "minutos",
+    "autoRecoverHint": "Si OpenWord se cierra de forma inesperada, al volver a abrirlo se recuperan los documentos con cambios sin guardar. 0 desactiva la función."
+  },
+  "spelling": {
+    "group": "Ortografía: «{{word}}»",
+    "noSuggestions": "(Sin sugerencias)",
+    "ignoreAll": "Omitir todo",
+    "addToDictionary": "Agregar al diccionario"
   }
 }

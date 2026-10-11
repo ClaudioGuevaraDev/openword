@@ -4,7 +4,7 @@ import type { MeasureUnit } from '@shared/units';
 
 export type ThemePreference = 'system' | 'light' | 'dark';
 export type NavigationTab = 'headings' | 'find';
-export type BackstageSection = 'home' | 'print' | 'export';
+export type BackstageSection = 'home' | 'print' | 'export' | 'options';
 
 const THEME_KEY = 'openword.theme';
 const RULER_KEY = 'openword.rulers';

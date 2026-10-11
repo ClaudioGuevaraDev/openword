@@ -3,7 +3,11 @@
 // comandos que sí soporta (setSelection + pasteWithoutFormatting / deleteText).
 import type { DocxEditorInstance, ExecResult, TextMatch } from '@docx-editor.dev/core';
 
-export function replaceOneMatch(editor: DocxEditorInstance, match: TextMatch, text: string): ExecResult {
+export function replaceOneMatch(
+  editor: DocxEditorInstance,
+  match: Pick<TextMatch, 'blockId' | 'start' | 'length'>,
+  text: string,
+): ExecResult {
   const selected = editor.exec({
     type: 'setSelection',
     range: {

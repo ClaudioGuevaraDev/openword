@@ -218,7 +218,7 @@ test('una plantilla .dotx se abre como documento nuevo y se guarda como .docx v�
   }
 });
 
-test('formatos no soportados todavía: avisa en lugar de fallar', async () => {
+test('formatos que requieren LibreOffice o no reconocidos: avisa en lugar de fallar', async () => {
   const dir = workDir();
   const rtf = join(dir, 'viejo.doc');
   writeFileSync(rtf, '{\\rtf1\\ansi Hola}'); // RTF con extensión .doc
@@ -228,10 +228,10 @@ test('formatos no soportados todavía: avisa en lugar de fallar', async () => {
   try {
     const win = await app.firstWindow();
     await waitForDocument(win);
-    await mockDialogs(app, { open: [rtf, junk] });
+    await mockDialogs(app, { open: [rtf, junk], messageBox: [1, 0] }); // 1 = Cancelar (no abrir la descarga)
     await win.evaluate(() => window.openword.file.openDialog());
     expect(await shownMessages(app)).toEqual([
-      '«viejo.doc» está en un formato antiguo o de otra aplicación.',
+      'Para abrir «viejo.doc» se necesita LibreOffice.',
       'No se reconoce el formato de «roto.docx».',
     ]);
     expect(await windowTitles(app)).toHaveLength(1);

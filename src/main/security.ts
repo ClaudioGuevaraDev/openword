@@ -4,6 +4,18 @@ import { isSafeExternalUrl, isTrustedOrigin } from './url-policy';
 
 const ALLOWED_PERMISSIONS = new Set(['clipboard-read', 'clipboard-sanitized-write', 'fullscreen']);
 
+function isDictionaryDownload(raw: string): boolean {
+  try {
+    const url = new URL(raw);
+    return (
+      url.protocol === 'https:' &&
+      (url.hostname === 'redirector.gvt1.com' || url.hostname.endsWith('.gvt1.com'))
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function hardenSession(devServerUrl: string | undefined): void {
   const ses = session.defaultSession;
   ses.setPermissionRequestHandler((wc, permission, callback) => {
@@ -13,11 +25,12 @@ export function hardenSession(devServerUrl: string | undefined): void {
     (_wc, permission, requestingOrigin) =>
       ALLOWED_PERMISSIONS.has(permission) && isTrustedOrigin(requestingOrigin, devServerUrl),
   );
-  // Sin red en producción: solo nuestro protocolo (los diccionarios del corrector usan otra vía).
+  // Sin red en producción: solo nuestro protocolo y la descarga de diccionarios del corrector
+  // (Hunspell en Windows/Linux, desde el CDN de Google que usa Chromium).
   if (!devServerUrl) {
     ses.webRequest.onBeforeRequest(
       { urls: ['http://*/*', 'https://*/*', 'ws://*/*', 'wss://*/*'] },
-      (_details, callback) => callback({ cancel: true }),
+      (details, callback) => callback({ cancel: !isDictionaryDownload(details.url) }),
     );
   }
 }

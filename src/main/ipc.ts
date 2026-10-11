@@ -17,6 +17,7 @@ import type { FontIndex } from './fonts/font-index';
 import { isTrustedOrigin } from './url-policy';
 import type { DocumentWindows } from './windows/document-windows';
 import { registerPrintWindowIpc, type PrintJobs } from './windows/print-jobs';
+import type { SettingsStore } from './settings';
 
 interface Services {
   readonly devServerUrl: string | undefined;
@@ -24,6 +25,7 @@ interface Services {
   readonly recents: RecentFiles;
   readonly fonts: FontIndex;
   readonly printJobs: PrintJobs;
+  readonly settings: SettingsStore;
 }
 
 const Bytes = z
@@ -32,7 +34,14 @@ const Bytes = z
 const PathList = z.array(z.string().min(1).max(4096)).max(100);
 const FamilyList = z.array(z.string().min(1).max(256)).max(64);
 
-export function registerIpcHandlers({ devServerUrl, windows, recents, fonts, printJobs }: Services): void {
+export function registerIpcHandlers({
+  devServerUrl,
+  windows,
+  recents,
+  fonts,
+  printJobs,
+  settings,
+}: Services): void {
   /** Solo atendemos frames de nuestro propio origen. */
   const trusted = (event: IpcMainInvokeEvent | IpcMainEvent) => {
     const url = event.senderFrame?.url ?? '';
@@ -55,9 +64,15 @@ export function registerIpcHandlers({ devServerUrl, windows, recents, fonts, pri
     return {
       version: app.getVersion(),
       platform: process.platform,
-      uiLanguage: pickUiLanguage(preferred),
+      uiLanguage:
+        settings.get().uiLanguage === 'auto'
+          ? pickUiLanguage(preferred)
+          : (settings.get().uiLanguage as 'es' | 'en'),
       region,
       paper: defaultPaper(region),
+      ...(process.env['OPENWORD_AUTORECOVER_MS']
+        ? { autoRecoverIntervalMs: Number(process.env['OPENWORD_AUTORECOVER_MS']) }
+        : {}),
     };
   });
 
@@ -161,6 +176,28 @@ export function registerIpcHandlers({ devServerUrl, windows, recents, fonts, pri
     printJobs.disposeOwnedBy(event.sender, z.string().parse(jobId));
   });
   registerPrintWindowIpc(printJobs);
+
+  // ----- opciones, corrector y recuperación -----
+  ipcMain.handle(IpcChannel.settingsGet, (event) => {
+    trusted(event);
+    return settings.get();
+  });
+  ipcMain.handle(IpcChannel.settingsUpdate, (event, patch: unknown) => {
+    trusted(event);
+    return settings.update(z.record(z.string(), z.unknown()).parse(patch));
+  });
+  ipcMain.on(IpcChannel.spellAddWord, (event, word: unknown) => {
+    trusted(event);
+    const text = z.string().min(1).max(64).parse(word);
+    event.sender.session.addWordToSpellCheckerDictionary(text);
+  });
+  ipcMain.handle(IpcChannel.spellLanguages, (event) => {
+    trusted(event);
+    return event.sender.session.availableSpellCheckerLanguages;
+  });
+  ipcMain.handle(IpcChannel.recoverySnapshot, (event, bytes: unknown) =>
+    windows.snapshot(recordOf(event), Bytes.parse(bytes)),
+  );
 
   // ----- fuentes del sistema -----
   ipcMain.handle(IpcChannel.fontFamilies, (event) => {

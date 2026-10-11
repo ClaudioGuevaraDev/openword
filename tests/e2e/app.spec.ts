@@ -29,7 +29,7 @@ test('el renderer no tiene acceso a Node y solo ve window.openword', async () =>
     expect(exposure).toEqual({
       require: 'undefined',
       process: 'undefined',
-      api: ['app', 'doc', 'file', 'clipboard', 'menu', 'print', 'fonts'],
+      api: ['app', 'doc', 'file', 'clipboard', 'menu', 'print', 'settings', 'spell', 'recovery', 'fonts'],
     });
   } finally {
     await closeAll(app);

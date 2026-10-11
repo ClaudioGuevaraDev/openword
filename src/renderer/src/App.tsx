@@ -64,6 +64,7 @@ export function App({ info }: { readonly info: AppInfo }) {
           document={source}
           language={info.uiLanguage}
           isNew={doc.bytes === null}
+          startDirty={doc.notices.includes('recovered')}
           ribbon={<Ribbon />}
           notices={<NoticeBar notices={doc.notices} />}
           statusBar={<StatusBar />}

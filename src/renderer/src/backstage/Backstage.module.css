@@ -155,3 +155,46 @@
 .error {
   color: #c42b1c;
 }
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+
+.optionRow select,
+.optionNumber {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--ow-border);
+  border-radius: 3px;
+  font: inherit;
+  color: var(--ow-fg);
+  background: var(--ow-bg-input);
+}
+
+.optionNumber {
+  width: 64px;
+}
+
+.optionCheck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.optionLanguages {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  max-width: 640px;
+  margin: 8px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--ow-border);
+  border-radius: 4px;
+}
+
+.content h2 {
+  margin-top: 24px;
+}

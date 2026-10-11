@@ -4,9 +4,22 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useDocxEditor, useEditorEvent } from '@docx-editor.dev/react';
 import type { DocumentChange } from '@docx-editor.dev/core';
 import { useDocumentStore } from '@renderer/state/document-store';
+import { useSettingsStore } from '@renderer/state/settings-store';
 import { redo, registerEditor, registerSave, undo, type SaveMode } from './document-actions';
 
-export function DocumentSession({ isNew }: { readonly isNew: boolean }) {
+let recoverIntervalOverride: number | undefined;
+/** Solo pruebas: acorta el intervalo de recuperación automática. */
+export function setRecoverIntervalOverride(ms: number | undefined): void {
+  recoverIntervalOverride = ms;
+}
+
+export function DocumentSession({
+  isNew,
+  startDirty,
+}: {
+  readonly isNew: boolean;
+  readonly startDirty: boolean;
+}) {
   const editor = useDocxEditor();
   const savedRevision = useRef<number | null>(null);
   const everChanged = useRef(false);
@@ -29,12 +42,34 @@ export function DocumentSession({ isNew }: { readonly isNew: boolean }) {
   // Deshacer / Rehacer desde el menú nativo de macOS.
   useEffect(() => window.openword.menu.onCommand((command) => (command === 'undo' ? undo() : redo())), []);
 
-  // Línea base: la revisión con la que se abrió el documento.
+  // Línea base: la revisión con la que se abrió el documento. Un documento recuperado
+  // empieza con cambios (su contenido no está guardado en ningún archivo).
   useEffect(() => {
     if (!editor) return;
-    savedRevision.current = editor.getDocumentHandle().revision;
-    report(false);
-  }, [editor, report]);
+    savedRevision.current = startDirty ? -1 : editor.getDocumentHandle().revision;
+    report(startDirty);
+  }, [editor, report, startDirty]);
+
+  // Recuperación automática: cada N minutos, si hay cambios nuevos, se guarda una copia.
+  const autoRecoverMinutes = useSettingsStore((s) => s.settings.autoRecoverMinutes);
+  const lastSnapshot = useRef<number | null>(null);
+  useEffect(() => {
+    if (!editor || autoRecoverMinutes <= 0) return;
+    const id = setInterval(
+      () => {
+        const revision = editor.getDocumentHandle().revision;
+        const dirty = useDocumentStore.getState().dirty;
+        if (!dirty || revision === lastSnapshot.current) return;
+        lastSnapshot.current = revision;
+        void editor
+          .save()
+          .then((buffer) => window.openword.recovery.snapshot(new Uint8Array(buffer)))
+          .catch((error: unknown) => console.warn('[recuperación]', error));
+      },
+      recoverIntervalOverride ?? autoRecoverMinutes * 60_000,
+    );
+    return () => clearInterval(id);
+  }, [editor, autoRecoverMinutes]);
 
   useEditorEvent('change', (change: DocumentChange) => {
     if (change.source === 'load' || savedRevision.current === null) {

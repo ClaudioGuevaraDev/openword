@@ -1,6 +1,6 @@
 // Una ventana por documento, como Word: abrir, guardar, reutilizar "Documento1" y
 // preguntar antes de cerrar con cambios sin guardar.
-import { app, BrowserWindow, dialog, type WebContents } from 'electron';
+import { app, BrowserWindow, dialog, shell, type WebContents } from 'electron';
 import { randomUUID } from 'node:crypto';
 import { basename, extname, join } from 'node:path';
 import { CONVERTIBLE_KINDS, NATIVE_KINDS } from '@shared/file-kinds';
@@ -10,10 +10,19 @@ import { pickUiLanguage } from '@shared/locale';
 import { setMainContentType } from '@shared/package-patch';
 import { readDocumentFile } from '../documents/open';
 import type { RecentFiles } from '../documents/recent';
+import type { RecoveryStore } from '../documents/recovery';
 import { writeDocxAtomic } from '../documents/save-atomic';
 import { createDocumentWindow } from '../window';
 
 type SaveKind = 'docx' | 'docm';
+
+/** Conversión de formatos antiguos (.doc, .rtf, .odt…) con LibreOffice, si está instalado. */
+export interface Converter {
+  find(): Promise<string | null>;
+  convert(soffice: string, path: string): Promise<Uint8Array>;
+}
+
+const LIBREOFFICE_DOWNLOAD = 'https://www.libreoffice.org/download/download-libreoffice/';
 
 interface DocRecord {
   readonly id: string;
@@ -28,6 +37,8 @@ interface DocRecord {
   untouched: boolean;
   /** Ya se resolvió la pregunta de guardar: el próximo close no vuelve a preguntar. */
   closeConfirmed: boolean;
+  /** Se guardó al menos una vez en esta sesión. */
+  savedOnce: boolean;
   prompting: Promise<boolean> | null;
   pending: LoadedDocument;
 }
@@ -43,6 +54,10 @@ export class DocumentWindows {
   constructor(
     private readonly devServerUrl: string | undefined,
     private readonly recents: RecentFiles,
+    private readonly converter: Converter,
+    private readonly recovery: RecoveryStore,
+    /** Idioma de la interfaz (Opciones o, en "automático", el del sistema). */
+    private readonly uiLanguage: () => 'es' | 'en' = () => pickUiLanguage(app.getPreferredSystemLanguages()),
   ) {}
 
   // ---------- consulta ----------
@@ -60,7 +75,7 @@ export class DocumentWindows {
   /** "Documento1", "Documento2"… (o "Document1" con la interfaz en inglés), como Word. */
   private nextUntitledName(): string {
     this.untitledCounter += 1;
-    const base = pickUiLanguage(app.getPreferredSystemLanguages()) === 'es' ? 'Documento' : 'Document';
+    const base = this.uiLanguage() === 'es' ? 'Documento' : 'Document';
     return `${base}${this.untitledCounter}`;
   }
 
@@ -102,11 +117,7 @@ export class DocumentWindows {
       return;
     }
     if (CONVERTIBLE_KINDS.has(kind)) {
-      await this.warn(
-        parent,
-        `«${basename(path)}» está en un formato antiguo o de otra aplicación.`,
-        'Para abrir archivos .doc, .rtf y .odt, OpenWord usará LibreOffice (disponible en una próxima versión).',
-      );
+      await this.openConverted(path, parent);
       return;
     }
     if (!NATIVE_KINDS.has(kind)) {
@@ -138,20 +149,68 @@ export class DocumentWindows {
     const doc: LoadedDocument = { docId: randomUUID(), displayName, bytes, notices };
 
     const reusable = this.findReusable(from);
-    if (reusable) {
-      reusable.pending = doc;
-      reusable.displayName = displayName;
-      reusable.filePath = filePath;
-      reusable.saveKind = saveKind;
-      reusable.fromTemplate = isTemplate;
-      reusable.dirty = false;
-      reusable.untouched = false;
-      this.updateTitle(reusable);
-      reusable.win.webContents.send(IpcChannel.docReplaced, doc);
-      focus(reusable.win);
-    } else {
-      this.createWindow(doc, filePath, saveKind, isTemplate, false);
+    if (reusable) this.loadInto(reusable, doc, filePath, saveKind, isTemplate);
+    else this.createWindow(doc, filePath, saveKind, isTemplate, false);
+  }
+
+  /** Carga un documento en una ventana existente (un "Documento1" sin tocar). */
+  private loadInto(
+    record: DocRecord,
+    doc: LoadedDocument,
+    filePath: string | null,
+    saveKind: SaveKind,
+    fromTemplate: boolean,
+  ): void {
+    record.pending = doc;
+    record.displayName = doc.displayName;
+    record.filePath = filePath;
+    record.saveKind = saveKind;
+    record.fromTemplate = fromTemplate;
+    record.dirty = false;
+    record.untouched = false;
+    this.updateTitle(record);
+    record.win.webContents.send(IpcChannel.docReplaced, doc);
+    focus(record.win);
+  }
+
+  /** .doc, .rtf, .odt, Word XML o HTML: se convierten a .docx con LibreOffice. */
+  private async openConverted(path: string, parent: BrowserWindow | undefined): Promise<void> {
+    const name = basename(path);
+    const soffice = await this.converter.find();
+    if (!soffice) {
+      const options: Electron.MessageBoxOptions = {
+        type: 'info',
+        title: 'OpenWord',
+        message: `Para abrir «${name}» se necesita LibreOffice.`,
+        detail:
+          'Los archivos .doc (Word 97-2003), .rtf y .odt se convierten a .docx con LibreOffice, que es gratuito. ' +
+          'Instálalo y vuelve a abrir el archivo.',
+        buttons: ['Descargar LibreOffice', 'Cancelar'],
+        defaultId: 0,
+        cancelId: 1,
+        noLink: true,
+      };
+      const { response } = parent
+        ? await dialog.showMessageBox(parent, options)
+        : await dialog.showMessageBox(options);
+      if (response === 0) await shell.openExternal(LIBREOFFICE_DOWNLOAD);
+      return;
     }
+    let bytes: Uint8Array;
+    try {
+      bytes = await this.converter.convert(soffice, path);
+    } catch (error) {
+      await this.warn(parent, `No se pudo convertir «${name}».`, (error as Error).message);
+      return;
+    }
+    // Se abre como documento sin guardar: al guardar se pide el nombre (.docx) y el
+    // archivo original no se toca.
+    const displayName = `${basename(name, extname(name))}.docx`;
+    const doc: LoadedDocument = { docId: randomUUID(), displayName, bytes, notices: ['converted'] };
+    await this.recents.add(path);
+    const reusable = this.findReusable(parent);
+    if (reusable) this.loadInto(reusable, doc, null, 'docx', false);
+    else this.createWindow(doc, null, 'docx', false, false);
   }
 
   async openDialog(from?: BrowserWindow): Promise<void> {
@@ -193,6 +252,7 @@ export class DocumentWindows {
       dirty: false,
       untouched,
       closeConfirmed: false,
+      savedOnce: false,
       prompting: null,
       pending: doc,
     };
@@ -212,15 +272,48 @@ export class DocumentWindows {
     });
     win.on('closed', () => {
       this.records.delete(contentsId);
+      // Cierre normal (guardado, "No guardar" o sin cambios): la copia de recuperación sobra.
+      void this.recovery.discard(record.id);
       for (const [id, resolve] of this.saveAnswers) if (id.startsWith(record.id)) resolve(false);
     });
     return win;
   }
 
+  /** Copia de recuperación del documento de una ventana. */
+  async snapshot(record: DocRecord, bytes: Uint8Array): Promise<void> {
+    await this.recovery.write(record.id, bytes, {
+      displayName: record.displayName,
+      filePath: record.filePath,
+    });
+  }
+
+  /** Al iniciar: reabre los documentos que quedaron sin guardar tras un cierre inesperado. */
+  async restoreRecovered(): Promise<number> {
+    const recovered = await this.recovery.list();
+    for (const item of recovered) {
+      const doc: LoadedDocument = {
+        docId: randomUUID(),
+        displayName: item.displayName,
+        bytes: item.bytes,
+        notices: ['recovered'],
+      };
+      const saveKind: SaveKind =
+        item.filePath && extname(item.filePath).toLowerCase() === '.docm' ? 'docm' : 'docx';
+      const win = this.createWindow(doc, item.filePath, saveKind, false, false);
+      const record = this.fromWebContents(win.webContents);
+      if (!record) continue;
+      record.dirty = true; // el contenido recuperado no está guardado
+      this.updateTitle(record);
+      await this.recovery.adopt(item.id, record.id);
+    }
+    return recovered.length;
+  }
+
   // ---------- estado ----------
 
   setState(record: DocRecord, dirty: boolean, untouched: boolean): void {
-    record.dirty = dirty;
+    // Un documento recuperado sigue "con cambios" hasta que se guarde.
+    record.dirty = dirty || (record.pending.notices.includes('recovered') && !record.savedOnce);
     record.untouched = untouched && record.filePath === null && !record.fromTemplate;
     this.updateTitle(record);
   }
@@ -272,8 +365,10 @@ export class DocumentWindows {
     record.fromTemplate = false;
     record.untouched = false;
     record.dirty = false;
+    record.savedOnce = true;
     this.updateTitle(record);
     await this.recents.add(target);
+    await this.recovery.discard(record.id);
     return { status: 'saved', displayName: record.displayName };
   }
 

@@ -11,6 +11,7 @@ import {
 } from '@renderer/editor/document-actions';
 import { useDocumentStore } from '@renderer/state/document-store';
 import { useUiStore, type BackstageSection } from '@renderer/state/ui-store';
+import { OptionsSection } from './OptionsSection';
 import { PdfPreview } from './PdfPreview';
 import styles from './Backstage.module.css';
 
@@ -244,8 +245,17 @@ export function Backstage() {
         <button type="button" onClick={run(closeWindow)}>
           {t('backstage.close')}
         </button>
+        {tab('options', t('backstage.options'))}
       </nav>
-      {section === 'print' ? <PrintSection /> : section === 'export' ? <ExportSection /> : <HomeSection />}
+      {section === 'print' ? (
+        <PrintSection />
+      ) : section === 'export' ? (
+        <ExportSection />
+      ) : section === 'options' ? (
+        <OptionsSection />
+      ) : (
+        <HomeSection />
+      )}
     </div>
   );
 }

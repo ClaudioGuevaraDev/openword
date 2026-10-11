@@ -39,7 +39,11 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Archivo › Imprimir (Ctrl/⌘+P) con vista previa fiel (el mismo PDF, dibujado con pdf.js) y diálogo de impresión del sistema.
   - Archivo › Exportar › Crear PDF.
   - Todas las páginas, con tamaño y orientación por sección. No usa el conversor Pro del motor.
-- `.doc`, `.rtf` y `.odt` muestran un aviso: la conversión con LibreOffice llega en el hito 7.
+- **Hito 7 (formatos, corrector, recuperación, Opciones):**
+  - `.doc`, `.rtf`, `.odt`, Word XML y HTML-como-.doc se convierten a .docx con LibreOffice si está instalado (si no, se ofrece descargarlo). El original no se modifica.
+  - Corrector ortográfico propio (diccionarios es/en de Chromium): subrayado, sugerencias, Omitir todo y Agregar al diccionario en el menú contextual. Omite MAYÚSCULAS, números, correos y URLs.
+  - Recuperación automática: copias cada N minutos que se reabren tras un cierre inesperado.
+  - Archivo › Opciones: idioma de la interfaz, corrector, diccionarios y recuperación.
 
 ## Limitaciones conocidas del motor (docx-editor 2.27)
 

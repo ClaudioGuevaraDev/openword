@@ -1,5 +1,6 @@
 // Contrato entre el proceso main y el renderer. El preload expone `window.openword`
 // con exactamente esta forma; main registra un handler por canal.
+import type { Settings, SettingsPatch } from './settings';
 
 export type UiLanguage = 'es' | 'en';
 export type Paper = 'letter' | 'a4';
@@ -22,10 +23,12 @@ export interface AppInfo {
   /** Región del SO (por ejemplo "MX", "ES", "US"): decide papel Carta/A4 y unidades de la regla. */
   readonly region: string | null;
   readonly paper: Paper;
+  /** Solo pruebas (OPENWORD_AUTORECOVER_MS): intervalo de recuperación en milisegundos. */
+  readonly autoRecoverIntervalMs?: number;
 }
 
 /** Avisos que la ventana muestra en una barra sobre el documento. */
-export type DocumentNotice = 'macros' | 'template';
+export type DocumentNotice = 'macros' | 'template' | 'converted' | 'recovered';
 
 /** Lo que una ventana debe mostrar. `bytes: null` significa documento nuevo en blanco. */
 export interface LoadedDocument {
@@ -123,6 +126,22 @@ export interface OpenWordApi {
     sourceBytes(): Promise<Uint8Array>;
     rendered(result: PrintRenderInfo | { readonly error: string }): void;
   };
+  readonly settings: {
+    get(): Promise<Settings>;
+    update(patch: SettingsPatch): Promise<Settings>;
+    onChange(listener: (settings: Settings) => void): Unsubscribe;
+  };
+  readonly spell: {
+    /** Consulta síncrona al corrector de Chromium (idiomas configurados en la sesión). */
+    isMisspelled(word: string): boolean;
+    suggestions(word: string): readonly string[];
+    addToDictionary(word: string): void;
+    availableLanguages(): Promise<readonly string[]>;
+  };
+  readonly recovery: {
+    /** Copia de recuperación del documento de esta ventana (se borra al guardar o cerrar). */
+    snapshot(bytes: Uint8Array): Promise<void>;
+  };
   readonly fonts: {
     families(): Promise<readonly string[]>;
     resolve(families: readonly string[]): Promise<readonly ResolvedFontFace[]>;
@@ -153,6 +172,12 @@ export const IpcChannel = {
   printDispose: 'print:dispose',
   printSourceBytes: 'print:source-bytes',
   printRendered: 'print:rendered',
+  settingsGet: 'settings:get',
+  settingsUpdate: 'settings:update',
+  settingsChanged: 'settings:changed',
+  spellAddWord: 'spell:add-word',
+  spellLanguages: 'spell:languages',
+  recoverySnapshot: 'recovery:snapshot',
   fontFamilies: 'fonts:families',
   fontResolve: 'fonts:resolve',
 } as const;

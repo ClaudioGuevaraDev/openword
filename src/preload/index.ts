@@ -1,6 +1,7 @@
 // Puente mínimo y tipado entre el renderer (sin Node) y main. Nada de ipcRenderer crudo.
-import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer, webFrame, webUtils, type IpcRendererEvent } from 'electron';
 import { IpcChannel, type LoadedDocument, type MenuCommand, type OpenWordApi } from '@shared/ipc-contract';
+import type { Settings } from '@shared/settings';
 
 function subscribe<T extends unknown[]>(channel: string, listener: (...args: T) => void): () => void {
   const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...(args as T));
@@ -47,6 +48,21 @@ const api: OpenWordApi = {
     dispose: (jobId) => ipcRenderer.send(IpcChannel.printDispose, jobId),
     sourceBytes: () => ipcRenderer.invoke(IpcChannel.printSourceBytes),
     rendered: (result) => ipcRenderer.send(IpcChannel.printRendered, result),
+  },
+  settings: {
+    get: () => ipcRenderer.invoke(IpcChannel.settingsGet),
+    update: (patch) => ipcRenderer.invoke(IpcChannel.settingsUpdate, patch),
+    onChange: (listener) => subscribe<[Settings]>(IpcChannel.settingsChanged, listener),
+  },
+  spell: {
+    isMisspelled: (word) => typeof word === 'string' && word.length <= 64 && webFrame.isWordMisspelled(word),
+    suggestions: (word) =>
+      typeof word === 'string' && word.length <= 64 ? webFrame.getWordSuggestions(word).slice(0, 8) : [],
+    addToDictionary: (word) => ipcRenderer.send(IpcChannel.spellAddWord, word),
+    availableLanguages: () => ipcRenderer.invoke(IpcChannel.spellLanguages),
+  },
+  recovery: {
+    snapshot: (bytes) => ipcRenderer.invoke(IpcChannel.recoverySnapshot, bytes),
   },
   fonts: {
     families: () => ipcRenderer.invoke(IpcChannel.fontFamilies),
