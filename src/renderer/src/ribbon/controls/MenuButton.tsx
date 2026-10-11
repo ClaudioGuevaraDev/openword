@@ -1,6 +1,7 @@
 // Botón de la cinta que abre un menú (Márgenes, Orientación, Saltos, Número de página…).
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import type { ReactNode } from 'react';
+import { focusEditor } from '@renderer/editor/document-actions';
 import styles from '../Ribbon.module.css';
 
 export interface MenuEntry {
@@ -63,7 +64,11 @@ export function MenuButton({
               <DropdownMenu.Item
                 className={styles.menuItem}
                 disabled={entry.disabled}
-                onSelect={entry.onSelect}
+                onSelect={() => {
+                  entry.onSelect();
+                  // El foco vuelve al documento para seguir escribiendo.
+                  setTimeout(focusEditor, 0);
+                }}
               >
                 <span className={styles.menuCheck}>{entry.checked ? '✓' : ''}</span>
                 <span className={styles.menuText}>

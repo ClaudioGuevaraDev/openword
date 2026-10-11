@@ -4,3 +4,6 @@ dist/
 test-results/
 playwright-report/
 *.log
+tests/fidelity/report/
+tools/ooxml-validator/bin/
+tools/ooxml-validator/obj/

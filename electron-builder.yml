@@ -77,10 +77,3 @@ linux:
   category: Office
   maintainer: OpenWord
   target: [AppImage, deb]
-  mimeTypes:
-    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    - application/vnd.openxmlformats-officedocument.wordprocessingml.template
-    - application/vnd.ms-word.document.macroEnabled.12
-    - application/msword
-    - application/rtf
-    - application/vnd.oasis.opendocument.text

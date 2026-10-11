@@ -45,6 +45,7 @@ export function TableGridPicker({
           align="start"
           sideOffset={2}
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <div className={styles.paletteTitle}>
             {hover[0] > 0

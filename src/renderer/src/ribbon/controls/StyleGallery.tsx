@@ -30,7 +30,7 @@ export function StyleGallery() {
   const apply = (id: string) => {
     style.setValue(id);
     setOpen(false);
-    editor?.focus();
+    setTimeout(() => editor?.focus(), 0);
   };
 
   const nameOf = (option: StyleOption) => builtInStyleName(option.styleId, option.name, t) ?? option.name;
@@ -83,6 +83,7 @@ export function StyleGallery() {
             align="end"
             sideOffset={2}
             onOpenAutoFocus={(e) => e.preventDefault()}
+            onCloseAutoFocus={(e) => e.preventDefault()}
           >
             {style.options.map(tile)}
           </Popover.Content>

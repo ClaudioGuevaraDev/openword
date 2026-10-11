@@ -11,6 +11,8 @@
     "src/preload/**/*",
     "src/shared/**/*",
     "tests/unit/**/*",
-    "scripts/**/*"
+    "scripts/**/*",
+    "tests/fidelity/**/*",
+    "vitest.fidelity.config.ts"
   ]
 }

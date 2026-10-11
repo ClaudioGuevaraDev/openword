@@ -7,6 +7,7 @@ import { CONVERTIBLE_KINDS, NATIVE_KINDS } from '@shared/file-kinds';
 import type { DocumentNotice, LoadedDocument, SaveResult } from '@shared/ipc-contract';
 import { IpcChannel } from '@shared/ipc-contract';
 import { pickUiLanguage } from '@shared/locale';
+import { ensureBuiltInStyles } from '@shared/builtin-styles';
 import { setMainContentType } from '@shared/package-patch';
 import { readDocumentFile } from '../documents/open';
 import type { RecentFiles } from '../documents/recent';
@@ -389,7 +390,9 @@ export class DocumentWindows {
     }
 
     try {
-      const data = record.fromTemplate ? setMainContentType(bytes, record.saveKind) : bytes;
+      const packaged = record.fromTemplate ? setMainContentType(bytes, record.saveKind) : bytes;
+      // Estilos integrados que el contenido usa y la plantilla no define (como hace Word).
+      const data = ensureBuiltInStyles(packaged);
       await writeDocxAtomic(target, data);
     } catch (error) {
       return { status: 'error', message: (error as Error).message };

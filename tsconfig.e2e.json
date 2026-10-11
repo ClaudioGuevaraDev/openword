@@ -4,5 +4,12 @@
     "lib": ["ES2023", "DOM"],
     "types": ["node"]
   },
-  "include": ["tests/e2e/**/*", "playwright.config.ts", "src/preload/index.d.ts"]
+  "include": [
+    "tests/e2e/**/*",
+    "playwright.config.ts",
+    "src/preload/index.d.ts",
+    "tests/fidelity-report/**/*",
+    "tests/fidelity/**/*",
+    "playwright.fidelity.config.ts"
+  ]
 }

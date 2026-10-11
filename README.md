@@ -45,6 +45,13 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Recuperación automática: copias cada N minutos que se reabren tras un cierre inesperado.
   - Archivo › Opciones: idioma de la interfaz, corrector, diccionarios y recuperación.
 
+- **Hito 8 (fidelidad y distribución):**
+  - Corpus de 39 documentos reales que se abren y guardan sin pérdidas, tanto con el motor como en la app.
+  - Validación con el Open XML SDK: 0 errores nuevos.
+  - Informe de paginación frente a PDF de Word.
+  - Instaladores para los 3 SO y checklist de QA manual.
+  - Ver [`docs/FIDELIDAD.md`](docs/FIDELIDAD.md), [`docs/QA-MANUAL.md`](docs/QA-MANUAL.md) y [`docs/DISTRIBUCION.md`](docs/DISTRIBUCION.md).
+
 ## Limitaciones conocidas del motor (docx-editor 2.27)
 
 - Reemplazar: `replaceMatch`/`replaceAllMatches` no están implementados. OpenWord reemplaza seleccionando y escribiendo, así que cada reemplazo es un paso de Deshacer.
@@ -72,6 +79,8 @@ En Ubuntu 24.04 o superior, Chromium no puede usar su sandbox SUID fuera de un p
 | `npm test`                        | Pruebas unitarias (Vitest)                            |
 | `npm run test:e2e`                | Compila y ejecuta las E2E (Playwright sobre Electron) |
 | `npm run check:deps`              | Falla si aparece algún paquete Pro de docx-editor     |
+| `npm run fidelity`                | Corpus de fidelidad: lectura y escritura sin pérdidas |
+| `npm run fidelity:report`         | Informe de paginación frente a PDF de Word            |
 | `npm run package:dir`             | Empaqueta sin instalador (`dist/<so>-unpacked`)       |
 | `npm run package`                 | Instaladores para el SO actual (`dist/`)              |
 

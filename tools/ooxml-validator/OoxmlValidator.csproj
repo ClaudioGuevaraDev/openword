@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Valida .docx con el Open XML SDK de Microsoft (MIT): las mismas reglas de esquema que
+       aplica Word. Uso: dotnet OoxmlValidator.dll archivo.docx ... (imprime JSON con los errores de cada uno). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
+  </ItemGroup>
+</Project>

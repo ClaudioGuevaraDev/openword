@@ -5,13 +5,19 @@ on:
     branches: [main]
     tags: ['v*']
   pull_request:
+  workflow_dispatch:
+    inputs:
+      fidelity_report:
+        description: Generar el informe de fidelidad frente a Word
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   checks:
-    name: Lint, tipos, unitarias y licencias
+    name: Lint, tipos, unitarias, corpus y licencias
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +31,8 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm test
+      - name: Corpus de fidelidad (lectura y escritura sin pérdidas, sin DOM)
+        run: npm run fidelity
 
   e2e:
     name: E2E (${{ matrix.os }})
@@ -43,13 +51,27 @@ jobs:
       - run: npm ci
       - name: Descargar binario de Electron
         run: node node_modules/electron/install.js
+      - name: LibreOffice (para las pruebas de conversión real)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer
       - run: npm run build
       - name: Playwright (Linux, con pantalla virtual)
         if: runner.os == 'Linux'
         run: xvfb-run --auto-servernum npx playwright test
+        env:
+          OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
       - name: Playwright
         if: runner.os != 'Linux'
         run: npx playwright test
+        env:
+          OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
+      - name: Documentos guardados por OpenWord (para la validación OOXML)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: corpus-out
+          path: corpus-out/
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -57,9 +79,52 @@ jobs:
           path: test-results/
           retention-days: 7
 
+  ooxml-validation:
+    name: Validación OOXML (Open XML SDK)
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/download-artifact@v4
+        with:
+          name: corpus-out
+          path: corpus-out
+      - run: dotnet build tools/ooxml-validator -c Release -o validator-bin
+      - name: Sin errores nuevos respecto de los originales
+        run: node scripts/validate-ooxml.mjs corpus-out
+        env:
+          OOXML_VALIDATOR: validator-bin/OoxmlValidator.dll
+
+  fidelity-report:
+    name: Informe de fidelidad frente a Word
+    if: github.event_name == 'workflow_dispatch' && inputs.fidelity_report
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: xvfb-run --auto-servernum npm run fidelity:report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: informe-fidelidad
+          path: tests/fidelity/report/
+          retention-days: 30
+
   package:
     name: Instalador (${{ matrix.os }})
-    needs: e2e
+    needs: [e2e, ooxml-validation]
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
@@ -73,7 +138,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # Sin firma por ahora: la firma/notarización necesita certificados (ver README).
+      # Sin firma por ahora: la firma y notarización necesitan certificados (ver docs/DISTRIBUCION.md).
       - run: npx electron-builder --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'

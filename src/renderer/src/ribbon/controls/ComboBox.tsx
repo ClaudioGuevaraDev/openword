@@ -134,6 +134,7 @@ export function ComboBox({
           align="start"
           sideOffset={2}
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
           style={{ minWidth: width }}
         >
           <div ref={list} role="listbox" aria-label={label}>

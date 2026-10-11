@@ -3,6 +3,7 @@ import * as Popover from '@radix-ui/react-popover';
 import { useState, type ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
+import { focusEditor } from '@renderer/editor/document-actions';
 import styles from '../Ribbon.module.css';
 
 // Colores del tema Office y colores estándar de Word.
@@ -100,6 +101,7 @@ function SplitButton({
             align="start"
             sideOffset={2}
             onOpenAutoFocus={(e) => e.preventDefault()}
+            onCloseAutoFocus={(e) => e.preventDefault()}
           >
             {children(() => setOpen(false))}
           </Popover.Content>
@@ -138,6 +140,7 @@ export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
   const apply = (hex: string) => {
     setLast(hex === 'auto' ? last : hex);
     color.execute(hex);
+    setTimeout(focusEditor, 0);
   };
   return (
     <SplitButton
@@ -179,7 +182,10 @@ export function HighlightButton({ icon }: { readonly icon: ReactNode }) {
   const { t } = useTranslation();
   const highlight = useEditorValueCommand('text.highlight');
   const [last, setLast] = useState<readonly [string, string]>(HIGHLIGHT_COLORS[0]!);
-  const apply = (name: string) => highlight.execute(name);
+  const apply = (name: string) => {
+    highlight.execute(name);
+    setTimeout(focusEditor, 0);
+  };
   return (
     <SplitButton
       label={t('home.font.highlight')}

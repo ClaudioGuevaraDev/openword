@@ -2,6 +2,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import type { ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
+import { focusEditor } from '@renderer/editor/document-actions';
 import styles from '../Ribbon.module.css';
 
 const SPACINGS = [1, 1.15, 1.5, 2, 2.5, 3];
@@ -46,7 +47,10 @@ export function LineSpacingMenu({
               key={value}
               className={styles.menuItem}
               checked={spacing.value !== null && Math.abs(spacing.value - value) < 0.01}
-              onSelect={() => spacing.execute(value)}
+              onSelect={() => {
+                spacing.execute(value);
+                setTimeout(focusEditor, 0);
+              }}
             >
               <span className={styles.menuCheck}>
                 {spacing.value !== null && Math.abs(spacing.value - value) < 0.01 ? '✓' : ''}

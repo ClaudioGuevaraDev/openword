@@ -1,0 +1,239 @@
+{
+  "description": "Corpus de fidelidad de OpenWord: documentos .docx reales de proyectos con licencia permisiva. Solo se usan como datos de prueba.",
+  "documents": [
+    {
+      "file": "docx-editor/demo.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/embedded-font.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/float-wrap-comprehensive-test.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/footer-textbox-page-fields.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/form-controls-catalog.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/header-inline-image-dist.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/issue-319-sections.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/issue-68-large-comments-suggestions.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/list-pagination-break.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/repeated-table-header.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/rtl-table-bidivisual.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/stacked-floats-with-floating-table.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "docx-editor/titlePg-header-footer.docx",
+      "source": "eigenpal/docx-editor v2.27.0, e2e/fixtures",
+      "license": "Apache-2.0",
+      "url": "https://github.com/eigenpal/docx-editor/tree/v2.27.0/e2e/fixtures"
+    },
+    {
+      "file": "libreoffice/1-table-1-page.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/2col-header.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/99_Fields.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/CT-with-frame.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/Chart_BorderLine_Style.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/CommentDone.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/EquationAsScientificNumbering.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/FileWithInvalidImageLink.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/LinkedTextBoxes.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/NumberedList.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/PreserveWfieldTOC.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/SdtContent.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/Shape.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/alphabeticalIndex_AutoColumn.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/chart-in-footer.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/docxopenhyperlinkbox.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/endingSectionProps.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/footnote.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/math-accents.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/smartart.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/table-pagebreak.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "libreoffice/tdf109310_endnoteStyleForMSO.docx",
+      "source": "LibreOffice core, sw/qa/extras/ooxmlexport/data",
+      "license": "MPL-2.0",
+      "url": "https://github.com/LibreOffice/core/tree/master/sw/qa/extras/ooxmlexport/data"
+    },
+    {
+      "file": "python-docx/blk-inner-content.docx",
+      "source": "python-docx, tests/test_files",
+      "license": "MIT",
+      "url": "https://github.com/python-openxml/python-docx/tree/master/tests/test_files"
+    },
+    {
+      "file": "python-docx/having-images.docx",
+      "source": "python-docx, tests/test_files",
+      "license": "MIT",
+      "url": "https://github.com/python-openxml/python-docx/tree/master/tests/test_files"
+    },
+    {
+      "file": "python-docx/sct-inner-content.docx",
+      "source": "python-docx, tests/test_files",
+      "license": "MIT",
+      "url": "https://github.com/python-openxml/python-docx/tree/master/tests/test_files"
+    },
+    {
+      "file": "python-docx/test.docx",
+      "source": "python-docx, tests/test_files",
+      "license": "MIT",
+      "url": "https://github.com/python-openxml/python-docx/tree/master/tests/test_files"
+    }
+  ]
+}
