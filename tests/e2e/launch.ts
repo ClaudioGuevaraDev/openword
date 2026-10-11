@@ -78,7 +78,10 @@ export async function closeAll(app: ElectronApplication): Promise<void> {
     // La app ya terminó.
   }
   const closed = await Promise.race([
-    app.close().then(() => true, () => true),
+    app.close().then(
+      () => true,
+      () => true,
+    ),
     new Promise<false>((resolve) => setTimeout(() => resolve(false), 10_000)),
   ]);
   if (!closed) {

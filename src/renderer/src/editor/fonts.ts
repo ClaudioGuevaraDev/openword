@@ -5,7 +5,10 @@ import { createFontSource, defineFontResolver, type FontSource } from '@docx-edi
 import { packagedFonts } from '@docx-editor.dev/fonts';
 
 export const systemFonts = defineFontResolver(async ({ families, defaultFamily }) => {
-  const faces = await window.openword.fonts.resolve([...new Set([...families, defaultFamily])]);
+  const [faces, supportedFamilies] = await Promise.all([
+    window.openword.fonts.resolve([...new Set([...families, defaultFamily])]),
+    window.openword.fonts.families(),
+  ]);
   const sources: FontSource[] = [];
   for (const face of faces) {
     const created = createFontSource(
@@ -16,7 +19,8 @@ export const systemFonts = defineFontResolver(async ({ families, defaultFamily }
     if ('source' in created) sources.push(created.source);
     else console.warn(`[fuentes] ${face.family} ${face.weight} ${face.style}: ${created.failure.reason}`);
   }
-  return { sources };
+  // supportedFamilies: el selector de fuentes ofrece todas las instaladas.
+  return { sources, supportedFamilies };
 });
 
 export const bundledFonts = packagedFonts();

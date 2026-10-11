@@ -14,6 +14,10 @@
   --ow-accent: #2b579a;
   --ow-tab-active-bg: #f9f9f9;
   --ow-tab-active-fg: #2b579a;
+  --ow-hover: #e1e1e1;
+  --ow-pressed: #c8d7ee;
+  --ow-pressed-border: #8fb0dd;
+  --ow-bg-input: #ffffff;
 }
 
 :root[data-theme='dark'] {
@@ -28,6 +32,10 @@
   --ow-border: #3d3d3d;
   --ow-tab-active-bg: #292929;
   --ow-tab-active-fg: #a9c4ef;
+  --ow-hover: #3a3a3a;
+  --ow-pressed: #2c4466;
+  --ow-pressed-border: #4a6fa5;
+  --ow-bg-input: #1f1f1f;
 }
 
 html,

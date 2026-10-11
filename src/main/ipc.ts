@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import { z } from 'zod';
 import { IpcChannel, type AppInfo, type LoadedDocument } from '@shared/ipc-contract';
 import { defaultPaper, pickRegion, pickUiLanguage } from '@shared/locale';
@@ -96,6 +96,19 @@ export function registerIpcHandlers({ devServerUrl, windows, recents, fonts }: S
   ipcMain.on(IpcChannel.fileClose, (event) => {
     trusted(event);
     windowOf(event)?.close();
+  });
+
+  // ----- portapapeles (botón Pegar de la cinta) -----
+  ipcMain.handle(IpcChannel.clipboardRead, async (event) => {
+    trusted(event);
+    let html = '';
+    for (const item of await clipboard.read()) {
+      if (item.types.includes('text/html')) {
+        html = await (await item.getType('text/html')).text();
+        break;
+      }
+    }
+    return { text: await clipboard.readText(), html };
   });
 
   // ----- fuentes del sistema -----

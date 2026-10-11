@@ -13,3 +13,33 @@
 .spacer {
   flex: 1;
 }
+
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zoomButton,
+.zoomPercent {
+  padding: 0 4px;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.zoomButton:disabled {
+  opacity: 0.4;
+}
+
+.zoomPercent {
+  min-width: 44px;
+  text-align: right;
+}
+
+.slider {
+  width: 110px;
+  accent-color: #ffffff;
+}

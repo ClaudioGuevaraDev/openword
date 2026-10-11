@@ -20,6 +20,12 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Aviso Guardar / No guardar / Cancelar al cerrar y al salir.
   - Papel Carta o A4 según la región.
   - Fuentes reales del sistema para la medición, con sustitutos OFL.
+- **Hito 3 (Inicio):**
+  - Cinta Inicio con Portapapeles (Pegar con opciones, Cortar, Copiar, Copiar formato).
+  - Fuente: familia, tamaño, Agrandar/Reducir, N/K/S, tachado, sub/superíndice, color, resaltado y borrar formato.
+  - Párrafo: viñetas, numeración, sangrías, alineación, interlineado, diálogo Párrafo y ¶.
+  - Galería de estilos con nombres localizados y Seleccionar todo.
+  - Atajos de Word. Barra de estado con páginas, palabras y zoom. Deshacer/Rehacer del menú de macOS conectados al motor.
 - `.doc`, `.rtf` y `.odt` muestran un aviso: la conversión con LibreOffice llega en el hito 7.
 
 ## Desarrollo

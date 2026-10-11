@@ -12,6 +12,7 @@
     "view": "Vista"
   },
   "ribbon": {
+    "label": "Cinta de opciones",
     "comingSoon": "Las herramientas de esta pestaña llegan en los próximos hitos."
   },
   "status": {
@@ -19,7 +20,10 @@
     "words_one": "{{count}} palabra",
     "words_other": "{{count}} palabras",
     "zoom": "Zoom",
-    "language": "Español"
+    "language": "Español",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "zoomReset": "Restablecer al 100 %"
   },
   "backstage": {
     "back": "Volver al documento",
@@ -35,5 +39,96 @@
     "macros": "Este documento contiene macros. OpenWord no las ejecuta, pero las conserva al guardar.",
     "template": "Documento nuevo basado en una plantilla: al guardar se crea un documento aparte y la plantilla no cambia.",
     "dismiss": "Cerrar aviso"
+  },
+  "home": {
+    "clipboard": {
+      "label": "Portapapeles",
+      "paste": "Pegar",
+      "pastePlain": "Pegar solo texto",
+      "cut": "Cortar",
+      "copy": "Copiar",
+      "formatPainter": "Copiar formato",
+      "pasteKeep": "Mantener formato de origen"
+    },
+    "font": {
+      "label": "Fuente",
+      "family": "Fuente",
+      "size": "Tamaño de fuente",
+      "grow": "Agrandar fuente",
+      "shrink": "Reducir fuente",
+      "clear": "Borrar todo el formato",
+      "bold": "Negrita",
+      "italic": "Cursiva",
+      "underline": "Subrayado",
+      "strike": "Tachado",
+      "subscript": "Subíndice",
+      "superscript": "Superíndice",
+      "color": "Color de fuente",
+      "highlight": "Color de resaltado del texto",
+      "automatic": "Automático",
+      "themeColors": "Colores del tema",
+      "standardColors": "Colores estándar",
+      "noColor": "Sin color",
+      "documentFonts": "Fuentes del documento",
+      "allFonts": "Todas las fuentes"
+    },
+    "highlight": {
+      "yellow": "Amarillo",
+      "green": "Verde brillante",
+      "cyan": "Turquesa",
+      "magenta": "Rosa",
+      "blue": "Azul",
+      "red": "Rojo",
+      "darkBlue": "Azul oscuro",
+      "darkCyan": "Verde azulado",
+      "darkGreen": "Verde",
+      "darkMagenta": "Violeta",
+      "darkRed": "Rojo oscuro",
+      "darkYellow": "Amarillo oscuro",
+      "darkGray": "Gris 50 %",
+      "lightGray": "Gris 25 %",
+      "black": "Negro"
+    },
+    "paragraph": {
+      "label": "Párrafo",
+      "dialog": "Configuración de párrafo",
+      "bullets": "Viñetas",
+      "numbering": "Numeración",
+      "outdent": "Disminuir sangría",
+      "indent": "Aumentar sangría",
+      "marks": "Mostrar todo (marcas de párrafo)",
+      "alignLeft": "Alinear a la izquierda",
+      "alignCenter": "Centrar",
+      "alignRight": "Alinear a la derecha",
+      "justify": "Justificar",
+      "lineSpacing": "Espaciado entre líneas y párrafos",
+      "lineSpacingOptions": "Opciones de interlineado…"
+    },
+    "styles": {
+      "label": "Estilos",
+      "more": "Más estilos"
+    },
+    "editing": {
+      "label": "Edición",
+      "selectAll": "Seleccionar todo"
+    }
+  },
+  "styles": {
+    "Normal": "Normal",
+    "Title": "Título",
+    "Subtitle": "Subtítulo",
+    "Heading": "Título {{n}}",
+    "NoSpacing": "Sin espaciado",
+    "Quote": "Cita",
+    "IntenseQuote": "Cita destacada",
+    "ListParagraph": "Párrafo de lista",
+    "Emphasis": "Énfasis",
+    "Strong": "Texto en negrita",
+    "SubtleEmphasis": "Énfasis sutil",
+    "IntenseEmphasis": "Énfasis intenso",
+    "TOCHeading": "TDC Título",
+    "Caption": "Descripción",
+    "Header": "Encabezado",
+    "Footer": "Pie de página"
   }
 }

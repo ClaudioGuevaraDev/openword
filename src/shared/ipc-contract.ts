@@ -58,6 +58,9 @@ export interface ResolvedFontFace {
 
 export type Unsubscribe = () => void;
 
+/** Comandos que llegan desde el menú nativo (macOS). */
+export type MenuCommand = 'undo' | 'redo';
+
 export interface OpenWordApi {
   readonly app: {
     info(): Promise<AppInfo>;
@@ -84,6 +87,13 @@ export interface OpenWordApi {
     recent(): Promise<readonly RecentFile[]>;
     closeWindow(): void;
   };
+  readonly clipboard: {
+    /** Lee el portapapeles del sistema (para el botón Pegar de la cinta). */
+    read(): Promise<{ readonly text: string; readonly html: string }>;
+  };
+  readonly menu: {
+    onCommand(listener: (command: MenuCommand) => void): Unsubscribe;
+  };
   readonly fonts: {
     families(): Promise<readonly string[]>;
     resolve(families: readonly string[]): Promise<readonly ResolvedFontFace[]>;
@@ -105,6 +115,8 @@ export const IpcChannel = {
   fileOpenPaths: 'file:open-paths',
   fileRecent: 'file:recent',
   fileClose: 'file:close',
+  clipboardRead: 'clipboard:read',
+  menuCommand: 'menu:command',
   fontFamilies: 'fonts:families',
   fontResolve: 'fonts:resolve',
 } as const;

@@ -12,6 +12,7 @@
     "view": "View"
   },
   "ribbon": {
+    "label": "Ribbon",
     "comingSoon": "This tab's tools arrive in upcoming milestones."
   },
   "status": {
@@ -19,7 +20,10 @@
     "words_one": "{{count}} word",
     "words_other": "{{count}} words",
     "zoom": "Zoom",
-    "language": "English"
+    "language": "English",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomReset": "Reset to 100%"
   },
   "backstage": {
     "back": "Back to document",
@@ -35,5 +39,96 @@
     "macros": "This document contains macros. OpenWord never runs them, but keeps them when saving.",
     "template": "New document based on a template: saving creates a separate document and leaves the template unchanged.",
     "dismiss": "Dismiss"
+  },
+  "home": {
+    "clipboard": {
+      "label": "Clipboard",
+      "paste": "Paste",
+      "pastePlain": "Paste text only",
+      "cut": "Cut",
+      "copy": "Copy",
+      "formatPainter": "Format Painter",
+      "pasteKeep": "Keep source formatting"
+    },
+    "font": {
+      "label": "Font",
+      "family": "Font",
+      "size": "Font size",
+      "grow": "Increase font size",
+      "shrink": "Decrease font size",
+      "clear": "Clear all formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strike": "Strikethrough",
+      "subscript": "Subscript",
+      "superscript": "Superscript",
+      "color": "Font color",
+      "highlight": "Text highlight color",
+      "automatic": "Automatic",
+      "themeColors": "Theme colors",
+      "standardColors": "Standard colors",
+      "noColor": "No color",
+      "documentFonts": "Document fonts",
+      "allFonts": "All fonts"
+    },
+    "highlight": {
+      "yellow": "Yellow",
+      "green": "Bright green",
+      "cyan": "Turquoise",
+      "magenta": "Pink",
+      "blue": "Blue",
+      "red": "Red",
+      "darkBlue": "Dark blue",
+      "darkCyan": "Teal",
+      "darkGreen": "Green",
+      "darkMagenta": "Violet",
+      "darkRed": "Dark red",
+      "darkYellow": "Dark yellow",
+      "darkGray": "Gray 50%",
+      "lightGray": "Gray 25%",
+      "black": "Black"
+    },
+    "paragraph": {
+      "label": "Paragraph",
+      "dialog": "Paragraph settings",
+      "bullets": "Bullets",
+      "numbering": "Numbering",
+      "outdent": "Decrease indent",
+      "indent": "Increase indent",
+      "marks": "Show/hide paragraph marks",
+      "alignLeft": "Align left",
+      "alignCenter": "Center",
+      "alignRight": "Align right",
+      "justify": "Justify",
+      "lineSpacing": "Line and paragraph spacing",
+      "lineSpacingOptions": "Line spacing options…"
+    },
+    "styles": {
+      "label": "Styles",
+      "more": "More styles"
+    },
+    "editing": {
+      "label": "Editing",
+      "selectAll": "Select all"
+    }
+  },
+  "styles": {
+    "Normal": "Normal",
+    "Title": "Title",
+    "Subtitle": "Subtitle",
+    "Heading": "Heading {{n}}",
+    "NoSpacing": "No Spacing",
+    "Quote": "Quote",
+    "IntenseQuote": "Intense Quote",
+    "ListParagraph": "List Paragraph",
+    "Emphasis": "Emphasis",
+    "Strong": "Strong",
+    "SubtleEmphasis": "Subtle Emphasis",
+    "IntenseEmphasis": "Intense Emphasis",
+    "TOCHeading": "TOC Heading",
+    "Caption": "Caption",
+    "Header": "Header",
+    "Footer": "Footer"
   }
 }

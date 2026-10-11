@@ -10,7 +10,8 @@ export interface KeyLike {
 
 export type Platform = 'darwin' | 'other';
 
-export type AppAction = 'new' | 'open' | 'save' | 'saveAs' | 'close' | 'backstageBack';
+export type AppAction =
+  'new' | 'open' | 'save' | 'saveAs' | 'close' | 'backstageBack' | 'growFont' | 'shrinkFont';
 
 /** Decide qué acción corresponde a una pulsación (función pura para poder probarla). */
 export function matchShortcut(e: KeyLike, platform: Platform, backstageOpen: boolean): AppAction | null {
@@ -20,6 +21,9 @@ export function matchShortcut(e: KeyLike, platform: Platform, backstageOpen: boo
   if (!mod || e.altKey) return null;
   const key = e.key.toLowerCase();
   if (key === 's') return e.shiftKey ? 'saveAs' : 'save';
+  // Agrandar / Reducir fuente: Ctrl+Mayús+> / Ctrl+Mayús+< (también Ctrl+] / Ctrl+[).
+  if (key === '>' || key === ']') return 'growFont';
+  if (key === '<' || key === '[') return 'shrinkFont';
   if (e.shiftKey) return null;
   if (key === 'n') return 'new';
   if (key === 'o') return 'open';

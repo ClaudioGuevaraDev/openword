@@ -1,6 +1,6 @@
 // Puente mínimo y tipado entre el renderer (sin Node) y main. Nada de ipcRenderer crudo.
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
-import { IpcChannel, type LoadedDocument, type OpenWordApi } from '@shared/ipc-contract';
+import { IpcChannel, type LoadedDocument, type MenuCommand, type OpenWordApi } from '@shared/ipc-contract';
 
 function subscribe<T extends unknown[]>(channel: string, listener: (...args: T) => void): () => void {
   const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...(args as T));
@@ -32,6 +32,12 @@ const api: OpenWordApi = {
     },
     recent: () => ipcRenderer.invoke(IpcChannel.fileRecent),
     closeWindow: () => ipcRenderer.send(IpcChannel.fileClose),
+  },
+  clipboard: {
+    read: () => ipcRenderer.invoke(IpcChannel.clipboardRead),
+  },
+  menu: {
+    onCommand: (listener) => subscribe<[MenuCommand]>(IpcChannel.menuCommand, listener),
   },
   fonts: {
     families: () => ipcRenderer.invoke(IpcChannel.fontFamilies),

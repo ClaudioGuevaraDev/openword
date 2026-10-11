@@ -1,5 +1,11 @@
 // Atajos de nivel de aplicación (los de edición, como Ctrl+B, los maneja el motor).
-import { closeWindow, newDocument, openDocument, saveDocument } from '@renderer/editor/document-actions';
+import {
+  closeWindow,
+  newDocument,
+  openDocument,
+  saveDocument,
+  stepSelectionFont,
+} from '@renderer/editor/document-actions';
 import { useUiStore } from '@renderer/state/ui-store';
 import { matchShortcut, type Platform } from './shortcut-map';
 
@@ -26,6 +32,12 @@ export function installAppShortcuts(platform: Platform): () => void {
         break;
       case 'close':
         closeWindow();
+        break;
+      case 'growFont':
+        stepSelectionFont(1);
+        break;
+      case 'shrinkFont':
+        stepSelectionFont(-1);
         break;
       case 'backstageBack':
         break;

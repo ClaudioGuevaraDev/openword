@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useDocxEditor, useEditorEvent } from '@docx-editor.dev/react';
 import type { DocumentChange } from '@docx-editor.dev/core';
 import { useDocumentStore } from '@renderer/state/document-store';
-import { registerSave, type SaveMode } from './document-actions';
+import { redo, registerEditor, registerSave, undo, type SaveMode } from './document-actions';
 
 export function DocumentSession({ isNew }: { readonly isNew: boolean }) {
   const editor = useDocxEditor();
@@ -20,6 +20,14 @@ export function DocumentSession({ isNew }: { readonly isNew: boolean }) {
     },
     [isNew, setDirty],
   );
+
+  useEffect(() => {
+    registerEditor(editor);
+    return () => registerEditor(null);
+  }, [editor]);
+
+  // Deshacer / Rehacer desde el menú nativo de macOS.
+  useEffect(() => window.openword.menu.onCommand((command) => (command === 'undo' ? undo() : redo())), []);
 
   // Línea base: la revisión con la que se abrió el documento.
   useEffect(() => {

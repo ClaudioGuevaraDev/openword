@@ -7,6 +7,7 @@ import { en } from '@docx-editor.dev/i18n/en';
 import type { DocumentSource } from '@docx-editor.dev/core';
 import '@docx-editor.dev/core/styles/editor.css';
 import type { UiLanguage } from '@shared/ipc-contract';
+import { useUiStore } from '@renderer/state/ui-store';
 import { DocumentSession } from './DocumentSession';
 import { bundledFonts, systemFonts } from './fonts';
 import styles from './EditorHost.module.css';
@@ -26,6 +27,8 @@ interface EditorHostProps {
 export function EditorHost({ document, language, ribbon, notices, statusBar, isNew }: EditorHostProps) {
   // El primero gana: fuente real del sistema y, si no existe, el sustituto métrico.
   const fonts = useFonts(systemFonts, bundledFonts);
+  const paragraphDialogOpen = useUiStore((s) => s.paragraphDialogOpen);
+  const closeParagraphDialog = useUiStore((s) => s.closeParagraphDialog);
 
   return (
     <LocaleProvider i18n={language === 'es' ? es : en}>
@@ -52,6 +55,7 @@ export function EditorHost({ document, language, ribbon, notices, statusBar, isN
             <DocxEditor.HyperLink />
           </DocxEditor.Viewport>
           <DocxEditor.Loading overlay />
+          <DocxEditor.ParagraphDialog open={paragraphDialogOpen} onClose={closeParagraphDialog} />
         </div>
         {statusBar}
       </DocxEditor.Root>
