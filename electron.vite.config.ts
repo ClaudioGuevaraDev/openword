@@ -22,7 +22,12 @@ export default defineConfig({
     // Sin pre-empaquetar: el motor y sus fuentes ubican harfbuzz.wasm y los .ttf con import.meta.url.
     optimizeDeps: { exclude: ['@docx-editor.dev/core', '@docx-editor.dev/fonts'] },
     build: {
-      rollupOptions: { input: { index: resolve(__dirname, 'src/renderer/index.html') } },
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          print: resolve(__dirname, 'src/renderer/print.html'),
+        },
+      },
     },
   },
 });

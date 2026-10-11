@@ -16,12 +16,14 @@ import type { RecentFiles } from './documents/recent';
 import type { FontIndex } from './fonts/font-index';
 import { isTrustedOrigin } from './url-policy';
 import type { DocumentWindows } from './windows/document-windows';
+import { registerPrintWindowIpc, type PrintJobs } from './windows/print-jobs';
 
 interface Services {
   readonly devServerUrl: string | undefined;
   readonly windows: DocumentWindows;
   readonly recents: RecentFiles;
   readonly fonts: FontIndex;
+  readonly printJobs: PrintJobs;
 }
 
 const Bytes = z
@@ -30,7 +32,7 @@ const Bytes = z
 const PathList = z.array(z.string().min(1).max(4096)).max(100);
 const FamilyList = z.array(z.string().min(1).max(256)).max(64);
 
-export function registerIpcHandlers({ devServerUrl, windows, recents, fonts }: Services): void {
+export function registerIpcHandlers({ devServerUrl, windows, recents, fonts, printJobs }: Services): void {
   /** Solo atendemos frames de nuestro propio origen. */
   const trusted = (event: IpcMainInvokeEvent | IpcMainEvent) => {
     const url = event.senderFrame?.url ?? '';
@@ -140,6 +142,25 @@ export function registerIpcHandlers({ devServerUrl, windows, recents, fonts }: S
     }
     return { text: await clipboard.readText(), html };
   });
+
+  // ----- imprimir / PDF -----
+  ipcMain.handle(IpcChannel.printPrepare, (event, bytes: unknown) => {
+    const record = recordOf(event);
+    return printJobs.prepare(event.sender, Bytes.parse(bytes), record.displayName);
+  });
+  ipcMain.handle(IpcChannel.printPrint, (event, jobId: unknown) => {
+    recordOf(event);
+    return printJobs.print(event.sender, z.string().parse(jobId));
+  });
+  ipcMain.handle(IpcChannel.printSavePdf, (event, jobId: unknown) => {
+    recordOf(event);
+    return printJobs.savePdf(event.sender, z.string().parse(jobId));
+  });
+  ipcMain.on(IpcChannel.printDispose, (event, jobId: unknown) => {
+    recordOf(event);
+    printJobs.disposeOwnedBy(event.sender, z.string().parse(jobId));
+  });
+  registerPrintWindowIpc(printJobs);
 
   // ----- fuentes del sistema -----
   ipcMain.handle(IpcChannel.fontFamilies, (event) => {

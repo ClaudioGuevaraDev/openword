@@ -20,7 +20,8 @@ export type AppAction =
   | 'growFont'
   | 'shrinkFont'
   | 'find'
-  | 'replace';
+  | 'replace'
+  | 'print';
 
 /** Decide qué acción corresponde a una pulsación (función pura para poder probarla). */
 export function matchShortcut(e: KeyLike, platform: Platform, backstageOpen: boolean): AppAction | null {
@@ -45,6 +46,7 @@ export function matchShortcut(e: KeyLike, platform: Platform, backstageOpen: boo
   if (key === '<' || key === '[') return 'shrinkFont';
   if (e.shiftKey) return null;
   if (key === 'n') return 'new';
+  if (key === 'p') return 'print';
   if (key === 'f') return 'find';
   if (key === 'h' && platform !== 'darwin') return 'replace';
   if (key === 'o') return 'open';

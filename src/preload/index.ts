@@ -40,6 +40,14 @@ const api: OpenWordApi = {
   menu: {
     onCommand: (listener) => subscribe<[MenuCommand]>(IpcChannel.menuCommand, listener),
   },
+  print: {
+    prepare: (bytes) => ipcRenderer.invoke(IpcChannel.printPrepare, bytes),
+    print: (jobId) => ipcRenderer.invoke(IpcChannel.printPrint, jobId),
+    savePdf: (jobId) => ipcRenderer.invoke(IpcChannel.printSavePdf, jobId),
+    dispose: (jobId) => ipcRenderer.send(IpcChannel.printDispose, jobId),
+    sourceBytes: () => ipcRenderer.invoke(IpcChannel.printSourceBytes),
+    rendered: (result) => ipcRenderer.send(IpcChannel.printRendered, result),
+  },
   fonts: {
     families: () => ipcRenderer.invoke(IpcChannel.fontFamilies),
     resolve: (families) => ipcRenderer.invoke(IpcChannel.fontResolve, [...families]),

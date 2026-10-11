@@ -4,6 +4,7 @@ import {
   newDocument,
   openDocument,
   openFind,
+  openPrint,
   openReplace,
   saveDocument,
   stepSelectionFont,
@@ -25,7 +26,8 @@ export function installAppShortcuts(platform: Platform): () => void {
     if (!action) return;
     e.preventDefault();
     e.stopPropagation();
-    if (useUiStore.getState().activeTab === 'file') useUiStore.getState().setActiveTab('home');
+    if (useUiStore.getState().activeTab === 'file' && action !== 'print')
+      useUiStore.getState().setActiveTab('home');
     switch (action) {
       case 'new':
         newDocument();
@@ -47,6 +49,9 @@ export function installAppShortcuts(platform: Platform): () => void {
         break;
       case 'shrinkFont':
         stepSelectionFont(-1);
+        break;
+      case 'print':
+        openPrint();
         break;
       case 'find':
         openFind();

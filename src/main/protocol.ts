@@ -10,6 +10,7 @@ export { APP_HOST, APP_ORIGIN, APP_SCHEME } from './app-url';
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.wasm': 'application/wasm',
   '.ttf': 'font/ttf',

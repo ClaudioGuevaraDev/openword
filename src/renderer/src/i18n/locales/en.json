@@ -36,7 +36,21 @@
     "saveAs": "Save As",
     "close": "Close",
     "recent": "Recent",
-    "noRecent": "You haven't opened any documents yet."
+    "noRecent": "You haven't opened any documents yet.",
+    "info": "Info",
+    "print": "Print",
+    "export": "Export",
+    "printButton": "Print",
+    "printHint": "The system print dialog opens so you can choose the printer, copies and pages.",
+    "printSent": "Document sent to the printer.",
+    "printFailed": "Couldn't print",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "preparing": "Preparing the preview…",
+    "exportPdfTitle": "Create PDF document",
+    "exportPdfHint": "Preserves layout, formatting and fonts: the PDF looks the same on any computer.",
+    "exportPdfButton": "Create PDF",
+    "exported": "Saved «{{name}}»."
   },
   "notices": {
     "macros": "This document contains macros. OpenWord never runs them, but keeps them when saving.",

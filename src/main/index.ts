@@ -8,6 +8,7 @@ import { installApplicationMenu } from './menu';
 import { handleAppProtocol, registerAppSchemePrivileges } from './protocol';
 import { hardenSession } from './security';
 import { DocumentWindows } from './windows/document-windows';
+import { PrintJobs } from './windows/print-jobs';
 
 // Solo en desarrollo: electron-vite define esta variable con la URL del servidor de Vite.
 const devServerUrl = !app.isPackaged ? process.env['ELECTRON_RENDERER_URL'] : undefined;
@@ -52,7 +53,7 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
     const recents = new RecentFiles();
     const fonts = new FontIndex({ cacheFile: join(app.getPath('userData'), 'font-index.json') });
     windows = new DocumentWindows(devServerUrl, recents);
-    registerIpcHandlers({ devServerUrl, windows, recents, fonts });
+    registerIpcHandlers({ devServerUrl, windows, recents, fonts, printJobs: new PrintJobs(devServerUrl) });
     void fonts.all(); // indexar en segundo plano mientras abre la primera ventana
 
     const initial = [...pendingPaths.splice(0), ...extractDocumentPaths(process.argv, process.cwd())];

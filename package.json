@@ -49,6 +49,7 @@
     "fflate": "0.8.3",
     "globals": "17.13.0",
     "i18next": "26.4.3",
+    "pdfjs-dist": "6.4.299",
     "prettier": "3.9.10",
     "react": "19.3.0",
     "react-dom": "19.3.0",

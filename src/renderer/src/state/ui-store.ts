@@ -4,6 +4,7 @@ import type { MeasureUnit } from '@shared/units';
 
 export type ThemePreference = 'system' | 'light' | 'dark';
 export type NavigationTab = 'headings' | 'find';
+export type BackstageSection = 'home' | 'print' | 'export';
 
 const THEME_KEY = 'openword.theme';
 const RULER_KEY = 'openword.rulers';
@@ -40,7 +41,9 @@ interface UiState {
   readonly replaceDialogOpen: boolean;
   readonly showRulers: boolean;
   readonly theme: ThemePreference;
+  readonly backstageSection: BackstageSection;
   setActiveTab(tab: RibbonTab): void;
+  setBackstageSection(section: BackstageSection): void;
   setNavigation(open: boolean, tab?: NavigationTab): void;
   setNavigationTab(tab: NavigationTab): void;
   setReplaceDialogOpen(open: boolean): void;
@@ -65,7 +68,11 @@ export const useUiStore = create<UiState>((set) => ({
   replaceDialogOpen: false,
   showRulers: readPref(RULER_KEY, ['on', 'off'], 'on') === 'on',
   theme: readPref(THEME_KEY, ['system', 'light', 'dark'], 'system'),
-  setActiveTab: (activeTab) => set({ activeTab }),
+  backstageSection: 'home',
+  // Al salir de la vista Archivo se vuelve a su sección inicial.
+  setActiveTab: (activeTab) =>
+    set((s) => ({ activeTab, backstageSection: activeTab === 'file' ? s.backstageSection : 'home' })),
+  setBackstageSection: (backstageSection) => set({ backstageSection }),
   setNavigation: (navigationOpen, tab) =>
     set((s) => ({ navigationOpen, navigationTab: tab ?? s.navigationTab })),
   setNavigationTab: (navigationTab) => set({ navigationTab }),

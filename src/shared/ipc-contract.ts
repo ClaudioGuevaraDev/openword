@@ -61,6 +61,21 @@ export type Unsubscribe = () => void;
 /** Comandos que llegan desde el menú nativo (macOS). */
 export type MenuCommand = 'undo' | 'redo';
 
+/** Resultado de preparar la impresión: el PDF para la vista previa y el trabajo vivo para imprimir. */
+export interface PrintJob {
+  readonly jobId: string;
+  readonly pdf: Uint8Array;
+  readonly pages: number;
+}
+
+/** Lo que la ventana de impresión informa al terminar de pintar. */
+export interface PrintRenderInfo {
+  readonly pages: number;
+  /** Tamaños de página distintos, en px CSS ("816x1056"). */
+  readonly sizes: readonly string[];
+  readonly measurer: string;
+}
+
 export interface OpenWordApi {
   readonly app: {
     info(): Promise<AppInfo>;
@@ -96,6 +111,18 @@ export interface OpenWordApi {
   readonly menu: {
     onCommand(listener: (command: MenuCommand) => void): Unsubscribe;
   };
+  readonly print: {
+    /** Pinta el documento en una ventana oculta y devuelve el PDF (vista previa). */
+    prepare(bytes: Uint8Array): Promise<PrintJob>;
+    /** Abre el diálogo de impresión del sistema para un trabajo preparado. */
+    print(jobId: string): Promise<{ readonly ok: boolean; readonly error?: string }>;
+    /** Guarda el PDF de un trabajo preparado (diálogo Guardar). */
+    savePdf(jobId: string): Promise<SaveResult>;
+    dispose(jobId: string): void;
+    /** Solo para la ventana de impresión: bytes a pintar y aviso de que terminó. */
+    sourceBytes(): Promise<Uint8Array>;
+    rendered(result: PrintRenderInfo | { readonly error: string }): void;
+  };
   readonly fonts: {
     families(): Promise<readonly string[]>;
     resolve(families: readonly string[]): Promise<readonly ResolvedFontFace[]>;
@@ -120,6 +147,12 @@ export const IpcChannel = {
   filePickImage: 'file:pick-image',
   clipboardRead: 'clipboard:read',
   menuCommand: 'menu:command',
+  printPrepare: 'print:prepare',
+  printPrint: 'print:print',
+  printSavePdf: 'print:save-pdf',
+  printDispose: 'print:dispose',
+  printSourceBytes: 'print:source-bytes',
+  printRendered: 'print:rendered',
   fontFamilies: 'fonts:families',
   fontResolve: 'fonts:resolve',
 } as const;

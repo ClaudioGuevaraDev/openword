@@ -75,3 +75,14 @@ export function openFind(): void {
 export function openReplace(): void {
   useUiStore.getState().setReplaceDialogOpen(true);
 }
+
+/** Bytes del documento tal como está ahora (sin guardarlo en disco). */
+export async function currentDocumentBytes(): Promise<Uint8Array | null> {
+  return currentEditor ? new Uint8Array(await currentEditor.save()) : null;
+}
+
+/** Ctrl+P: vista Archivo › Imprimir, como en Word. */
+export function openPrint(): void {
+  useUiStore.getState().setBackstageSection('print');
+  useUiStore.getState().setActiveTab('file');
+}

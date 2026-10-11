@@ -35,6 +35,10 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Pestaña Vista: regla (horizontal y vertical, en cm o pulgadas), panel de navegación con títulos y búsqueda, ¶.
   - Zoom: niveles, 100 %, una página y ancho de página. Tema claro, oscuro o del sistema (recordado entre sesiones).
   - Buscar (Ctrl/⌘+F) y Buscar y reemplazar (Ctrl+H, también en macOS), con coincidencia de mayúsculas y palabras completas.
+- **Hito 6 (Imprimir y PDF):**
+  - Archivo › Imprimir (Ctrl/⌘+P) con vista previa fiel (el mismo PDF, dibujado con pdf.js) y diálogo de impresión del sistema.
+  - Archivo › Exportar › Crear PDF.
+  - Todas las páginas, con tamaño y orientación por sección. No usa el conversor Pro del motor.
 - `.doc`, `.rtf` y `.odt` muestran un aviso: la conversión con LibreOffice llega en el hito 7.
 
 ## Limitaciones conocidas del motor (docx-editor 2.27)

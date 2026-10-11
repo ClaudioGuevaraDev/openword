@@ -36,7 +36,21 @@
     "saveAs": "Guardar como",
     "close": "Cerrar",
     "recent": "Recientes",
-    "noRecent": "Aún no has abierto documentos."
+    "noRecent": "Aún no has abierto documentos.",
+    "info": "Información",
+    "print": "Imprimir",
+    "export": "Exportar",
+    "printButton": "Imprimir",
+    "printHint": "Se abrirá el diálogo de impresión del sistema para elegir la impresora, las copias y las páginas.",
+    "printSent": "Documento enviado a la impresora.",
+    "printFailed": "No se pudo imprimir",
+    "pages_one": "{{count}} página",
+    "pages_other": "{{count}} páginas",
+    "preparing": "Preparando la vista previa…",
+    "exportPdfTitle": "Crear documento PDF",
+    "exportPdfHint": "Conserva el diseño, el formato y las fuentes: el PDF se ve igual en cualquier equipo.",
+    "exportPdfButton": "Crear PDF",
+    "exported": "Se guardó «{{name}}»."
   },
   "notices": {
     "macros": "Este documento contiene macros. OpenWord no las ejecuta, pero las conserva al guardar.",
