@@ -9,6 +9,7 @@ import { HomeTab } from './tabs/HomeTab';
 import { InsertTab } from './tabs/InsertTab';
 import { LayoutTab } from './tabs/LayoutTab';
 import { ReferencesTab } from './tabs/ReferencesTab';
+import { ViewTab } from './tabs/ViewTab';
 import styles from './Ribbon.module.css';
 
 const STANDARD_TABS: readonly RibbonTab[] = ['file', 'home', 'insert', 'layout', 'references', 'view'];
@@ -63,7 +64,7 @@ export function Ribbon() {
       case 'headerFooter':
         return <HeaderFooterTab />;
       case 'view':
-        return <span className={styles.comingSoon}>{t('ribbon.comingSoon')}</span>;
+        return <ViewTab />;
       default:
         return <HomeTab language={language} platform={platform} />;
     }

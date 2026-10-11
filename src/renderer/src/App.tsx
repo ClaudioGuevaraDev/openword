@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { blankDocumentBytes } from '@docx-editor.dev/core/editor';
 import type { AppInfo } from '@shared/ipc-contract';
 import { setBlankPaper } from '@shared/package-patch';
@@ -12,7 +12,25 @@ import { useUiStore } from './state/ui-store';
 import { StatusBar } from './statusbar/StatusBar';
 import styles from './App.module.css';
 
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const subscribeDark = (notify: () => void) => {
+  darkQuery.addEventListener('change', notify);
+  return () => darkQuery.removeEventListener('change', notify);
+};
+
+/** Tema efectivo: la preferencia de Vista › Tema o, en "Sistema", la del SO. */
+function useDarkMode(): boolean {
+  const theme = useUiStore((s) => s.theme);
+  const systemDark = useSyncExternalStore(subscribeDark, () => darkQuery.matches);
+  const dark = theme === 'dark' || (theme === 'system' && systemDark);
+  useEffect(() => {
+    document.documentElement.dataset['theme'] = dark ? 'dark' : 'light';
+  }, [dark]);
+  return dark;
+}
+
 export function App({ info }: { readonly info: AppInfo }) {
+  const dark = useDarkMode();
   const doc = useDocumentStore((s) => s.doc);
   const loadSeq = useDocumentStore((s) => s.loadSeq);
   const backstageOpen = useUiStore((s) => s.activeTab === 'file');
@@ -37,7 +55,9 @@ export function App({ info }: { readonly info: AppInfo }) {
   );
 
   return (
-    <div className={`docx-editor ${styles.app}`} data-testid="app">
+    // La clase "dark" activa también el modo oscuro del motor (invierte la vista de la página,
+    // sin cambiar los colores guardados).
+    <div className={`docx-editor ${dark ? 'dark' : ''} ${styles.app}`} data-testid="app">
       {doc && source && (
         <EditorHost
           key={`${doc.docId}:${loadSeq}`}

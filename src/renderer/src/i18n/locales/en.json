@@ -113,7 +113,9 @@
     },
     "editing": {
       "label": "Editing",
-      "selectAll": "Select all"
+      "selectAll": "Select all",
+      "find": "Find",
+      "replace": "Replace"
     }
   },
   "styles": {
@@ -302,5 +304,47 @@
       "label": "Close",
       "button": "Close Header and Footer"
     }
+  },
+  "view": {
+    "views": {
+      "label": "Views",
+      "printLayout": "Print Layout"
+    },
+    "show": {
+      "label": "Show",
+      "ruler": "Ruler",
+      "navigation": "Navigation Pane"
+    },
+    "zoom": {
+      "label": "Zoom",
+      "zoom": "Zoom",
+      "onePage": "One Page",
+      "pageWidth": "Page Width"
+    },
+    "theme": {
+      "label": "Theme",
+      "button": "Mode",
+      "system": "Use system setting",
+      "light": "Light",
+      "dark": "Dark"
+    }
+  },
+  "replace": {
+    "title": "Find and Replace",
+    "close": "Close",
+    "find": "Find what:",
+    "with": "Replace with:",
+    "matchCase": "Match case",
+    "wholeWord": "Find whole words only",
+    "replace": "Replace",
+    "replaceAll": "Replace All",
+    "findNext": "Find Next",
+    "notFound": "No matches found.",
+    "found_one": "{{count}} match",
+    "found_other": "{{count}} matches",
+    "done": "Finished searching the document.",
+    "replacedAll_one": "Made {{count}} replacement.",
+    "replacedAll_other": "Made {{count}} replacements.",
+    "failed": "Couldn't replace."
   }
 }

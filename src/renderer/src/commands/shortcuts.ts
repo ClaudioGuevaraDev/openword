@@ -3,6 +3,8 @@ import {
   closeWindow,
   newDocument,
   openDocument,
+  openFind,
+  openReplace,
   saveDocument,
   stepSelectionFont,
 } from '@renderer/editor/document-actions';
@@ -12,6 +14,13 @@ import { matchShortcut, type Platform } from './shortcut-map';
 export function installAppShortcuts(platform: Platform): () => void {
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.isComposing || e.defaultPrevented) return;
+    // Esc cierra el cuadro Buscar y reemplazar aunque el foco esté en el documento.
+    if (e.key === 'Escape' && useUiStore.getState().replaceDialogOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      useUiStore.getState().setReplaceDialogOpen(false);
+      return;
+    }
     const action = matchShortcut(e, platform, useUiStore.getState().activeTab === 'file');
     if (!action) return;
     e.preventDefault();
@@ -38,6 +47,12 @@ export function installAppShortcuts(platform: Platform): () => void {
         break;
       case 'shrinkFont':
         stepSelectionFont(-1);
+        break;
+      case 'find':
+        openFind();
+        break;
+      case 'replace':
+        openReplace();
         break;
       case 'backstageBack':
         break;

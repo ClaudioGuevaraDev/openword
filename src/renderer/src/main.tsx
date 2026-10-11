@@ -17,11 +17,6 @@ async function bootstrap(): Promise<void> {
       unitForRegion(info.region),
     );
 
-  const dark = window.matchMedia('(prefers-color-scheme: dark)');
-  const applyTheme = () => (document.documentElement.dataset['theme'] = dark.matches ? 'dark' : 'light');
-  applyTheme();
-  dark.addEventListener('change', applyTheme);
-
   const root = document.getElementById('root');
   if (!root) throw new Error('Falta #root');
   createRoot(root).render(

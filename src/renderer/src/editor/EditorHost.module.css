@@ -1,11 +1,34 @@
+.rulerRow {
+  display: flex;
+  flex: none;
+  justify-content: safe center;
+  min-height: 24px;
+  padding: 2px 0;
+  overflow: hidden;
+  background: var(--ow-bg-canvas);
+  border-bottom: 1px solid var(--ow-border);
+}
+
 .workspace {
   position: relative;
   display: flex;
   flex: 1;
+  align-items: stretch;
   min-height: 0;
   background: var(--ow-bg-canvas);
 }
 
 .viewport {
   flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Hija absoluta del contenedor con scroll: se desplaza con el documento. */
+.verticalRuler {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  z-index: 10;
+  pointer-events: none;
 }

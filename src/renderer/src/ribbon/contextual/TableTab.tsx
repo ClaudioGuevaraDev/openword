@@ -6,7 +6,6 @@ import {
   TableDismiss20Regular,
   TableInsertColumn20Regular,
   TableInsertRow20Regular,
-  TableSimple20Regular,
   PaintBucket20Regular,
 } from '@fluentui/react-icons';
 import type { EditorCommand } from '@docx-editor.dev/core';
@@ -96,13 +95,6 @@ export function TableTab() {
       </RibbonGroup>
       <RibbonGroup label={t('table.style.label')}>
         <RibbonStack>
-          <CommandButton
-            command={{ type: 'toggleHeaderRow' }}
-            toggle
-            icon={<TableSimple20Regular />}
-            label={t('table.style.headerRow')}
-            showLabel
-          />
           <MenuButton
             size="small"
             icon={<BorderAll20Regular />}

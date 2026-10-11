@@ -113,7 +113,9 @@
     },
     "editing": {
       "label": "Edición",
-      "selectAll": "Seleccionar todo"
+      "selectAll": "Seleccionar todo",
+      "find": "Buscar",
+      "replace": "Reemplazar"
     }
   },
   "styles": {
@@ -302,5 +304,47 @@
       "label": "Cerrar",
       "button": "Cerrar encabezado y pie de página"
     }
+  },
+  "view": {
+    "views": {
+      "label": "Vistas",
+      "printLayout": "Diseño de impresión"
+    },
+    "show": {
+      "label": "Mostrar",
+      "ruler": "Regla",
+      "navigation": "Panel de navegación"
+    },
+    "zoom": {
+      "label": "Zoom",
+      "zoom": "Zoom",
+      "onePage": "Una página",
+      "pageWidth": "Ancho de página"
+    },
+    "theme": {
+      "label": "Tema",
+      "button": "Modo",
+      "system": "Usar el del sistema",
+      "light": "Claro",
+      "dark": "Oscuro"
+    }
+  },
+  "replace": {
+    "title": "Buscar y reemplazar",
+    "close": "Cerrar",
+    "find": "Buscar:",
+    "with": "Reemplazar con:",
+    "matchCase": "Coincidir mayúsculas y minúsculas",
+    "wholeWord": "Solo palabras completas",
+    "replace": "Reemplazar",
+    "replaceAll": "Reemplazar todo",
+    "findNext": "Buscar siguiente",
+    "notFound": "No se encontraron coincidencias.",
+    "found_one": "{{count}} coincidencia",
+    "found_other": "{{count}} coincidencias",
+    "done": "Se terminó de buscar en el documento.",
+    "replacedAll_one": "Se realizó {{count}} reemplazo.",
+    "replacedAll_other": "Se realizaron {{count}} reemplazos.",
+    "failed": "No se pudo reemplazar."
   }
 }

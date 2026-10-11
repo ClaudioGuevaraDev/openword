@@ -1,11 +1,13 @@
 // Pestaña Inicio: Portapapeles, Fuente, Párrafo, Estilos y Edición.
 import {
+  ArrowSwap20Regular,
   Copy20Regular,
   Cut20Regular,
   FontDecrease20Regular,
   FontIncrease20Regular,
   Highlight20Regular,
   PaintBrush20Regular,
+  Search20Regular,
   SelectAllOn20Regular,
   TextAlignCenter20Regular,
   TextAlignJustify20Regular,
@@ -28,7 +30,7 @@ import {
 } from '@fluentui/react-icons';
 import { useTranslation } from 'react-i18next';
 import type { UiLanguage } from '@shared/ipc-contract';
-import { selectAll, stepSelectionFont } from '@renderer/editor/document-actions';
+import { openFind, openReplace, selectAll, stepSelectionFont } from '@renderer/editor/document-actions';
 import { useUiStore } from '@renderer/state/ui-store';
 import { FontColorButton, HighlightButton } from '../controls/ColorControls';
 import { CommandButton } from '../controls/CommandButton';
@@ -238,6 +240,22 @@ export function HomeTab({
 
       <RibbonGroup label={t('home.editing.label')}>
         <RibbonStack>
+          <RibbonButton
+            icon={<Search20Regular />}
+            label={t('home.editing.find')}
+            shortcut={k('Mod+F')}
+            showLabel
+            onClick={openFind}
+            testId="home-find"
+          />
+          <RibbonButton
+            icon={<ArrowSwap20Regular />}
+            label={t('home.editing.replace')}
+            shortcut={platform === 'darwin' ? '⌃H' : k('Mod+H')}
+            showLabel
+            onClick={openReplace}
+            testId="home-replace"
+          />
           <RibbonButton
             icon={<SelectAllOn20Regular />}
             label={t('home.editing.selectAll')}

@@ -10,6 +10,7 @@ import type { UiLanguage } from '@shared/ipc-contract';
 import { useUiStore } from '@renderer/state/ui-store';
 import { DocumentSession } from './DocumentSession';
 import { bundledFonts, systemFonts } from './fonts';
+import { ReplaceDialog } from './ReplaceDialog';
 import styles from './EditorHost.module.css';
 
 interface EditorHostProps {
@@ -27,10 +28,8 @@ interface EditorHostProps {
 export function EditorHost({ document, language, ribbon, notices, statusBar, isNew }: EditorHostProps) {
   // El primero gana: fuente real del sistema y, si no existe, el sustituto métrico.
   const fonts = useFonts(systemFonts, bundledFonts);
-  const paragraphDialogOpen = useUiStore((s) => s.paragraphDialogOpen);
-  const closeParagraphDialog = useUiStore((s) => s.closeParagraphDialog);
-  const pageSetupDialogOpen = useUiStore((s) => s.pageSetupDialogOpen);
-  const closePageSetupDialog = useUiStore((s) => s.closePageSetupDialog);
+  const ui = useUiStore();
+  const rulerUnit = ui.unit === 'in' ? 'inch' : 'cm';
 
   return (
     <LocaleProvider i18n={language === 'es' ? es : en}>
@@ -46,8 +45,25 @@ export function EditorHost({ document, language, ribbon, notices, statusBar, isN
         <DocumentSession isNew={isNew} />
         {ribbon}
         {notices}
+        {ui.showRulers && (
+          <div className={styles.rulerRow} data-testid="ruler">
+            <DocxEditor.HorizontalRuler unit={rulerUnit} />
+          </div>
+        )}
         <div className={styles.workspace}>
-          <DocxEditor.Viewport className={styles.viewport} data-testid="editor-viewport">
+          <DocxEditor.Navigation
+            open={ui.navigationOpen}
+            onOpenChange={(open) => ui.setNavigation(open)}
+            tab={ui.navigationTab}
+            onTabChange={ui.setNavigationTab}
+            paneWidth={280}
+          />
+          <DocxEditor.Viewport className={styles.viewport}>
+            {ui.showRulers && (
+              <div className={styles.verticalRuler}>
+                <DocxEditor.VerticalRuler unit={rulerUnit} />
+              </div>
+            )}
             {/* Una composición propia debe montar estas partes por nombre o no habrá UI
                 para editar encabezados, pies y notas. */}
             <DocxEditor.HeaderFooterChrome />
@@ -57,8 +73,9 @@ export function EditorHost({ document, language, ribbon, notices, statusBar, isN
             <DocxEditor.HyperLink />
           </DocxEditor.Viewport>
           <DocxEditor.Loading overlay />
-          <DocxEditor.ParagraphDialog open={paragraphDialogOpen} onClose={closeParagraphDialog} />
-          <DocxEditor.PageSetupDialog open={pageSetupDialogOpen} onClose={closePageSetupDialog} />
+          <DocxEditor.ParagraphDialog open={ui.paragraphDialogOpen} onClose={ui.closeParagraphDialog} />
+          <DocxEditor.PageSetupDialog open={ui.pageSetupDialogOpen} onClose={ui.closePageSetupDialog} />
+          <ReplaceDialog open={ui.replaceDialogOpen} onClose={() => ui.setReplaceDialogOpen(false)} />
         </div>
         {statusBar}
       </DocxEditor.Root>

@@ -31,7 +31,18 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Disposición: márgenes, orientación, tamaño, saltos de sección, sangrías y espaciado (cm o pulgadas según la región).
   - Referencias: tabla de contenido y notas al pie y al final.
   - Pestañas contextuales Tabla, Formato de imagen y Encabezado y pie de página.
+- **Hito 5 (Vista y búsqueda):**
+  - Pestaña Vista: regla (horizontal y vertical, en cm o pulgadas), panel de navegación con títulos y búsqueda, ¶.
+  - Zoom: niveles, 100 %, una página y ancho de página. Tema claro, oscuro o del sistema (recordado entre sesiones).
+  - Buscar (Ctrl/⌘+F) y Buscar y reemplazar (Ctrl+H, también en macOS), con coincidencia de mayúsculas y palabras completas.
 - `.doc`, `.rtf` y `.odt` muestran un aviso: la conversión con LibreOffice llega en el hito 7.
+
+## Limitaciones conocidas del motor (docx-editor 2.27)
+
+- Reemplazar: `replaceMatch`/`replaceAllMatches` no están implementados. OpenWord reemplaza seleccionando y escribiendo, así que cada reemplazo es un paso de Deshacer.
+- Tablas: no se pueden combinar ni dividir celdas, ni marcar la fila de encabezado (las existentes se conservan).
+- Imágenes: el ajuste de texto solo se cambia en imágenes flotantes, y una imagen insertada no queda seleccionada.
+- Control de cambios y comentarios: se muestran en su estado final y se conservan al guardar. Crearlos requiere la licencia Pro.
 
 ## Desarrollo
 

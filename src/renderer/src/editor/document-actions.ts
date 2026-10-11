@@ -2,6 +2,7 @@
 // la cinta, la vista Archivo, los atajos y el menú nativo solo llaman a estas funciones.
 import { commandForSlotValue, type DocxEditorInstance } from '@docx-editor.dev/core';
 import { stepFontSize } from '@shared/font-size';
+import { useUiStore } from '@renderer/state/ui-store';
 
 export type SaveMode = 'save' | 'saveAs';
 
@@ -62,4 +63,15 @@ export async function pasteFromClipboard(plainText = false): Promise<void> {
   editor.focus();
   if (plainText || !html) editor.exec({ type: 'pasteWithoutFormatting', text });
   else editor.exec({ type: 'paste', text, html });
+}
+
+/** Ctrl+F: panel de navegación en la pestaña de búsqueda (como Word). */
+export function openFind(): void {
+  useUiStore.getState().setReplaceDialogOpen(false);
+  useUiStore.getState().setNavigation(true, 'find');
+}
+
+/** Ctrl+H: cuadro Buscar y reemplazar. */
+export function openReplace(): void {
+  useUiStore.getState().setReplaceDialogOpen(true);
 }
