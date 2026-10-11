@@ -69,7 +69,7 @@ node node_modules/electron/install.js   # si npm bloqueó la descarga del binari
 npm run dev                              # app con recarga en caliente
 ```
 
-En Ubuntu 24.04 o superior, Chromium no puede usar su sandbox SUID fuera de un paquete instalado. Para desarrollar, ejecuta `npx electron-vite dev --noSandbox`. Los paquetes `.deb` lo resuelven al instalar.
+En Linux, `npm run dev` agrega `--noSandbox` automáticamente: Ubuntu 24.04 o superior no permite el sandbox SUID de Chromium fuera de un paquete instalado. Los paquetes `.deb` lo resuelven al instalar.
 
 | Comando                           | Qué hace                                              |
 | --------------------------------- | ----------------------------------------------------- |
