@@ -58,7 +58,8 @@
     "template": "Documento nuevo basado en una plantilla: al guardar se crea un documento aparte y la plantilla no cambia.",
     "dismiss": "Cerrar aviso",
     "converted": "Documento convertido con LibreOffice. Al guardarlo se creará un documento de Word (.docx); el archivo original no cambia.",
-    "recovered": "Documento recuperado tras un cierre inesperado. Guárdalo para conservar los cambios."
+    "recovered": "Documento recuperado tras un cierre inesperado. Guárdalo para conservar los cambios.",
+    "converting": "Convirtiendo el documento con LibreOffice… Puede tardar unos segundos."
   },
   "home": {
     "clipboard": {

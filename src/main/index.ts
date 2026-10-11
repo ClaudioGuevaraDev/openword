@@ -1,11 +1,12 @@
 import { app, BrowserWindow, session } from 'electron';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pickUiLanguage } from '@shared/locale';
 import { extractDocumentPaths } from './cli-args';
 import { RecentFiles } from './documents/recent';
 import { RecoveryStore } from './documents/recovery';
 import { SettingsStore } from './settings';
-import { convertToDocx } from './libreoffice/convert';
+import { conversionWorkRoot, convertToDocx } from './libreoffice/convert';
 import { findSoffice } from './libreoffice/detect';
 import { FontIndex } from './fonts/font-index';
 import { registerIpcHandlers } from './ipc';
@@ -75,7 +76,8 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
       recents,
       {
         find: () => findSoffice(),
-        convert: (soffice, path) => convertToDocx(soffice, path, join(app.getPath('userData'), 'conversion')),
+        convert: (soffice, path) =>
+          convertToDocx(soffice, path, conversionWorkRoot(soffice, homedir(), app.getPath('userData'))),
       },
       new RecoveryStore(join(app.getPath('userData'), 'recovery')),
       () => {

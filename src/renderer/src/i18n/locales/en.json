@@ -58,7 +58,8 @@
     "template": "New document based on a template: saving creates a separate document and leaves the template unchanged.",
     "dismiss": "Dismiss",
     "converted": "Converted with LibreOffice. Saving creates a Word document (.docx); the original file is unchanged.",
-    "recovered": "Recovered after an unexpected shutdown. Save it to keep your changes."
+    "recovered": "Recovered after an unexpected shutdown. Save it to keep your changes.",
+    "converting": "Converting the document with LibreOffice… This can take a few seconds."
   },
   "home": {
     "clipboard": {

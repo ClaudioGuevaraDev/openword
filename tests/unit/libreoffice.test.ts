@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ConversionError, convertToDocx } from '../../src/main/libreoffice/convert';
+import { conversionWorkRoot, ConversionError, convertToDocx } from '../../src/main/libreoffice/convert';
 import { findSoffice, sofficeCandidates, type DetectDeps } from '../../src/main/libreoffice/detect';
 
 const deps = (over: Partial<DetectDeps>): DetectDeps => ({
@@ -87,5 +87,32 @@ describe.skipIf(process.platform === 'win32')('convertToDocx (con un soffice sim
     await expect(convertToDocx(await fakeSoffice('exit 0'), input, join(dir, 'work'))).rejects.toThrow(
       'no generó',
     );
+  });
+});
+
+describe('conversionWorkRoot', () => {
+  it('snap y flatpak usan una carpeta que su sandbox puede leer', () => {
+    expect(conversionWorkRoot('/snap/bin/libreoffice', '/home/ana', '/home/ana/.config/OpenWord')).toBe(
+      join('/home/ana', 'snap', 'libreoffice', 'common', 'openword-conversion'),
+    );
+    expect(
+      conversionWorkRoot(
+        '/var/lib/flatpak/exports/bin/org.libreoffice.LibreOffice',
+        '/home/ana',
+        '/home/ana/.config/OpenWord',
+      ),
+    ).toBe(join('/home/ana', '.var', 'app', 'org.libreoffice.LibreOffice', 'cache', 'openword-conversion'));
+  });
+  it('una instalación normal usa userData', () => {
+    expect(conversionWorkRoot('/usr/bin/soffice', '/home/ana', '/home/ana/.config/OpenWord')).toBe(
+      join('/home/ana/.config/OpenWord', 'conversion'),
+    );
+    expect(
+      conversionWorkRoot(
+        'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+        'C:\\Users\\ana',
+        'C:\\data',
+      ),
+    ).toBe(join('C:\\data', 'conversion'));
   });
 });

@@ -6,7 +6,20 @@ import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const TIMEOUT_MS = 90_000;
+const TIMEOUT_MS = 120_000;
+
+/**
+ * Carpeta de trabajo que el LibreOffice instalado puede leer. Las versiones snap no ven /tmp
+ * ni las carpetas ocultas del home (como ~/.config, donde vive userData): usan su propio
+ * ~/snap/<nombre>/common. Flatpak, igual, con ~/.var/app/<id>/cache.
+ */
+export function conversionWorkRoot(soffice: string, home: string, userData: string): string {
+  const snap = /^\/snap\/bin\/([^/.]+)/.exec(soffice);
+  if (snap) return join(home, 'snap', snap[1]!, 'common', 'openword-conversion');
+  const flatpak = /exports\/bin\/([^/]+)$/.exec(soffice);
+  if (flatpak) return join(home, '.var', 'app', flatpak[1]!, 'cache', 'openword-conversion');
+  return join(userData, 'conversion');
+}
 
 export class ConversionError extends Error {}
 
@@ -29,7 +42,7 @@ export async function convertToDocx(
       '--nolockcheck',
       '--nodefault',
       '--nofirststartwizard',
-      `-env:UserInstallation=${pathToFileURL(join(dir, 'perfil')).href}`,
+      `-env:UserInstallation=${pathToFileURL(join(workRoot, 'perfil')).href}`,
       '--convert-to',
       'docx:MS Word 2007 XML',
       '--outdir',

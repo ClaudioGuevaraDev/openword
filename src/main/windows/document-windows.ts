@@ -196,21 +196,52 @@ export class DocumentWindows {
       if (response === 0) await shell.openExternal(LIBREOFFICE_DOWNLOAD);
       return;
     }
+    // La ventana aparece al instante con un aviso mientras LibreOffice convierte (puede tardar
+    // varios segundos, sobre todo la primera vez).
+    const displayName = `${basename(name, extname(name))}.docx`;
+    const waiting: LoadedDocument = {
+      docId: randomUUID(),
+      displayName: name,
+      bytes: null,
+      notices: ['converting'],
+    };
+    let record = this.findReusable(parent);
+    const created = !record;
+    if (record) this.loadInto(record, waiting, null, 'docx', false);
+    else record = this.fromWebContents(this.createWindow(waiting, null, 'docx', false, false).webContents);
+    if (!record) return;
+    record.win.setProgressBar(2); // indeterminada
+
     let bytes: Uint8Array;
     try {
       bytes = await this.converter.convert(soffice, path);
     } catch (error) {
+      if (!record.win.isDestroyed()) record.win.setProgressBar(-1);
       await this.warn(parent, `No se pudo convertir «${name}».`, (error as Error).message);
+      if (record.win.isDestroyed()) return;
+      if (created) record.win.destroy();
+      else
+        this.loadInto(
+          record,
+          { docId: randomUUID(), displayName: this.nextUntitledName(), bytes: null, notices: [] },
+          null,
+          'docx',
+          false,
+        );
       return;
     }
+    if (record.win.isDestroyed()) return; // el usuario cerró la ventana mientras esperaba
+    record.win.setProgressBar(-1);
     // Se abre como documento sin guardar: al guardar se pide el nombre (.docx) y el
     // archivo original no se toca.
-    const displayName = `${basename(name, extname(name))}.docx`;
-    const doc: LoadedDocument = { docId: randomUUID(), displayName, bytes, notices: ['converted'] };
     await this.recents.add(path);
-    const reusable = this.findReusable(parent);
-    if (reusable) this.loadInto(reusable, doc, null, 'docx', false);
-    else this.createWindow(doc, null, 'docx', false, false);
+    this.loadInto(
+      record,
+      { docId: randomUUID(), displayName, bytes, notices: ['converted'] },
+      null,
+      'docx',
+      false,
+    );
   }
 
   async openDialog(from?: BrowserWindow): Promise<void> {
@@ -314,7 +345,11 @@ export class DocumentWindows {
   setState(record: DocRecord, dirty: boolean, untouched: boolean): void {
     // Un documento recuperado sigue "con cambios" hasta que se guarde.
     record.dirty = dirty || (record.pending.notices.includes('recovered') && !record.savedOnce);
-    record.untouched = untouched && record.filePath === null && !record.fromTemplate;
+    record.untouched =
+      untouched &&
+      record.filePath === null &&
+      !record.fromTemplate &&
+      !record.pending.notices.includes('converting');
     this.updateTitle(record);
   }
 

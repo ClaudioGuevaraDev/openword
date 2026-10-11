@@ -28,7 +28,7 @@ export interface AppInfo {
 }
 
 /** Avisos que la ventana muestra en una barra sobre el documento. */
-export type DocumentNotice = 'macros' | 'template' | 'converted' | 'recovered';
+export type DocumentNotice = 'macros' | 'template' | 'converted' | 'recovered' | 'converting';
 
 /** Lo que una ventana debe mostrar. `bytes: null` significa documento nuevo en blanco. */
 export interface LoadedDocument {

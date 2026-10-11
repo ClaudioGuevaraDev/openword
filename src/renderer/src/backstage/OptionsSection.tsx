@@ -24,9 +24,13 @@ export function OptionsSection() {
   // Optimista: la interfaz cambia al momento; main valida, guarda y avisa a las demás ventanas.
   const update = (patch: SettingsPatch) => {
     const current = useSettingsStore.getState().settings;
-    useSettingsStore
-      .getState()
-      .set(mergeSettings(current, { ...current, ...patch, spellcheck: { ...current.spellcheck, ...(patch.spellcheck ?? {}) } }));
+    useSettingsStore.getState().set(
+      mergeSettings(current, {
+        ...current,
+        ...patch,
+        spellcheck: { ...current.spellcheck, ...(patch.spellcheck ?? {}) },
+      }),
+    );
     void window.openword.settings.update(patch);
   };
 
