@@ -1,5 +1,8 @@
 {
-  "app": { "untitled": "Documento{{n}}", "loading": "Abriendo documento…" },
+  "app": {
+    "untitled": "Documento{{n}}",
+    "loading": "Abriendo documento…"
+  },
   "tabs": {
     "file": "Archivo",
     "home": "Inicio",
@@ -8,12 +11,29 @@
     "references": "Referencias",
     "view": "Vista"
   },
-  "ribbon": { "comingSoon": "Las herramientas de esta pestaña llegan en los próximos hitos." },
+  "ribbon": {
+    "comingSoon": "Las herramientas de esta pestaña llegan en los próximos hitos."
+  },
   "status": {
     "page": "Página {{current}} de {{total}}",
     "words_one": "{{count}} palabra",
     "words_other": "{{count}} palabras",
     "zoom": "Zoom",
     "language": "Español"
+  },
+  "backstage": {
+    "back": "Volver al documento",
+    "new": "Nuevo",
+    "open": "Abrir",
+    "save": "Guardar",
+    "saveAs": "Guardar como",
+    "close": "Cerrar",
+    "recent": "Recientes",
+    "noRecent": "Aún no has abierto documentos."
+  },
+  "notices": {
+    "macros": "Este documento contiene macros. OpenWord no las ejecuta, pero las conserva al guardar.",
+    "template": "Documento nuevo basado en una plantilla: al guardar se crea un documento aparte y la plantilla no cambia.",
+    "dismiss": "Cerrar aviso"
   }
 }

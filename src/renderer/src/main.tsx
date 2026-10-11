@@ -17,7 +17,7 @@ async function bootstrap(): Promise<void> {
   if (!root) throw new Error('Falta #root');
   createRoot(root).render(
     <StrictMode>
-      <App language={info.uiLanguage} />
+      <App info={info} />
     </StrictMode>,
   );
 }

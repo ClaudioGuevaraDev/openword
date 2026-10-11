@@ -1,10 +1,88 @@
-import { _electron as electron, type ElectronApplication } from '@playwright/test';
-import { resolve } from 'node:path';
+import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
-/** Arranca el build de producción (out/) tal como lo vería el usuario. */
-export async function launchApp(extraArgs: string[] = []): Promise<ElectronApplication> {
-  const args = [resolve(__dirname, '../../out/main/index.js'), ...extraArgs];
+export const FIXTURES = resolve(__dirname, '../fixtures');
+export const MAIN_ENTRY = resolve(__dirname, '../../out/main/index.js');
+
+export function sandboxArgs(): string[] {
   // Ubuntu restringe el sandbox SUID de Chromium fuera de los paquetes instalados.
-  if (process.platform === 'linux') args.push('--no-sandbox');
-  return electron.launch({ args, env: { ...process.env, ELECTRON_ENABLE_LOGGING: '0' } });
+  return process.platform === 'linux' ? ['--no-sandbox'] : [];
+}
+
+/** Arranca el build de producción (out/) con una carpeta de datos propia. */
+export async function launchApp(
+  options: { args?: string[]; userData?: string } = {},
+): Promise<ElectronApplication & { userData: string }> {
+  const userData = options.userData ?? mkdtempSync(join(tmpdir(), 'ow-e2e-'));
+  const app = await electron.launch({
+    args: [MAIN_ENTRY, ...(options.args ?? []), ...sandboxArgs()],
+    env: { ...process.env, OPENWORD_USER_DATA: userData },
+  });
+  return Object.assign(app, { userData });
+}
+
+export async function waitForDocument(win: Page): Promise<void> {
+  await win.locator('.docx-page').first().waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export function windowTitles(app: ElectronApplication): Promise<string[]> {
+  return app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .map((w) => w.getTitle())
+      .sort(),
+  );
+}
+
+/** Respuestas simuladas para los diálogos nativos (no se pueden automatizar). */
+export async function mockDialogs(
+  app: ElectronApplication,
+  responses: { save?: string | null; open?: string[] | null; messageBox?: number[] },
+): Promise<void> {
+  await app.evaluate(({ dialog }, r) => {
+    const g = globalThis as unknown as { __owMessages: string[] };
+    g.__owMessages = [];
+    const box = [...(r.messageBox ?? [])];
+    dialog.showSaveDialog = (async () =>
+      r.save
+        ? { canceled: false, filePath: r.save }
+        : { canceled: true, filePath: '' }) as typeof dialog.showSaveDialog;
+    dialog.showOpenDialog = (async () =>
+      r.open
+        ? { canceled: false, filePaths: r.open }
+        : { canceled: true, filePaths: [] }) as typeof dialog.showOpenDialog;
+    dialog.showMessageBox = (async (...args: unknown[]) => {
+      const options = (args.length > 1 ? args[1] : args[0]) as { message: string };
+      g.__owMessages.push(options.message);
+      return { response: box.shift() ?? 0, checkboxChecked: false };
+    }) as typeof dialog.showMessageBox;
+  }, responses);
+}
+
+export function shownMessages(app: ElectronApplication): Promise<string[]> {
+  return app.evaluate(() => (globalThis as unknown as { __owMessages: string[] }).__owMessages ?? []);
+}
+
+/** Cierra sin preguntar (destruye las ventanas) y termina la app si sigue viva. */
+export async function closeAll(app: ElectronApplication): Promise<void> {
+  try {
+    const proc = app.process();
+    if (proc.exitCode !== null || proc.signalCode !== null) return;
+  } catch {
+    return; // Playwright ya liberó la app
+  }
+  try {
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach((w) => w.destroy()));
+  } catch {
+    // La app ya terminó.
+  }
+  const closed = await Promise.race([
+    app.close().then(() => true, () => true),
+    new Promise<false>((resolve) => setTimeout(() => resolve(false), 10_000)),
+  ]);
+  if (!closed) {
+    console.warn('[e2e] la app no terminó en 10 s tras cerrar sus ventanas: se mata el proceso');
+    app.process().kill('SIGKILL');
+  }
 }

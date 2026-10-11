@@ -3,14 +3,14 @@ import { join } from 'node:path';
 import { APP_ORIGIN } from './protocol';
 import { hardenWebContents } from './security';
 
-export function createDocumentWindow(devServerUrl: string | undefined): BrowserWindow {
+export function createDocumentWindow(devServerUrl: string | undefined, title: string): BrowserWindow {
   const win = new BrowserWindow({
     width: 1280,
     height: 900,
     minWidth: 720,
     minHeight: 480,
     show: false,
-    title: 'Documento1 - OpenWord',
+    title,
     backgroundColor: '#f3f3f3',
     webPreferences: {
       preload: join(__dirname, '../preload/index.cjs'),

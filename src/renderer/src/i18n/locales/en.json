@@ -1,5 +1,8 @@
 {
-  "app": { "untitled": "Document{{n}}", "loading": "Opening document…" },
+  "app": {
+    "untitled": "Document{{n}}",
+    "loading": "Opening document…"
+  },
   "tabs": {
     "file": "File",
     "home": "Home",
@@ -8,12 +11,29 @@
     "references": "References",
     "view": "View"
   },
-  "ribbon": { "comingSoon": "This tab's tools arrive in upcoming milestones." },
+  "ribbon": {
+    "comingSoon": "This tab's tools arrive in upcoming milestones."
+  },
   "status": {
     "page": "Page {{current}} of {{total}}",
     "words_one": "{{count}} word",
     "words_other": "{{count}} words",
     "zoom": "Zoom",
     "language": "English"
+  },
+  "backstage": {
+    "back": "Back to document",
+    "new": "New",
+    "open": "Open",
+    "save": "Save",
+    "saveAs": "Save As",
+    "close": "Close",
+    "recent": "Recent",
+    "noRecent": "You haven't opened any documents yet."
+  },
+  "notices": {
+    "macros": "This document contains macros. OpenWord never runs them, but keeps them when saving.",
+    "template": "New document based on a template: saving creates a separate document and leaves the template unchanged.",
+    "dismiss": "Dismiss"
   }
 }

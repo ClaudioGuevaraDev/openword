@@ -7,7 +7,8 @@ import { en } from '@docx-editor.dev/i18n/en';
 import type { DocumentSource } from '@docx-editor.dev/core';
 import '@docx-editor.dev/core/styles/editor.css';
 import type { UiLanguage } from '@shared/ipc-contract';
-import { bundledFonts } from './fonts';
+import { DocumentSession } from './DocumentSession';
+import { bundledFonts, systemFonts } from './fonts';
 import styles from './EditorHost.module.css';
 
 interface EditorHostProps {
@@ -15,11 +16,16 @@ interface EditorHostProps {
   readonly language: UiLanguage;
   /** Cinta de opciones: va dentro de Root para poder usar los hooks del motor. */
   readonly ribbon: ReactNode;
+  /** Barra de avisos bajo la cinta (macros, plantilla, errores). */
+  readonly notices: ReactNode;
   readonly statusBar: ReactNode;
+  /** Documento nuevo en blanco (puede reutilizarse para abrir un archivo). */
+  readonly isNew: boolean;
 }
 
-export function EditorHost({ document, language, ribbon, statusBar }: EditorHostProps) {
-  const fonts = useFonts(bundledFonts);
+export function EditorHost({ document, language, ribbon, notices, statusBar, isNew }: EditorHostProps) {
+  // El primero gana: fuente real del sistema y, si no existe, el sustituto métrico.
+  const fonts = useFonts(systemFonts, bundledFonts);
 
   return (
     <LocaleProvider i18n={language === 'es' ? es : en}>
@@ -32,7 +38,9 @@ export function EditorHost({ document, language, ribbon, statusBar }: EditorHost
         locale={language === 'es' ? 'es-ES' : 'en-US'}
         onFontError={(error) => console.warn(`[fuentes] ${error.code}: ${error.message}`)}
       >
+        <DocumentSession isNew={isNew} />
         {ribbon}
+        {notices}
         <div className={styles.workspace}>
           <DocxEditor.Viewport className={styles.viewport} data-testid="editor-viewport">
             {/* Una composición propia debe montar estas partes por nombre o no habrá UI

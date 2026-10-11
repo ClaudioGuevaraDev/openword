@@ -1,10 +1,41 @@
 // Puente mínimo y tipado entre el renderer (sin Node) y main. Nada de ipcRenderer crudo.
-import { contextBridge, ipcRenderer } from 'electron';
-import { IpcChannel, type OpenWordApi } from '@shared/ipc-contract';
+import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
+import { IpcChannel, type LoadedDocument, type OpenWordApi } from '@shared/ipc-contract';
+
+function subscribe<T extends unknown[]>(channel: string, listener: (...args: T) => void): () => void {
+  const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...(args as T));
+  ipcRenderer.on(channel, wrapped);
+  return () => ipcRenderer.removeListener(channel, wrapped);
+}
 
 const api: OpenWordApi = {
   app: {
     info: () => ipcRenderer.invoke(IpcChannel.appInfo),
+  },
+  doc: {
+    current: () => ipcRenderer.invoke(IpcChannel.docCurrent),
+    onReplaced: (listener) => subscribe<[LoadedDocument]>(IpcChannel.docReplaced, listener),
+    setState: (state) =>
+      ipcRenderer.send(IpcChannel.docSetState, { dirty: state.dirty, untouched: state.untouched }),
+    save: (bytes) => ipcRenderer.invoke(IpcChannel.docSave, bytes),
+    saveAs: (bytes) => ipcRenderer.invoke(IpcChannel.docSaveAs, bytes),
+    onSaveRequest: (listener) => subscribe<[string]>(IpcChannel.docSaveRequest, listener),
+    answerSaveRequest: (requestId, saved) => ipcRenderer.send(IpcChannel.docSaveAnswer, requestId, saved),
+  },
+  file: {
+    newDocument: () => ipcRenderer.send(IpcChannel.fileNew),
+    openDialog: () => ipcRenderer.invoke(IpcChannel.fileOpenDialog),
+    openRecent: (path) => ipcRenderer.invoke(IpcChannel.fileOpenRecent, path),
+    openDropped: (files) => {
+      const paths = files.map((file) => webUtils.getPathForFile(file)).filter((path) => path !== '');
+      return ipcRenderer.invoke(IpcChannel.fileOpenPaths, paths);
+    },
+    recent: () => ipcRenderer.invoke(IpcChannel.fileRecent),
+    closeWindow: () => ipcRenderer.send(IpcChannel.fileClose),
+  },
+  fonts: {
+    families: () => ipcRenderer.invoke(IpcChannel.fontFamilies),
+    resolve: (families) => ipcRenderer.invoke(IpcChannel.fontResolve, [...families]),
   },
 };
 

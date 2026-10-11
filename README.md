@@ -8,6 +8,20 @@ Procesador de textos de escritorio compatible con Microsoft Word, para Windows, 
 
 El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE.md).
 
+## Estado
+
+- **Hito 0 (spike):** completado en Linux.
+- **Hito 1 (base):** proyecto, seguridad, CI y empaquetado.
+- **Hito 2 (documentos):**
+  - Abrir, Nuevo, Guardar (atómico) y Guardar como. Detección de formato por contenido.
+  - Plantillas `.dotx`/`.dotm` y `.docm`: las macros se conservan y nunca se ejecutan.
+  - Una ventana por documento. "Documento1" se reutiliza al abrir. Instancia única.
+  - Apertura de archivos desde la línea de comandos, con arrastrar y soltar, y con `open-file` en macOS. Documentos recientes.
+  - Aviso Guardar / No guardar / Cancelar al cerrar y al salir.
+  - Papel Carta o A4 según la región.
+  - Fuentes reales del sistema para la medición, con sustitutos OFL.
+- `.doc`, `.rtf` y `.odt` muestran un aviso: la conversión con LibreOffice llega en el hito 7.
+
 ## Desarrollo
 
 Requisitos: Node 22.12 o superior (se recomienda Node 24).
