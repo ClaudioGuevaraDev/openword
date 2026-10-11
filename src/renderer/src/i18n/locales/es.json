@@ -9,7 +9,10 @@
     "insert": "Insertar",
     "layout": "Disposición",
     "references": "Referencias",
-    "view": "Vista"
+    "view": "Vista",
+    "table": "Tabla",
+    "picture": "Formato de imagen",
+    "headerFooter": "Encabezado y pie de página"
   },
   "ribbon": {
     "label": "Cinta de opciones",
@@ -130,5 +133,174 @@
     "Caption": "Descripción",
     "Header": "Encabezado",
     "Footer": "Pie de página"
+  },
+  "insert": {
+    "pages": {
+      "label": "Páginas",
+      "pageBreak": "Salto de página"
+    },
+    "table": {
+      "label": "Tablas",
+      "button": "Tabla",
+      "title": "Insertar tabla",
+      "size": "Tabla de {{cols}} × {{rows}}"
+    },
+    "illustrations": {
+      "label": "Ilustraciones",
+      "image": "Imágenes"
+    },
+    "links": {
+      "label": "Vínculos",
+      "link": "Vínculo"
+    },
+    "headerFooter": {
+      "label": "Encabezado y pie de página",
+      "header": "Encabezado",
+      "footer": "Pie de página",
+      "pageNumber": "Número de página",
+      "pageTop": "Principio de página",
+      "pageBottom": "Final de página",
+      "pageXofY": "Página X de Y"
+    },
+    "text": {
+      "label": "Texto",
+      "textBox": "Cuadro de texto"
+    }
+  },
+  "layout": {
+    "pageSetup": {
+      "label": "Configurar página",
+      "dialog": "Configurar página"
+    },
+    "margins": {
+      "label": "Márgenes",
+      "normal": "Normal",
+      "normalUs": "Normal (EE. UU.)",
+      "narrow": "Estrecho",
+      "moderate": "Moderado",
+      "wide": "Ancho",
+      "custom": "Márgenes personalizados…",
+      "detail": "Sup.: {{top}}  Inf.: {{bottom}}  Izq.: {{left}}  Der.: {{right}}"
+    },
+    "orientation": {
+      "label": "Orientación",
+      "portrait": "Vertical",
+      "landscape": "Horizontal"
+    },
+    "size": {
+      "label": "Tamaño",
+      "letter": "Carta",
+      "legal": "Oficio",
+      "a4": "A4",
+      "a5": "A5",
+      "executive": "Ejecutivo",
+      "b5": "B5 (JIS)",
+      "more": "Más tamaños de papel…"
+    },
+    "breaks": {
+      "label": "Saltos",
+      "page": "Página",
+      "pageDetail": "Marca el punto donde termina una página y comienza la siguiente.",
+      "nextPage": "Página siguiente",
+      "nextPageDetail": "Inserta un salto de sección y comienza la nueva sección en la página siguiente.",
+      "continuous": "Continua",
+      "continuousDetail": "Inserta un salto de sección y comienza la nueva sección en la misma página."
+    },
+    "paragraph": {
+      "label": "Párrafo",
+      "indent": "Sangría",
+      "left": "Izquierda",
+      "right": "Derecha",
+      "spacing": "Espaciado",
+      "before": "Antes",
+      "after": "Después"
+    }
+  },
+  "references": {
+    "toc": {
+      "label": "Tabla de contenido",
+      "insert": "Tabla de contenido",
+      "update": "Actualizar tabla",
+      "updateTooltip": "Actualiza la tabla de contenido para que muestre los títulos y números de página actuales"
+    },
+    "notes": {
+      "label": "Notas al pie",
+      "footnote": "Insertar nota al pie",
+      "endnote": "Insertar nota al final"
+    }
+  },
+  "table": {
+    "rowsCols": {
+      "label": "Filas y columnas",
+      "rowAbove": "Insertar arriba",
+      "rowBelow": "Insertar debajo",
+      "colLeft": "Insertar a la izquierda",
+      "colRight": "Insertar a la derecha",
+      "deleteRow": "Eliminar fila",
+      "deleteCol": "Eliminar columna",
+      "deleteTable": "Eliminar tabla"
+    },
+    "style": {
+      "label": "Estilo de tabla",
+      "headerRow": "Fila de encabezado",
+      "borders": "Bordes",
+      "bordersAll": "Todos los bordes",
+      "bordersOutside": "Bordes externos",
+      "bordersInside": "Bordes internos",
+      "bordersNone": "Sin borde",
+      "shading": "Sombreado"
+    },
+    "shades": {
+      "none": "Sin color",
+      "lightGray": "Gris claro",
+      "gray": "Gris",
+      "lightBlue": "Azul claro",
+      "blue": "Azul",
+      "lightGreen": "Verde claro",
+      "yellow": "Amarillo claro"
+    }
+  },
+  "picture": {
+    "arrange": {
+      "label": "Organizar",
+      "wrap": "Ajustar texto",
+      "rotateRight": "Girar 90° a la derecha",
+      "rotateLeft": "Girar 90° a la izquierda",
+      "flipH": "Voltear horizontalmente",
+      "flipV": "Voltear verticalmente"
+    },
+    "wrap": {
+      "inline": "En línea con el texto",
+      "square": "Cuadrado",
+      "tight": "Estrecho",
+      "through": "Transparente",
+      "topAndBottom": "Arriba y abajo",
+      "behind": "Detrás del texto",
+      "inFront": "Delante del texto",
+      "inlineOnly": "por ahora solo se puede cambiar en imágenes flotantes"
+    },
+    "size": {
+      "label": "Tamaño y accesibilidad",
+      "properties": "Tamaño y posición…",
+      "altText": "Texto alternativo",
+      "altTextPrompt": "Describe la imagen para personas con discapacidad visual:",
+      "apply": "Aplicar"
+    }
+  },
+  "headerFooter": {
+    "insert": {
+      "label": "Insertar",
+      "page": "Número de página actual",
+      "total": "Número total de páginas"
+    },
+    "options": {
+      "label": "Opciones",
+      "firstPage": "Primera página diferente",
+      "evenOdd": "Páginas pares e impares diferentes"
+    },
+    "close": {
+      "label": "Cerrar",
+      "button": "Cerrar encabezado y pie de página"
+    }
   }
 }

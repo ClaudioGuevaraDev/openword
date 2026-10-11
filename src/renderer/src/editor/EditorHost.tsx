@@ -29,6 +29,8 @@ export function EditorHost({ document, language, ribbon, notices, statusBar, isN
   const fonts = useFonts(systemFonts, bundledFonts);
   const paragraphDialogOpen = useUiStore((s) => s.paragraphDialogOpen);
   const closeParagraphDialog = useUiStore((s) => s.closeParagraphDialog);
+  const pageSetupDialogOpen = useUiStore((s) => s.pageSetupDialogOpen);
+  const closePageSetupDialog = useUiStore((s) => s.closePageSetupDialog);
 
   return (
     <LocaleProvider i18n={language === 'es' ? es : en}>
@@ -56,6 +58,7 @@ export function EditorHost({ document, language, ribbon, notices, statusBar, isN
           </DocxEditor.Viewport>
           <DocxEditor.Loading overlay />
           <DocxEditor.ParagraphDialog open={paragraphDialogOpen} onClose={closeParagraphDialog} />
+          <DocxEditor.PageSetupDialog open={pageSetupDialogOpen} onClose={closePageSetupDialog} />
         </div>
         {statusBar}
       </DocxEditor.Root>

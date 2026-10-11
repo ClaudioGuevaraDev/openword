@@ -32,6 +32,7 @@ const api: OpenWordApi = {
     },
     recent: () => ipcRenderer.invoke(IpcChannel.fileRecent),
     closeWindow: () => ipcRenderer.send(IpcChannel.fileClose),
+    pickImage: () => ipcRenderer.invoke(IpcChannel.filePickImage),
   },
   clipboard: {
     read: () => ipcRenderer.invoke(IpcChannel.clipboardRead),

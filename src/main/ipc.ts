@@ -1,4 +1,14 @@
-import { app, BrowserWindow, clipboard, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  ipcMain,
+  type IpcMainEvent,
+  type IpcMainInvokeEvent,
+} from 'electron';
+import { readFile, stat } from 'node:fs/promises';
+import { basename } from 'node:path';
 import { z } from 'zod';
 import { IpcChannel, type AppInfo, type LoadedDocument } from '@shared/ipc-contract';
 import { defaultPaper, pickRegion, pickUiLanguage } from '@shared/locale';
@@ -96,6 +106,26 @@ export function registerIpcHandlers({ devServerUrl, windows, recents, fonts }: S
   ipcMain.on(IpcChannel.fileClose, (event) => {
     trusted(event);
     windowOf(event)?.close();
+  });
+
+  ipcMain.handle(IpcChannel.filePickImage, async (event) => {
+    trusted(event);
+    const win = windowOf(event);
+    const options: Electron.OpenDialogOptions = {
+      title: 'Insertar imagen',
+      properties: ['openFile'],
+      filters: [{ name: 'Imágenes', extensions: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg'] }],
+    };
+    const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
+    const path = result.filePaths[0];
+    if (result.canceled || !path) return null;
+    const info = await stat(path);
+    if (info.size > 50 * 1024 * 1024) throw new Error('La imagen supera 50 MB.');
+    const buffer = await readFile(path);
+    return {
+      name: basename(path),
+      bytes: new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+    };
   });
 
   // ----- portapapeles (botón Pegar de la cinta) -----

@@ -502,3 +502,96 @@
   padding: 2px 0;
   white-space: nowrap;
 }
+
+/* ---------- menús con detalle, cuadrícula de tabla y campos ---------- */
+
+.menuText {
+  display: flex;
+  flex-direction: column;
+}
+
+.menuDetail {
+  font-size: 11px;
+  color: var(--ow-fg-muted);
+}
+
+.tableGrid {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  gap: 2px;
+}
+
+.tableCell {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--ow-border);
+  background: var(--ow-bg-input);
+  cursor: pointer;
+}
+
+.tableCellOn {
+  border-color: var(--ow-accent);
+  background: var(--ow-pressed);
+}
+
+.measure {
+  display: grid;
+  grid-template-columns: 82px 64px;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.measureLabel {
+  color: var(--ow-fg);
+}
+
+.measureInput {
+  height: 22px;
+  padding: 0 4px;
+  border: 1px solid var(--ow-border);
+  border-radius: 3px;
+  font: inherit;
+  color: var(--ow-fg);
+  background: var(--ow-bg-input);
+}
+
+.measureInput:focus {
+  outline: none;
+  border-color: var(--ow-accent);
+}
+
+.altText {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 4px;
+  border: 1px solid var(--ow-border);
+  border-radius: 3px;
+  font: inherit;
+  color: var(--ow-fg);
+  background: var(--ow-bg-input);
+  resize: vertical;
+}
+
+.contextTab {
+  color: #fff3c4;
+}
+
+.tab.contextTab[aria-selected='true'] {
+  color: #8a5a00;
+}
+
+:root[data-theme='dark'] .tab.contextTab[aria-selected='true'] {
+  color: #f0c060;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}

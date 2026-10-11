@@ -26,6 +26,11 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Párrafo: viñetas, numeración, sangrías, alineación, interlineado, diálogo Párrafo y ¶.
   - Galería de estilos con nombres localizados y Seleccionar todo.
   - Atajos de Word. Barra de estado con páginas, palabras y zoom. Deshacer/Rehacer del menú de macOS conectados al motor.
+- **Hito 4 (Insertar, Disposición, Referencias):**
+  - Insertar: salto de página, tabla (cuadrícula), imágenes (BMP, WebP y SVG se convierten a PNG), vínculo, encabezado, pie, número de página y cuadro de texto.
+  - Disposición: márgenes, orientación, tamaño, saltos de sección, sangrías y espaciado (cm o pulgadas según la región).
+  - Referencias: tabla de contenido y notas al pie y al final.
+  - Pestañas contextuales Tabla, Formato de imagen y Encabezado y pie de página.
 - `.doc`, `.rtf` y `.odt` muestran un aviso: la conversión con LibreOffice llega en el hito 7.
 
 ## Desarrollo

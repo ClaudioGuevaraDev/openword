@@ -9,7 +9,10 @@
     "insert": "Insert",
     "layout": "Layout",
     "references": "References",
-    "view": "View"
+    "view": "View",
+    "table": "Table",
+    "picture": "Picture Format",
+    "headerFooter": "Header & Footer"
   },
   "ribbon": {
     "label": "Ribbon",
@@ -130,5 +133,174 @@
     "Caption": "Caption",
     "Header": "Header",
     "Footer": "Footer"
+  },
+  "insert": {
+    "pages": {
+      "label": "Pages",
+      "pageBreak": "Page Break"
+    },
+    "table": {
+      "label": "Tables",
+      "button": "Table",
+      "title": "Insert table",
+      "size": "{{cols}} × {{rows}} table"
+    },
+    "illustrations": {
+      "label": "Illustrations",
+      "image": "Pictures"
+    },
+    "links": {
+      "label": "Links",
+      "link": "Link"
+    },
+    "headerFooter": {
+      "label": "Header & Footer",
+      "header": "Header",
+      "footer": "Footer",
+      "pageNumber": "Page Number",
+      "pageTop": "Top of page",
+      "pageBottom": "Bottom of page",
+      "pageXofY": "Page X of Y"
+    },
+    "text": {
+      "label": "Text",
+      "textBox": "Text Box"
+    }
+  },
+  "layout": {
+    "pageSetup": {
+      "label": "Page Setup",
+      "dialog": "Page Setup"
+    },
+    "margins": {
+      "label": "Margins",
+      "normal": "Normal (metric)",
+      "normalUs": "Normal",
+      "narrow": "Narrow",
+      "moderate": "Moderate",
+      "wide": "Wide",
+      "custom": "Custom margins…",
+      "detail": "Top: {{top}}  Bottom: {{bottom}}  Left: {{left}}  Right: {{right}}"
+    },
+    "orientation": {
+      "label": "Orientation",
+      "portrait": "Portrait",
+      "landscape": "Landscape"
+    },
+    "size": {
+      "label": "Size",
+      "letter": "Letter",
+      "legal": "Legal",
+      "a4": "A4",
+      "a5": "A5",
+      "executive": "Executive",
+      "b5": "B5 (JIS)",
+      "more": "More paper sizes…"
+    },
+    "breaks": {
+      "label": "Breaks",
+      "page": "Page",
+      "pageDetail": "Mark the point at which one page ends and the next page begins.",
+      "nextPage": "Next Page",
+      "nextPageDetail": "Insert a section break and start the new section on the next page.",
+      "continuous": "Continuous",
+      "continuousDetail": "Insert a section break and start the new section on the same page."
+    },
+    "paragraph": {
+      "label": "Paragraph",
+      "indent": "Indent",
+      "left": "Left",
+      "right": "Right",
+      "spacing": "Spacing",
+      "before": "Before",
+      "after": "After"
+    }
+  },
+  "references": {
+    "toc": {
+      "label": "Table of Contents",
+      "insert": "Table of Contents",
+      "update": "Update Table",
+      "updateTooltip": "Update the table of contents so that all the entries refer to the correct page numbers"
+    },
+    "notes": {
+      "label": "Footnotes",
+      "footnote": "Insert Footnote",
+      "endnote": "Insert Endnote"
+    }
+  },
+  "table": {
+    "rowsCols": {
+      "label": "Rows & Columns",
+      "rowAbove": "Insert Above",
+      "rowBelow": "Insert Below",
+      "colLeft": "Insert Left",
+      "colRight": "Insert Right",
+      "deleteRow": "Delete Row",
+      "deleteCol": "Delete Column",
+      "deleteTable": "Delete Table"
+    },
+    "style": {
+      "label": "Table Style",
+      "headerRow": "Header Row",
+      "borders": "Borders",
+      "bordersAll": "All Borders",
+      "bordersOutside": "Outside Borders",
+      "bordersInside": "Inside Borders",
+      "bordersNone": "No Border",
+      "shading": "Shading"
+    },
+    "shades": {
+      "none": "No Color",
+      "lightGray": "Light gray",
+      "gray": "Gray",
+      "lightBlue": "Light blue",
+      "blue": "Blue",
+      "lightGreen": "Light green",
+      "yellow": "Light yellow"
+    }
+  },
+  "picture": {
+    "arrange": {
+      "label": "Arrange",
+      "wrap": "Wrap Text",
+      "rotateRight": "Rotate Right 90°",
+      "rotateLeft": "Rotate Left 90°",
+      "flipH": "Flip Horizontal",
+      "flipV": "Flip Vertical"
+    },
+    "wrap": {
+      "inline": "In Line with Text",
+      "square": "Square",
+      "tight": "Tight",
+      "through": "Through",
+      "topAndBottom": "Top and Bottom",
+      "behind": "Behind Text",
+      "inFront": "In Front of Text",
+      "inlineOnly": "currently available for floating pictures only"
+    },
+    "size": {
+      "label": "Size & Accessibility",
+      "properties": "Size and Position…",
+      "altText": "Alt Text",
+      "altTextPrompt": "Describe the picture for people who are blind or have low vision:",
+      "apply": "Apply"
+    }
+  },
+  "headerFooter": {
+    "insert": {
+      "label": "Insert",
+      "page": "Current page number",
+      "total": "Total number of pages"
+    },
+    "options": {
+      "label": "Options",
+      "firstPage": "Different First Page",
+      "evenOdd": "Different Odd & Even Pages"
+    },
+    "close": {
+      "label": "Close",
+      "button": "Close Header and Footer"
+    }
   }
 }

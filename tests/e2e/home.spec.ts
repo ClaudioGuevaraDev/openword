@@ -38,7 +38,10 @@ async function savedXml(): Promise<string> {
 
 async function typeAndSelectAll(text: string): Promise<void> {
   await win.keyboard.type(text);
+  // Esperar a que el motor procese lo tecleado antes de seleccionar.
+  await expect(win.locator('.docx-page').first()).toContainText(text);
   await win.keyboard.press(`${mod}+a`);
+  await expect.poll(() => win.evaluate(() => window.getSelection()?.toString() ?? '')).toContain(text);
 }
 
 test('negrita, cursiva y centrar desde la cinta reflejan el estado y se guardan', async () => {

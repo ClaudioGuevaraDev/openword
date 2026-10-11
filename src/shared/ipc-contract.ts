@@ -86,6 +86,8 @@ export interface OpenWordApi {
     openDropped(files: readonly File[]): Promise<void>;
     recent(): Promise<readonly RecentFile[]>;
     closeWindow(): void;
+    /** Diálogo para elegir una imagen a insertar (null si se cancela). */
+    pickImage(): Promise<{ readonly name: string; readonly bytes: Uint8Array } | null>;
   };
   readonly clipboard: {
     /** Lee el portapapeles del sistema (para el botón Pegar de la cinta). */
@@ -115,6 +117,7 @@ export const IpcChannel = {
   fileOpenPaths: 'file:open-paths',
   fileRecent: 'file:recent',
   fileClose: 'file:close',
+  filePickImage: 'file:pick-image',
   clipboardRead: 'clipboard:read',
   menuCommand: 'menu:command',
   fontFamilies: 'fonts:families',
