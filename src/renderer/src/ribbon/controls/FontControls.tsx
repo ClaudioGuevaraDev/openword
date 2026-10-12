@@ -58,7 +58,7 @@ export function FontSizeBox({ language }: { readonly language: 'es' | 'en' }) {
     <ComboBox
       label={t('home.font.size')}
       testId="font-size"
-      width={56}
+      width={62}
       filter={false}
       value={size.value === null ? '' : formatFontSize(size.value / 2, language)}
       options={options}
