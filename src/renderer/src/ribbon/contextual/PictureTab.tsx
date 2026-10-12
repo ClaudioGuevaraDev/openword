@@ -100,6 +100,7 @@ export function PictureTab() {
           disabledReason={inline ? t('picture.wrap.inlineOnly') : wrap.disabledReason}
           testId="image-wrap"
           entries={WRAPS.map((target) => ({
+            kind: 'option' as const,
             id: target,
             label: t(`picture.wrap.${target}`),
             checked: wrap.value === target,

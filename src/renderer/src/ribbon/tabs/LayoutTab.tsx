@@ -61,6 +61,7 @@ export function LayoutTab({
         left: fmt(m.left),
         right: fmt(m.right),
       }),
+      kind: 'option' as const,
       checked:
         !!margins &&
         near(margins.top, m.top) &&
@@ -86,6 +87,7 @@ export function LayoutTab({
       id: key,
       label: t(`layout.size.${key}`),
       detail: `${fmt(size.width)} × ${fmt(size.height)}`,
+      kind: 'option' as const,
       checked: near(portraitWidth, size.width) && near(portraitHeight, size.height),
       onSelect: () =>
         apply({
@@ -116,11 +118,11 @@ export function LayoutTab({
           testId="layout-margins"
           entries={[
             ...marginEntries,
+            { kind: 'separator', id: 'custom-separator' },
             {
+              kind: 'dialog',
               id: 'custom',
               label: t('layout.margins.custom'),
-              separatorBefore: true,
-              opensDialog: true,
               onSelect: openPageSetupDialog,
             },
           ]}
@@ -132,12 +134,14 @@ export function LayoutTab({
           testId="layout-orientation"
           entries={[
             {
+              kind: 'option',
               id: 'portrait',
               label: t('layout.orientation.portrait'),
               checked: pageSetup?.orientation === 'portrait',
               onSelect: () => apply({ orientation: 'portrait' }),
             },
             {
+              kind: 'option',
               id: 'landscape',
               label: t('layout.orientation.landscape'),
               checked: pageSetup?.orientation === 'landscape',
@@ -152,13 +156,8 @@ export function LayoutTab({
           testId="layout-size"
           entries={[
             ...sizeEntries,
-            {
-              id: 'more',
-              label: t('layout.size.more'),
-              separatorBefore: true,
-              opensDialog: true,
-              onSelect: openPageSetupDialog,
-            },
+            { kind: 'separator', id: 'more-separator' },
+            { kind: 'dialog', id: 'more', label: t('layout.size.more'), onSelect: openPageSetupDialog },
           ]}
         />
         <MenuButton
@@ -172,11 +171,11 @@ export function LayoutTab({
               detail: t('layout.breaks.pageDetail'),
               onSelect: () => exec('insert.pageBreak'),
             },
+            { kind: 'separator', id: 'section-separator' },
             {
               id: 'next',
               label: t('layout.breaks.nextPage'),
               detail: t('layout.breaks.nextPageDetail'),
-              separatorBefore: true,
               onSelect: () => exec('insert.sectionBreakNextPage'),
             },
             {

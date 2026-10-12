@@ -101,6 +101,7 @@ export function ViewTab() {
           label={t('view.zoom.zoom')}
           testId="view-zoom"
           entries={ZOOM_LEVELS.map((level) => ({
+            kind: 'option' as const,
             id: String(level),
             label: `${Math.round(level * 100)} %`,
             checked: Math.abs(zoom.zoom - level) < 0.005,
@@ -138,6 +139,7 @@ export function ViewTab() {
           label={t('view.theme.button')}
           testId="view-theme"
           entries={themes.map((theme) => ({
+            kind: 'option' as const,
             id: theme,
             label: t(`view.theme.${theme}`),
             checked: ui.theme === theme,

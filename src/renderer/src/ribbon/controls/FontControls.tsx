@@ -23,9 +23,9 @@ export function FontFamilyBox() {
     const known = new Set(fromDocument.map((f) => f.toLowerCase()));
     const others = system.filter((f) => !known.has(f.toLowerCase()));
     return [
-      { value: '', label: t('home.font.documentFonts'), heading: true },
+      { kind: 'heading', label: t('home.font.documentFonts') },
       ...fromDocument.map((f) => ({ value: f, label: f, style: { fontFamily: `"${f}"` } })),
-      ...(others.length ? [{ value: '', label: t('home.font.allFonts'), heading: true }] : []),
+      ...(others.length ? [{ kind: 'heading' as const, label: t('home.font.allFonts') }] : []),
       ...others.map((f) => ({ value: f, label: f, style: { fontFamily: `"${f}"` } })),
     ];
   }, [font.options, system, t]);

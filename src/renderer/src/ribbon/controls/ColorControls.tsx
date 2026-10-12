@@ -1,6 +1,6 @@
 import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Color de fuente y resaltado: botón dividido (aplica el último color) + paleta.
-import { useState, type ReactNode } from 'react';
+import { createContext, use, useState, type ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { focusEditor } from '@renderer/editor/document-actions';
@@ -54,6 +54,9 @@ export const HIGHLIGHT_COLORS: readonly (readonly [string, string])[] = [
   ['black', '000000'],
 ];
 
+/** Cierra la paleta abierta: lo usan sus botones, en vez de recibirlo por una render prop. */
+const ClosePalette = createContext<() => void>(() => {});
+
 function SplitButton({
   label,
   icon,
@@ -67,7 +70,7 @@ function SplitButton({
   readonly swatch: string;
   readonly disabled: boolean;
   readonly onApply: () => void;
-  readonly children: (close: () => void) => ReactNode;
+  readonly children: ReactNode;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -110,9 +113,27 @@ function SplitButton({
           </button>
         )}
       >
-        {children(() => setOpen(false))}
+        <ClosePalette value={() => setOpen(false)}>{children}</ClosePalette>
       </Popover>
     </span>
+  );
+}
+
+/** Botón ancho de la paleta (Automático, Sin color). */
+function PaletteButton({ onPick, children }: { readonly onPick: () => void; readonly children: ReactNode }) {
+  const close = use(ClosePalette);
+  return (
+    <button
+      type="button"
+      className={rc.paletteWide}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        onPick();
+        close();
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -125,6 +146,7 @@ function Swatch({
   readonly title: string;
   readonly onPick: () => void;
 }) {
+  const close = use(ClosePalette);
   return (
     <button
       type="button"
@@ -133,7 +155,10 @@ function Swatch({
       title={title}
       aria-label={title}
       onMouseDown={(e) => e.preventDefault()}
-      onClick={onPick}
+      onClick={() => {
+        onPick();
+        close();
+      }}
     />
   );
 }
@@ -155,40 +180,19 @@ export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
       disabled={!color.isEnabled}
       onApply={() => apply(last)}
     >
-      {(close) => (
-        <>
-          <button
-            type="button"
-            className={rc.paletteWide}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => (apply('auto'), close())}
-          >
-            {t('home.font.automatic')}
-          </button>
-          <div className={rc.paletteTitle}>{t('home.font.themeColors')}</div>
-          <div className={paletteGrid}>
-            {THEME_COLORS.map(([name, hex]) => (
-              <Swatch
-                key={hex}
-                hex={hex}
-                title={t(`home.colors.${name}`)}
-                onPick={() => (apply(hex), close())}
-              />
-            ))}
-          </div>
-          <div className={rc.paletteTitle}>{t('home.font.standardColors')}</div>
-          <div className={paletteGrid}>
-            {STANDARD_COLORS.map(([name, hex]) => (
-              <Swatch
-                key={hex}
-                hex={hex}
-                title={t(`home.colors.${name}`)}
-                onPick={() => (apply(hex), close())}
-              />
-            ))}
-          </div>
-        </>
-      )}
+      <PaletteButton onPick={() => apply('auto')}>{t('home.font.automatic')}</PaletteButton>
+      <div className={rc.paletteTitle}>{t('home.font.themeColors')}</div>
+      <div className={paletteGrid}>
+        {THEME_COLORS.map(([name, hex]) => (
+          <Swatch key={hex} hex={hex} title={t(`home.colors.${name}`)} onPick={() => apply(hex)} />
+        ))}
+      </div>
+      <div className={rc.paletteTitle}>{t('home.font.standardColors')}</div>
+      <div className={paletteGrid}>
+        {STANDARD_COLORS.map(([name, hex]) => (
+          <Swatch key={hex} hex={hex} title={t(`home.colors.${name}`)} onPick={() => apply(hex)} />
+        ))}
+      </div>
     </SplitButton>
   );
 }
@@ -209,32 +213,20 @@ export function HighlightButton({ icon }: { readonly icon: ReactNode }) {
       disabled={!highlight.isEnabled}
       onApply={() => apply(last[0])}
     >
-      {(close) => (
-        <>
-          <div className="tw:mb-1.5 tw:grid tw:grid-cols-5 tw:gap-[3px]">
-            {HIGHLIGHT_COLORS.map((entry) => (
-              <Swatch
-                key={entry[0]}
-                hex={entry[1]}
-                title={t(`home.highlight.${entry[0]}`)}
-                onPick={() => {
-                  setLast(entry);
-                  apply(entry[0]);
-                  close();
-                }}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            className={rc.paletteWide}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => (apply('none'), close())}
-          >
-            {t('home.font.noColor')}
-          </button>
-        </>
-      )}
+      <div className="tw:mb-1.5 tw:grid tw:grid-cols-5 tw:gap-[3px]">
+        {HIGHLIGHT_COLORS.map((entry) => (
+          <Swatch
+            key={entry[0]}
+            hex={entry[1]}
+            title={t(`home.highlight.${entry[0]}`)}
+            onPick={() => {
+              setLast(entry);
+              apply(entry[0]);
+            }}
+          />
+        ))}
+      </div>
+      <PaletteButton onPick={() => apply('none')}>{t('home.font.noColor')}</PaletteButton>
     </SplitButton>
   );
 }

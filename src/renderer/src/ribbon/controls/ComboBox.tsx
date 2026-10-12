@@ -5,13 +5,15 @@ import { cx } from '@renderer/ui/cx';
 import { Popover } from '@renderer/ui/Popover';
 import * as rc from '../ribbon-classes';
 
-export interface ComboOption {
-  readonly value: string;
-  readonly label: string;
-  readonly style?: CSSProperties;
+export type ComboOption =
+  | {
+      readonly kind?: 'option';
+      readonly value: string;
+      readonly label: string;
+      readonly style?: CSSProperties;
+    }
   /** Encabezado de sección (no seleccionable), p. ej. "Fuentes del documento". */
-  readonly heading?: boolean;
-}
+  | { readonly kind: 'heading'; readonly label: string };
 
 export function ComboBox({
   label,
@@ -47,10 +49,10 @@ export function ComboBox({
   const visible = useMemo(() => {
     if (!filter || !draft) return options;
     const needle = draft.toLowerCase();
-    return options.filter((o) => !o.heading && o.label.toLowerCase().includes(needle));
+    return options.filter((o) => o.kind !== 'heading' && o.label.toLowerCase().includes(needle));
   }, [options, draft, filter]);
 
-  const selectable = visible.map((o, i) => (o.heading ? -1 : i)).filter((i) => i >= 0);
+  const selectable = visible.map((o, i) => (o.kind === 'heading' ? -1 : i)).filter((i) => i >= 0);
 
   useEffect(() => {
     list.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: 'nearest' });
@@ -101,7 +103,7 @@ export function ComboBox({
               if (e.key === 'Enter') {
                 e.preventDefault();
                 const chosen = active >= 0 ? visible[active] : undefined;
-                commit(chosen ? chosen.value : (draft ?? value));
+                commit(chosen && chosen.kind !== 'heading' ? chosen.value : (draft ?? value));
               } else if (e.key === 'Escape') {
                 commit('');
               } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -137,7 +139,7 @@ export function ComboBox({
     >
       <div ref={list} id={listId} role="listbox" aria-label={label}>
         {visible.map((option, index) =>
-          option.heading ? (
+          option.kind === 'heading' ? (
             <div
               key={`h-${option.label}`}
               role="presentation"

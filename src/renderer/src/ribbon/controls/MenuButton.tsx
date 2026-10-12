@@ -1,22 +1,33 @@
 import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Botón de la cinta que abre un menú (Márgenes, Orientación, Saltos, Número de página…).
-import { Fragment, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { focusEditor } from '@renderer/editor/document-actions';
 import { Menu, MenuItem, MenuRadioItem, MenuSeparator } from '@renderer/ui/Menu';
 import * as rc from '../ribbon-classes';
 
-export interface MenuEntry {
+interface EntryBase {
   readonly id: string;
   readonly label: string;
   /** Texto secundario (p. ej. medidas de los márgenes). */
   readonly detail?: string;
-  readonly checked?: boolean;
   readonly disabled?: boolean;
-  readonly separatorBefore?: boolean;
-  /** Abre un cuadro de diálogo: el foco debe quedarse en él, no volver al documento. */
-  readonly opensDialog?: boolean;
   readonly onSelect: () => void;
 }
+
+/**
+ * Elemento del menú, por variante explícita en vez de booleanos sueltos:
+ * - `command` (o sin `kind`): ejecuta y devuelve el foco al documento;
+ * - `option`: una opción entre varias excluyentes, con su ✓ (menuitemradio);
+ * - `dialog`: abre un cuadro de diálogo, que se queda con el foco;
+ * - `separator`: línea divisoria.
+ */
+export type MenuEntry =
+  | (EntryBase & { readonly kind?: 'command' })
+  | (EntryBase & { readonly kind: 'option'; readonly checked: boolean })
+  | (EntryBase & { readonly kind: 'dialog' })
+  | { readonly kind: 'separator'; readonly id: string };
+
+type ItemEntry = Exclude<MenuEntry, { kind: 'separator' }>;
 
 export function MenuButton({
   icon,
@@ -36,12 +47,12 @@ export function MenuButton({
   readonly disabledReason?: string | null;
   readonly testId?: string;
 }) {
-  const select = (entry: MenuEntry) => {
+  const select = (entry: ItemEntry) => {
     entry.onSelect();
     // El foco vuelve al documento para seguir escribiendo.
-    if (!entry.opensDialog) setTimeout(focusEditor, 0);
+    if (entry.kind !== 'dialog') setTimeout(focusEditor, 0);
   };
-  const content = (entry: MenuEntry) => (
+  const content = (entry: ItemEntry) => (
     <span className="tw:flex tw:flex-col">
       {entry.label}
       {entry.detail && <span className="tw:text-[11px] tw:text-muted">{entry.detail}</span>}
@@ -69,21 +80,25 @@ export function MenuButton({
         </button>
       )}
     >
-      {entries.map((entry) => (
-        <Fragment key={entry.id}>
-          {entry.separatorBefore && <MenuSeparator />}
-          {entry.checked === undefined ? (
-            <MenuItem disabled={entry.disabled} onSelect={() => select(entry)}>
-              <span className={rc.menuCheck} />
-              {content(entry)}
-            </MenuItem>
-          ) : (
-            <MenuRadioItem checked={entry.checked} disabled={entry.disabled} onSelect={() => select(entry)}>
-              {content(entry)}
-            </MenuRadioItem>
-          )}
-        </Fragment>
-      ))}
+      {entries.map((entry) =>
+        entry.kind === 'separator' ? (
+          <MenuSeparator key={entry.id} />
+        ) : entry.kind === 'option' ? (
+          <MenuRadioItem
+            key={entry.id}
+            checked={entry.checked}
+            disabled={entry.disabled}
+            onSelect={() => select(entry)}
+          >
+            {content(entry)}
+          </MenuRadioItem>
+        ) : (
+          <MenuItem key={entry.id} disabled={entry.disabled} onSelect={() => select(entry)}>
+            <span className={rc.menuCheck} />
+            {content(entry)}
+          </MenuItem>
+        ),
+      )}
     </Menu>
   );
 }

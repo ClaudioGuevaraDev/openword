@@ -1,7 +1,7 @@
 // Menú desplegable accesible sobre Popover: roles ARIA de menú, foco itinerante y teclado como en Word.
 import {
   createContext,
-  useContext,
+  use,
   useEffect,
   useRef,
   useState,
@@ -111,7 +111,7 @@ export function Menu({
 }
 
 function useItemProps(onSelect: () => void, disabled: boolean | undefined) {
-  const close = useContext(CloseContext);
+  const close = use(CloseContext);
   return {
     type: 'button' as const,
     tabIndex: -1,
