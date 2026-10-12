@@ -4,8 +4,10 @@ import {
   TableDeleteColumn20Regular,
   TableDeleteRow20Regular,
   TableDismiss20Regular,
-  TableInsertColumn20Regular,
-  TableInsertRow20Regular,
+  TableMoveAbove20Regular,
+  TableMoveBelow20Regular,
+  TableMoveLeft20Regular,
+  TableMoveRight20Regular,
   PaintBucket20Regular,
 } from '@fluentui/react-icons';
 import type { EditorCommand } from '@docx-editor.dev/core';
@@ -38,33 +40,32 @@ export function TableTab() {
   const borders = (scope: 'all' | 'outside' | 'inside') => editor?.exec(singleBorders(scope));
   return (
     <>
+      {/* Como en Word: Insertar arriba grande y pilas de tres, para que las filas coincidan. */}
       <RibbonGroup label={t('table.rowsCols.label')}>
+        <CommandButton
+          command={{ type: 'insertRow', where: 'above' }}
+          icon={<TableMoveAbove20Regular />}
+          label={t('table.rowsCols.rowAbove')}
+          size="large"
+          testId="row-above"
+        />
         <RibbonStack>
           <CommandButton
-            command={{ type: 'insertRow', where: 'above' }}
-            icon={<TableInsertRow20Regular />}
-            label={t('table.rowsCols.rowAbove')}
-            showLabel
-            testId="row-above"
-          />
-          <CommandButton
             command={{ type: 'insertRow', where: 'below' }}
-            icon={<TableInsertRow20Regular />}
+            icon={<TableMoveBelow20Regular />}
             label={t('table.rowsCols.rowBelow')}
             showLabel
             testId="row-below"
           />
-        </RibbonStack>
-        <RibbonStack>
           <CommandButton
             command={{ type: 'insertColumn', where: 'left' }}
-            icon={<TableInsertColumn20Regular />}
+            icon={<TableMoveLeft20Regular />}
             label={t('table.rowsCols.colLeft')}
             showLabel
           />
           <CommandButton
             command={{ type: 'insertColumn', where: 'right' }}
-            icon={<TableInsertColumn20Regular />}
+            icon={<TableMoveRight20Regular />}
             label={t('table.rowsCols.colRight')}
             showLabel
             testId="col-right"
@@ -93,10 +94,11 @@ export function TableTab() {
           />
         </RibbonStack>
       </RibbonGroup>
+      {/* Dos botones grandes como Insertar arriba, en columnas iguales: miden lo mismo aunque sus textos no. */}
       <RibbonGroup label={t('table.style.label')}>
-        <RibbonStack>
+        <div className="tw:grid tw:grid-cols-2 tw:gap-1.5">
           <MenuButton
-            size="small"
+            size="large"
             icon={<BorderAll20Regular />}
             label={t('table.style.borders')}
             testId="table-borders"
@@ -112,7 +114,7 @@ export function TableTab() {
             ]}
           />
           <MenuButton
-            size="small"
+            size="large"
             icon={<PaintBucket20Regular />}
             label={t('table.style.shading')}
             entries={SHADES.map(([id, hex]) => ({
@@ -122,7 +124,7 @@ export function TableTab() {
                 editor?.exec({ type: 'setCellFill', color: hex ? { kind: 'hex', value: hex } : null }),
             }))}
           />
-        </RibbonStack>
+        </div>
       </RibbonGroup>
     </>
   );

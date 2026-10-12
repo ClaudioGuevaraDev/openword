@@ -31,8 +31,6 @@
   --color-pressed-line: var(--ow-pressed-border);
   --color-input: var(--ow-bg-input);
   --color-spark: var(--ow-spark);
-  --color-contextual: var(--ow-contextual);
-  --color-on-contextual: var(--ow-fg-contextual);
   --color-notice: var(--ow-bg-notice);
   --color-notice-line: var(--ow-border-notice);
   --color-danger: var(--ow-danger);
@@ -70,8 +68,6 @@
     --ow-bg-input: #ffffff;
     /* Toque juvenil: coral para lo que "está vivo" (pestaña activa, foco, sin guardar). */
     --ow-spark: #ff6b5a;
-    --ow-contextual: #ffd666;
-    --ow-fg-contextual: #5c3d00;
     --ow-bg-notice: #fff6d6;
     --ow-border-notice: #f3d572;
     --ow-danger: #c42b1c;
@@ -104,8 +100,6 @@
     --ow-pressed-border: #4a6fa5;
     --ow-bg-input: #1b1d22;
     --ow-spark: #ff8a7a;
-    --ow-contextual: #f0c060;
-    --ow-fg-contextual: #3a2700;
     --ow-bg-notice: #3d3412;
     --ow-border-notice: #6b5b1a;
     --ow-danger: #ff8f84;
@@ -419,6 +413,20 @@ html .docx-editor :is(.docx-nav__searchbox, .docx-nav__stepper, .docx-nav__resul
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ow-spark) 40%, transparent);
 }
 
+/* Disparadores del motor (p. ej. Tamaño y posición…) dentro de la cinta: su clase
+   .docx-toolbar__button los fija a 28 px de ancho; se vuelve a las clases de Tailwind del botón. */
+#ribbon-panel .docx-toolbar__button {
+  all: revert-layer;
+}
+
+/* Cinta de una pestaña contextual (Tabla, Imagen…): una línea de acento arriba la liga con su
+   pestaña de la cápsula. */
+#ribbon-panel[data-contextual] {
+  box-shadow:
+    inset 0 2px 0 var(--ow-accent),
+    var(--ow-shadow-card);
+}
+
 /* Movimiento: breve y solo si el sistema no pide reducirlo; nunca estorba al escribir. */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes ow-rise {
@@ -432,6 +440,21 @@ html .docx-editor :is(.docx-nav__searchbox, .docx-nav__stepper, .docx-nav__resul
       opacity: 0;
       transform: translateX(-12px);
     }
+  }
+  /* Sin transform: cambiaría el offsetParent de las pestañas y el subrayado se mediría mal. */
+  @keyframes ow-context-in {
+    from {
+      opacity: 0;
+      clip-path: inset(0 100% 0 0 round 6px);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0 0 0 0 round 6px);
+    }
+  }
+  /* La cápsula de las pestañas contextuales se descubre de izquierda a derecha. */
+  .ow-context-in {
+    animation: ow-context-in 180ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 
   .ow-panel-in > * {

@@ -1,3 +1,9 @@
+import {
+  DocumentHeaderFooter16Regular,
+  Image16Regular,
+  Table16Regular,
+  type FluentIcon,
+} from '@fluentui/react-icons';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useEditorState, useHeaderFooterState } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +20,13 @@ import { cx } from '@renderer/ui/cx';
 
 const STANDARD_TABS: readonly RibbonTab[] = ['home', 'insert', 'layout', 'references', 'view'];
 const CONTEXTUAL_TABS: readonly RibbonTab[] = ['table', 'picture', 'headerFooter'];
+
+/** Icono que distingue a cada pestaña contextual. */
+const CONTEXTUAL_ICONS: Partial<Record<RibbonTab, FluentIcon>> = {
+  table: Table16Regular,
+  picture: Image16Regular,
+  headerFooter: DocumentHeaderFooter16Regular,
+};
 
 /** Botón Archivo: no es una pestaña, abre la vista Archivo (Backstage) como un diálogo. */
 export const FILE_BUTTON_ID = 'ribbon-file';
@@ -106,6 +119,32 @@ export function Ribbon() {
     }
   };
 
+  const renderTab = (tab: RibbonTab) => {
+    const Icon = CONTEXTUAL_ICONS[tab];
+    return (
+      <button
+        key={tab}
+        type="button"
+        role="tab"
+        id={`ribbon-tab-${tab}`}
+        data-testid={`tab-${tab}`}
+        aria-selected={shownTab === tab}
+        aria-controls="ribbon-panel"
+        tabIndex={shownTab === tab ? 0 : -1}
+        className={cx(
+          tabClass,
+          'tw:bg-transparent tw:text-on-tabbar/85 tw:hover:bg-white/12 tw:hover:text-on-tabbar tw:aria-selected:text-on-tabbar',
+          Icon && 'tw:inline-flex tw:items-center tw:gap-1.5 tw:aria-selected:bg-white/12',
+        )}
+        onMouseDown={(e) => e.preventDefault()} // la cinta nunca roba el cursor del documento
+        onClick={() => setActiveTab(tab)}
+      >
+        {Icon && <Icon className="tw:size-4 tw:flex-none" aria-hidden="true" />}
+        {t(`tabs.${tab}`)}
+      </button>
+    );
+  };
+
   return (
     <div className="tw:flex-none tw:bg-app tw:select-none">
       <div
@@ -129,33 +168,23 @@ export function Ribbon() {
         </button>
         {/* Pestañas con foco itinerante: Tab entra a la activa y las flechas recorren el resto. */}
         <div role="tablist" aria-label={t('ribbon.label')} className="tw:contents" onKeyDown={onTabKeyDown}>
-          {tabs.map((tab, i) => {
-            const isContextual = contextual.includes(tab);
-            return (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                id={`ribbon-tab-${tab}`}
-                data-testid={`tab-${tab}`}
-                aria-selected={shownTab === tab}
-                aria-controls="ribbon-panel"
-                tabIndex={shownTab === tab ? 0 : -1}
-                className={cx(
-                  tabClass,
-                  isContextual
-                    ? 'tw:bg-contextual/20 tw:text-contextual tw:hover:bg-contextual/30 tw:aria-selected:bg-contextual tw:aria-selected:text-on-contextual'
-                    : 'tw:bg-transparent tw:text-on-tabbar/85 tw:hover:bg-white/12 tw:hover:text-on-tabbar tw:aria-selected:text-on-tabbar',
-                  // Las contextuales van separadas, como en Word.
-                  i === STANDARD_TABS.length && 'tw:ml-3',
-                )}
-                onMouseDown={(e) => e.preventDefault()} // la cinta nunca roba el cursor del documento
-                onClick={() => setActiveTab(tab)}
+          {STANDARD_TABS.map(renderTab)}
+          {contextual.length > 0 && (
+            <>
+              {/* Las contextuales van aparte, en una cápsula de cristal, como las "Herramientas
+                  de…" de Word. Sin position: el subrayado se mide respecto a la cabecera. */}
+              <span
+                className="tw:mx-2 tw:mb-1 tw:h-5 tw:w-px tw:self-end tw:bg-white/25"
+                aria-hidden="true"
+              />
+              <div
+                role="none"
+                className="ow-context-in tw:flex tw:items-end tw:gap-0.5 tw:rounded-md tw:bg-white/6"
               >
-                {t(`tabs.${tab}`)}
-              </button>
-            );
-          })}
+                {contextual.map(renderTab)}
+              </div>
+            </>
+          )}
         </div>
         {/* Subrayado coral bajo la pestaña activa: se desliza al cambiar de pestaña. */}
         <span
@@ -170,6 +199,7 @@ export function Ribbon() {
           id="ribbon-panel"
           role="tabpanel"
           aria-labelledby={`ribbon-tab-${shownTab}`}
+          data-contextual={CONTEXTUAL_TABS.includes(shownTab) || undefined}
           className="ow-panel-in tw:flex tw:items-stretch tw:overflow-x-auto tw:overflow-y-hidden tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1.5 tw:py-1 tw:shadow-card"
         >
           {panel()}
