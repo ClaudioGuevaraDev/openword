@@ -145,7 +145,7 @@ test.describe('corpus: abrir y guardar sin editar en la app', { tag: '@slow' }, 
 });
 
 test(
-  'documento creado desde cero con las funciones de la v1 (se valida con el Open XML SDK)',
+  'documento creado desde cero con todas las funciones de la app (se valida con el Open XML SDK)',
   { tag: '@slow' },
   async ({ app, win, workDir }) => {
     test.setTimeout(120_000);

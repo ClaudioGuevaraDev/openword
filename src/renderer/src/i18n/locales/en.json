@@ -24,8 +24,7 @@
     "unsaved": "Not saved"
   },
   "ribbon": {
-    "label": "Ribbon",
-    "comingSoon": "This tab's tools arrive in upcoming milestones."
+    "label": "Ribbon"
   },
   "status": {
     "page": "Page {{current}} of {{total}}",

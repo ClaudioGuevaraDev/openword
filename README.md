@@ -6,13 +6,9 @@ Procesador de textos de escritorio compatible con Microsoft Word, para Windows, 
 - **Motor del documento:** [docx-editor](https://github.com/eigenpal/docx-editor) 2.27.0 (Apache-2.0). Trabaja directamente sobre OOXML y conserva al guardar todo lo que no edita. Los paquetes Pro (`pro`, `editor-api`, `docx-to-pdf`) están prohibidos; ESLint y `pnpm run check:deps` lo verifican.
 - **UI:** React 19 + TypeScript estricto, cinta de opciones propia, español e inglés.
 
-El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE.md).
+## Funciones
 
-## Estado
-
-- **Hito 0 (spike):** completado en Linux.
-- **Hito 1 (base):** proyecto, seguridad, CI y empaquetado.
-- **Hito 2 (documentos):**
+- **Documentos:**
   - Abrir, Nuevo, Guardar (atómico) y Guardar como. Detección de formato por contenido.
   - Plantillas `.dotx`/`.dotm` y `.docm`: las macros se conservan y nunca se ejecutan.
   - Una ventana por documento. "Documento1" se reutiliza al abrir. Instancia única.
@@ -20,32 +16,31 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
   - Aviso Guardar / No guardar / Cancelar al cerrar y al salir.
   - Papel Carta o A4 según la región.
   - Fuentes reales del sistema para la medición, con sustitutos OFL.
-- **Hito 3 (Inicio):**
+- **Inicio:**
   - Cinta Inicio con Portapapeles (Pegar con opciones, Cortar, Copiar, Copiar formato).
   - Fuente: familia, tamaño, Agrandar/Reducir, N/K/S, tachado, sub/superíndice, color, resaltado y borrar formato.
   - Párrafo: viñetas, numeración, sangrías, alineación, interlineado, diálogo Párrafo y ¶.
   - Galería de estilos con nombres localizados y Seleccionar todo.
   - Atajos de Word. Barra de estado con páginas, palabras y zoom. Deshacer/Rehacer del menú de macOS conectados al motor.
-- **Hito 4 (Insertar, Disposición, Referencias):**
+- **Insertar, Disposición y Referencias:**
   - Insertar: salto de página, tabla (cuadrícula), imágenes (BMP, WebP y SVG se convierten a PNG), vínculo, encabezado, pie, número de página y cuadro de texto.
   - Disposición: márgenes, orientación, tamaño, saltos de sección, sangrías y espaciado (cm o pulgadas según la región).
   - Referencias: tabla de contenido y notas al pie y al final.
   - Pestañas contextuales Tabla, Formato de imagen y Encabezado y pie de página.
-- **Hito 5 (Vista y búsqueda):**
+- **Vista y búsqueda:**
   - Pestaña Vista: regla (horizontal y vertical, en cm o pulgadas), panel de navegación con títulos y búsqueda, ¶.
   - Zoom: niveles, 100 %, una página y ancho de página. Tema claro, oscuro o del sistema (recordado entre sesiones).
   - Buscar (Ctrl/⌘+F) y Buscar y reemplazar (Ctrl+H, también en macOS), con coincidencia de mayúsculas y palabras completas.
-- **Hito 6 (Imprimir y PDF):**
+- **Imprimir y PDF:**
   - Archivo › Imprimir (Ctrl/⌘+P) con vista previa fiel (el mismo PDF, dibujado con pdf.js) y diálogo de impresión del sistema.
   - Archivo › Exportar › Crear PDF.
   - Todas las páginas, con tamaño y orientación por sección. No usa el conversor Pro del motor.
-- **Hito 7 (formatos, corrector, recuperación, Opciones):**
+- **Formatos, corrector, recuperación y Opciones:**
   - `.doc`, `.rtf`, `.odt`, Word XML y HTML-como-.doc se convierten a .docx con LibreOffice si está instalado (si no, se ofrece descargarlo). El original no se modifica.
   - Corrector ortográfico propio (diccionarios es/en de Chromium): subrayado, sugerencias, Omitir todo y Agregar al diccionario en el menú contextual. Omite MAYÚSCULAS, números, correos y URLs.
   - Recuperación automática: copias cada N minutos que se reabren tras un cierre inesperado.
   - Archivo › Opciones: idioma de la interfaz, corrector, diccionarios y recuperación.
-
-- **Hito 8 (fidelidad y distribución):**
+- **Fidelidad y distribución:**
   - Corpus de 39 documentos reales que se abren y guardan sin pérdidas, tanto con el motor como en la app.
   - Validación con el Open XML SDK: 0 errores nuevos.
   - Informe de paginación frente a PDF de Word.
@@ -94,8 +89,16 @@ src/
   preload/   puente mínimo window.openword (contextBridge)
   renderer/  React: EditorHost (motor), cinta, barra de estado, i18n
 tests/
-  unit/      Vitest
-  e2e/       Playwright (_electron)
+  unit/             Vitest
+  e2e/              Playwright (_electron)
+  corpus/           documentos .docx reales para las pruebas de fidelidad (con su licencia)
+  fixtures/         documentos de prueba de las E2E
+  fidelity/         corpus sin DOM: lectura y escritura sin pérdidas (pnpm run fidelity)
+  fidelity-report/  informe de paginación frente a PDF de Word
+tools/
+  ooxml-validator/  validador con el Open XML SDK (.NET), usado por el CI
+scripts/            dev, comprobación de dependencias y validación OOXML
+docs/               fidelidad, QA manual y distribución
 ```
 
 ## Seguridad

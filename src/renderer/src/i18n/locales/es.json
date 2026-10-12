@@ -24,8 +24,7 @@
     "unsaved": "Sin guardar"
   },
   "ribbon": {
-    "label": "Cinta de opciones",
-    "comingSoon": "Las herramientas de esta pestaña llegan en los próximos hitos."
+    "label": "Cinta de opciones"
   },
   "status": {
     "page": "Página {{current}} de {{total}}",

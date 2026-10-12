@@ -17,7 +17,7 @@ export type FileKind =
 
 /** Formatos que el motor abre directamente. */
 export const NATIVE_KINDS: ReadonlySet<FileKind> = new Set(['docx', 'docm', 'dotx', 'dotm']);
-/** Formatos que necesitan conversión con LibreOffice (hito 7). */
+/** Formatos que necesitan conversión con LibreOffice. */
 export const CONVERTIBLE_KINDS: ReadonlySet<FileKind> = new Set(['doc', 'rtf', 'odt', 'word-xml', 'html']);
 
 export const MAIN_CONTENT_TYPES = {

@@ -5,7 +5,7 @@
 ## Publicar una versión
 
 1. Sube la versión en `package.json` (lo hace `/conventional-commit`) y haz push a `main`.
-2. Crea y sube el tag con esa versión: `git tag v0.2.13 && git push origin v0.2.13`.
+2. Crea y sube el tag con esa versión: `git tag v0.2.14 && git push origin v0.2.14`.
 3. El workflow `release.yml`:
    - comprueba que el tag coincide con `package.json` (si no, falla en segundos);
    - corre las E2E en los 3 SO y la validación OOXML (`e2e.yml`);
@@ -35,4 +35,4 @@ Electron Fuses: sin `RunAsNode`, sin `NODE_OPTIONS`, sin `--inspect`, con integr
 
 ## Actualizaciones automáticas
 
-No están incluidas en la v1. Se pueden agregar con `electron-updater` publicando las versiones en GitHub Releases o en un servidor propio. Requieren builds firmados.
+No están incluidas todavía. Se pueden agregar con `electron-updater` publicando las versiones en GitHub Releases o en un servidor propio. Requieren builds firmados.
