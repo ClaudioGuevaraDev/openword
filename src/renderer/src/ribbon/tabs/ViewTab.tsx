@@ -9,6 +9,7 @@ import {
 } from '@fluentui/react-icons';
 import { useDocxEditor, useZoom } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useUiStore, type ThemePreference } from '@renderer/state/ui-store';
 import { CommandButton } from '../controls/CommandButton';
 import { MenuButton } from '../controls/MenuButton';
@@ -22,7 +23,17 @@ export function ViewTab() {
   const { t } = useTranslation();
   const editor = useDocxEditor();
   const zoom = useZoom();
-  const ui = useUiStore();
+  // Solo los campos que usa: suscribirse a todo el store redibujaría la pestaña con cada cambio.
+  const ui = useUiStore(
+    useShallow((s) => ({
+      showRulers: s.showRulers,
+      setShowRulers: s.setShowRulers,
+      navigationOpen: s.navigationOpen,
+      setNavigation: s.setNavigation,
+      theme: s.theme,
+      setTheme: s.setTheme,
+    })),
+  );
 
   /** "Una página": el zoom con el que la primera página entra completa en el área visible. */
   const fitOnePage = () => {

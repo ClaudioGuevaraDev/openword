@@ -7,6 +7,7 @@ import { en } from '@docx-editor.dev/i18n/en';
 import type { DocumentSource } from '@docx-editor.dev/core';
 import '@docx-editor.dev/core/styles/editor.css';
 import type { UiLanguage } from '@shared/ipc-contract';
+import { useShallow } from 'zustand/react/shallow';
 import { useUiStore } from '@renderer/state/ui-store';
 import { DocumentSession } from './DocumentSession';
 import { bundledFonts, systemFonts } from './fonts';
@@ -72,7 +73,24 @@ export function EditorHost({
 }: EditorHostProps) {
   // El primero gana: fuente real del sistema y, si no existe, el sustituto métrico.
   const fonts = useFonts(systemFonts, bundledFonts);
-  const ui = useUiStore();
+  // Solo los campos que usa: cambiar de pestaña o de sección del Backstage no debe redibujar
+  // todo el editor.
+  const ui = useUiStore(
+    useShallow((s) => ({
+      unit: s.unit,
+      showRulers: s.showRulers,
+      navigationOpen: s.navigationOpen,
+      setNavigation: s.setNavigation,
+      navigationTab: s.navigationTab,
+      setNavigationTab: s.setNavigationTab,
+      paragraphDialogOpen: s.paragraphDialogOpen,
+      closeParagraphDialog: s.closeParagraphDialog,
+      pageSetupDialogOpen: s.pageSetupDialogOpen,
+      closePageSetupDialog: s.closePageSetupDialog,
+      replaceDialogOpen: s.replaceDialogOpen,
+      setReplaceDialogOpen: s.setReplaceDialogOpen,
+    })),
+  );
   const rulerUnit = ui.unit === 'in' ? 'inch' : 'cm';
 
   return (

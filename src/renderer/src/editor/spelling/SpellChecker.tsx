@@ -5,11 +5,12 @@
 // Cada revisión: (1) palabras únicas del texto con veredicto en caché, (2) una sola pasada
 // de findMatches con todas las mal escritas (da las posiciones que entiende el motor),
 // (3) setHighlights. Se repite tras una pausa al escribir.
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDocxEditor, useEditorEvent } from '@docx-editor.dev/react';
 import type { DocumentChange } from '@docx-editor.dev/core';
 import { spellTokens } from '@shared/spell-tokens';
 import { useSettingsStore } from '@renderer/state/settings-store';
+import { paragraphTexts, whenIdle } from '../paragraph-snapshot';
 
 export const SPELLING_HIGHLIGHT = 'spelling';
 const PAUSE_MS = 500;
@@ -39,19 +40,27 @@ function isMisspelled(word: string): boolean {
 
 export function SpellChecker() {
   const editor = useDocxEditor();
-  const spell = useSettingsStore((s) => s.settings.spellcheck);
+  // Campos sueltos: el objeto `spellcheck` cambia de identidad con cualquier ajuste.
+  const enabled = useSettingsStore((s) => s.settings.spellcheck.enabled);
+  const ignoreUppercase = useSettingsStore((s) => s.settings.spellcheck.ignoreUppercase);
+  const ignoreWithNumbers = useSettingsStore((s) => s.settings.spellcheck.ignoreWithNumbers);
+  const languages = useSettingsStore((s) => s.settings.spellcheck.languages.join(','));
+  const options = useMemo(
+    () => ({ ignoreUppercase, ignoreWithNumbers }),
+    [ignoreUppercase, ignoreWithNumbers],
+  );
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const cancelIdle = useRef<(() => void) | undefined>(undefined);
 
   const check = useCallback(() => {
     if (!editor) return;
-    if (!spell.enabled) {
+    if (!enabled) {
       editor.clearHighlights(SPELLING_HIGHLIGHT);
       return;
     }
-    const paragraphs = editor.query({ type: 'paragraphs' }) as readonly { readonly text: string }[];
     const misspelled = new Set<string>();
-    for (const p of paragraphs) {
-      for (const token of spellTokens(p.text, spell))
+    for (const p of paragraphTexts(editor)) {
+      for (const token of spellTokens(p.text, options))
         if (isMisspelled(token.word)) misspelled.add(token.word);
     }
     const words = [...misspelled];
@@ -72,20 +81,31 @@ export function SpellChecker() {
       color: 'transparent',
       priority: -10,
     });
-  }, [editor, spell]);
+  }, [editor, enabled, options]);
 
   const schedule = useCallback(
     (delay: number) => {
       clearTimeout(timer.current);
-      timer.current = setTimeout(check, delay);
+      cancelIdle.current?.();
+      // Tras la pausa, la revisión espera a que el hilo principal esté libre.
+      timer.current = setTimeout(() => (cancelIdle.current = whenIdle(check)), delay);
     },
     [check],
   );
 
   useEffect(() => {
     schedule(0);
-    return () => clearTimeout(timer.current);
+    return () => {
+      clearTimeout(timer.current);
+      cancelIdle.current?.();
+    };
   }, [schedule]);
+
+  // Otros diccionarios: los veredictos guardados ya no valen.
+  const firstLanguages = useRef(languages);
+  useEffect(() => {
+    if (languages !== firstLanguages.current) requestSpellingRecheck();
+  }, [languages]);
 
   // Se revisa al hacer una pausa al escribir (no se subraya la palabra a medio escribir).
   useEditorEvent('change', (change: DocumentChange) => schedule(change.source === 'load' ? 0 : PAUSE_MS));

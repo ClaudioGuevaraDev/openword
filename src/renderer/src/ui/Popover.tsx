@@ -2,6 +2,7 @@
 // popover="auto" ya da la capa superior, el cierre con Esc o clic fuera y una sola abierta a la vez.
 // La clase de la ventana no debe fijar `display` (anularía el display:none de cerrada): usar `tw:open:grid`.
 import {
+  useCallback,
   useEffect,
   useEffectEvent,
   useId,
@@ -53,6 +54,16 @@ export function Popover({
   const id = `ow-popover-${useId().replace(/[^\w-]/g, '')}`;
   const anchorName = `--${id}`;
   const element = useRef<HTMLDivElement | null>(null);
+  // Callback estable: uno nuevo en cada render haría que React lo llamara con null y con el
+  // nodo otra vez cada vez.
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      element.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref],
+  );
   const onToggle = useEffectEvent((e: Event) => onOpenChange((e as ToggleEvent).newState === 'open'));
 
   // El navegador también abre y cierra la ventana (popovertarget, Esc, clic fuera): se avisa al estado.
@@ -78,11 +89,7 @@ export function Popover({
       })}
       <div
         {...rest}
-        ref={(node) => {
-          element.current = node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
+        ref={setRefs}
         id={id}
         popover="auto"
         className={cx('ow-popover', className)}

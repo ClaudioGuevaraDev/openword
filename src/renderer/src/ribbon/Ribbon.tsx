@@ -13,6 +13,7 @@ import { ViewTab } from './tabs/ViewTab';
 import { cx } from '@renderer/ui/cx';
 
 const STANDARD_TABS: readonly RibbonTab[] = ['home', 'insert', 'layout', 'references', 'view'];
+const CONTEXTUAL_TABS: readonly RibbonTab[] = ['table', 'picture', 'headerFooter'];
 
 /** Botón Archivo: no es una pestaña, abre la vista Archivo (Backstage) como un diálogo. */
 export const FILE_BUTTON_ID = 'ribbon-file';
@@ -44,21 +45,29 @@ export function Ribbon() {
   const contextual = useContextualTabs();
   const previous = useRef<RibbonTab[]>([]);
 
+  // Clave estable: el arreglo de pestañas contextuales es nuevo en cada render.
+  const contextualKey = contextual.join(',');
   useEffect(() => {
-    const appeared = contextual.filter((tab) => !previous.current.includes(tab));
-    previous.current = contextual;
+    const current = contextualKey ? (contextualKey.split(',') as RibbonTab[]) : [];
+    const appeared = current.filter((tab) => !previous.current.includes(tab));
+    previous.current = current;
     // Al entrar a un encabezado/pie o insertar una imagen, Word muestra su pestaña.
     if (appeared.includes('headerFooter')) setActiveTab('headerFooter');
     else if (appeared.includes('picture')) setActiveTab('picture');
-    // Si desaparece la pestaña contextual activa, se vuelve a Inicio.
-    else if (['table', 'picture', 'headerFooter'].includes(activeTab) && !contextual.includes(activeTab))
-      setActiveTab('home');
-  }, [contextual, activeTab, setActiveTab]);
+    // La contextual activa desapareció: Inicio también en el store, para que no vuelva sola
+    // al entrar de nuevo en una tabla.
+    else {
+      const { activeTab: active } = useUiStore.getState();
+      if (CONTEXTUAL_TABS.includes(active) && !current.includes(active)) setActiveTab('home');
+    }
+  }, [contextualKey, setActiveTab]);
 
   const tabs = [...STANDARD_TABS, ...contextual];
+  // Si desaparece la pestaña contextual activa se muestra Inicio (derivado en el render, sin efecto).
+  const shownTab: RibbonTab = tabs.includes(activeTab) ? activeTab : 'home';
 
   const onTabKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const index = tabs.indexOf(activeTab);
+    const index = tabs.indexOf(shownTab);
     const target =
       e.key === 'ArrowRight'
         ? tabs[(index + 1) % tabs.length]
@@ -74,10 +83,10 @@ export function Ribbon() {
     setActiveTab(target);
     document.getElementById(`ribbon-tab-${target}`)?.focus();
   };
-  const [tabListRef, indicatorStyle] = useTabIndicator(activeTab, tabs.length);
+  const [tabListRef, indicatorStyle] = useTabIndicator(shownTab, tabs.length);
 
   const panel = () => {
-    switch (activeTab) {
+    switch (shownTab) {
       case 'insert':
         return <InsertTab language={language} platform={platform} />;
       case 'layout':
@@ -126,9 +135,9 @@ export function Ribbon() {
                 role="tab"
                 id={`ribbon-tab-${tab}`}
                 data-testid={`tab-${tab}`}
-                aria-selected={activeTab === tab}
+                aria-selected={shownTab === tab}
                 aria-controls="ribbon-panel"
-                tabIndex={activeTab === tab ? 0 : -1}
+                tabIndex={shownTab === tab ? 0 : -1}
                 className={cx(
                   tabClass,
                   isContextual
@@ -154,10 +163,10 @@ export function Ribbon() {
       </div>
       <div className="tw:px-1.5 tw:pt-1.5 tw:pb-1.5">
         <div
-          key={activeTab}
+          key={shownTab}
           id="ribbon-panel"
           role="tabpanel"
-          aria-labelledby={`ribbon-tab-${activeTab}`}
+          aria-labelledby={`ribbon-tab-${shownTab}`}
           className="ow-panel-in tw:flex tw:min-h-[92px] tw:items-stretch tw:overflow-x-auto tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1 tw:pt-1.5 tw:shadow-card"
         >
           {panel()}

@@ -3,6 +3,7 @@ import { useDocxEditor, useEditorEvent, useEditorState, useZoom } from '@docx-ed
 import { ZoomIn16Regular, ZoomOut16Regular } from '@fluentui/react-icons';
 import { useTranslation } from 'react-i18next';
 import { countWordsInParagraphs } from '@shared/word-count';
+import { paragraphTexts, whenIdle } from '@renderer/editor/paragraph-snapshot';
 
 const zoomButton =
   'tw:inline-flex tw:size-5 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded tw:border-0 tw:bg-transparent tw:p-0 tw:text-inherit tw:transition-colors tw:hover:enabled:bg-hover tw:hover:enabled:text-accent tw:disabled:cursor-default tw:disabled:opacity-40';
@@ -14,23 +15,29 @@ function useWordCount(): number | null {
   const editor = useDocxEditor();
   const [words, setWords] = useState<number | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const cancelIdle = useRef<(() => void) | undefined>(undefined);
 
   const recount = useCallback(() => {
     clearTimeout(timer.current);
+    cancelIdle.current?.();
     timer.current = setTimeout(() => {
-      if (!editor) return;
-      try {
-        const paragraphs = editor.query({ type: 'paragraphs' }) as readonly { text: string }[];
-        setWords(countWordsInParagraphs(paragraphs));
-      } catch {
-        setWords(null);
-      }
+      cancelIdle.current = whenIdle(() => {
+        if (!editor) return;
+        try {
+          setWords(countWordsInParagraphs(paragraphTexts(editor)));
+        } catch {
+          setWords(null);
+        }
+      });
     }, 300);
   }, [editor]);
 
   useEffect(() => {
     recount();
-    return () => clearTimeout(timer.current);
+    return () => {
+      clearTimeout(timer.current);
+      cancelIdle.current?.();
+    };
   }, [recount]);
   useEditorEvent('change', recount);
   return words;
