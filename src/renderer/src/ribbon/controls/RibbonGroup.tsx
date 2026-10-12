@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { cx } from '@renderer/ui/cx';
 
 export function RibbonGroup({
   label,
@@ -50,9 +51,22 @@ export function RibbonGroup({
   );
 }
 
-/** Fila de botones pequeños dentro de un grupo. */
-export function RibbonRow({ children }: { readonly children: ReactNode }) {
-  return <div className="tw:flex tw:items-center tw:gap-0.5">{children}</div>;
+/**
+ * Fila de botones pequeños dentro de un grupo. Con `layout="spread"` los botones se reparten a lo
+ * ancho de la pila, alineados con la fila más larga (p. ej. la de fuente y tamaño).
+ */
+export function RibbonRow({
+  children,
+  layout = 'start',
+}: {
+  readonly children: ReactNode;
+  readonly layout?: 'start' | 'spread';
+}) {
+  return (
+    <div className={cx('tw:flex tw:items-center tw:gap-0.5', layout === 'spread' && 'tw:justify-between')}>
+      {children}
+    </div>
+  );
 }
 
 export function RibbonStack({ children }: { readonly children: ReactNode }) {

@@ -103,8 +103,7 @@
       "standardColors": "Colores estándar",
       "noColor": "Sin color",
       "documentFonts": "Fuentes del documento",
-      "allFonts": "Todas las fuentes",
-      "moreColors": "{{label}}: más colores"
+      "allFonts": "Todas las fuentes"
     },
     "highlight": {
       "yellow": "Amarillo",

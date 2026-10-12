@@ -108,7 +108,7 @@ export function HomeTab({
               label={t('home.font.clear')}
             />
           </RibbonRow>
-          <RibbonRow>
+          <RibbonRow layout="spread">
             <CommandButton
               command="text.bold"
               toggle

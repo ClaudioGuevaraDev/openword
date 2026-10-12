@@ -76,9 +76,9 @@ test('Agrandar fuente con Ctrl+Mayús+> sigue los pasos de Word', async ({ win }
 
 test('color de fuente y resaltado desde las paletas', async ({ app, win, out }) => {
   await typeAndSelectAll(win, 'Colores');
-  await win.getByLabel('Color de fuente: más colores').click();
+  await win.getByRole('button', { name: 'Color de fuente', exact: true }).click();
   await win.getByRole('button', { name: 'Rojo oscuro' }).click();
-  await win.getByLabel('Color de resaltado del texto: más colores').click();
+  await win.getByRole('button', { name: 'Color de resaltado del texto', exact: true }).click();
   await win.getByRole('button', { name: 'Amarillo', exact: true }).click();
   const xml = await savedXml(app, win, out);
   expect(xml).toContain('<w:color w:val="C00000"/>');
@@ -130,9 +130,9 @@ test('interlineado 1,5 desde el menú y diálogo Párrafo desde el iniciador del
 
 test('color Automático quita el color directo', async ({ app, win, out }) => {
   await typeAndSelectAll(win, 'Auto');
-  await win.getByLabel('Color de fuente: más colores').click();
+  await win.getByRole('button', { name: 'Color de fuente', exact: true }).click();
   await win.getByRole('button', { name: 'Rojo oscuro' }).click();
-  await win.getByLabel('Color de fuente: más colores').click();
+  await win.getByRole('button', { name: 'Color de fuente', exact: true }).click();
   await win.getByRole('button', { name: 'Automático' }).click();
   const xml = await savedXml(app, win, out);
   expect(xml).not.toContain('w:val="C00000"');

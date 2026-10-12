@@ -1,5 +1,5 @@
 import { ChevronDown12Regular } from '@fluentui/react-icons';
-// Color de fuente y resaltado: botón dividido (aplica el último color) + paleta.
+// Color de fuente y resaltado: botón con paleta (la barra muestra el último color elegido).
 import { createContext, use, useState, type ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
@@ -57,13 +57,13 @@ export const HIGHLIGHT_COLORS: readonly (readonly [string, string])[] = [
 /** Cierra la paleta abierta: lo usan sus botones, en vez de recibirlo por una render prop. */
 const ClosePalette = createContext<() => void>(() => {});
 
-function SplitButton({
+/** Botón de color, igual que Espaciado entre líneas: icono con la barra del color y flecha; abre la paleta. */
+function ColorMenuButton({
   label,
   icon,
   accent,
   swatch,
   disabled,
-  onApply,
   children,
 }: {
   readonly label: string;
@@ -72,57 +72,43 @@ function SplitButton({
   readonly accent: ReactNode;
   readonly swatch: string;
   readonly disabled: boolean;
-  readonly onApply: () => void;
   readonly children: ReactNode;
 }) {
-  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
-    // El botón y su flecha se leen como un solo control: al pasar por encima se enmarcan juntos.
-    <span className="tw:inline-flex tw:items-stretch tw:rounded-md tw:ring-line tw:transition-shadow tw:hover:has-enabled:ring-1">
-      <button
-        type="button"
-        className={`${rc.button} tw:rounded-r-none`}
-        aria-label={label}
-        title={label}
-        disabled={disabled}
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={onApply}
-      >
-        <span className={rc.icon}>
-          {icon}
-          <span
-            className="tw:absolute tw:inset-0 tw:[&>svg]:size-5"
-            style={{ color: swatch }}
-            aria-hidden="true"
-          >
-            {accent}
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      className={rc.palette}
+      role="dialog"
+      aria-label={label}
+      anchor={({ anchorStyle, triggerProps }) => (
+        <button
+          type="button"
+          {...triggerProps}
+          className={rc.button}
+          style={anchorStyle}
+          aria-label={label}
+          title={label}
+          disabled={disabled}
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <span className={rc.icon}>
+            {icon}
+            <span
+              className="tw:absolute tw:inset-0 tw:[&>svg]:size-5"
+              style={{ color: swatch }}
+              aria-hidden="true"
+            >
+              {accent}
+            </span>
           </span>
-        </span>
-      </button>
-      <Popover
-        open={open}
-        onOpenChange={setOpen}
-        className={rc.palette}
-        role="dialog"
-        aria-label={label}
-        anchor={({ anchorStyle, triggerProps }) => (
-          <button
-            type="button"
-            {...triggerProps}
-            className="tw:inline-flex tw:w-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-r-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:duration-100 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-spark tw:hover:enabled:bg-hover tw:active:enabled:bg-pressed tw:disabled:cursor-default tw:disabled:opacity-40 tw:[&>svg]:size-3"
-            style={anchorStyle}
-            aria-label={t('home.font.moreColors', { label })}
-            disabled={disabled}
-            onMouseDown={(e) => e.preventDefault()}
-          >
-            <ChevronDown12Regular />
-          </button>
-        )}
-      >
-        <ClosePalette value={() => setOpen(false)}>{children}</ClosePalette>
-      </Popover>
-    </span>
+          <ChevronDown12Regular className={rc.miniArrow} />
+        </button>
+      )}
+    >
+      <ClosePalette value={() => setOpen(false)}>{children}</ClosePalette>
+    </Popover>
   );
 }
 
@@ -180,13 +166,12 @@ export function FontColorButton({ icon, accent }: { readonly icon: ReactNode; re
     setTimeout(focusEditor, 0);
   };
   return (
-    <SplitButton
+    <ColorMenuButton
       label={t('home.font.color')}
       icon={icon}
       accent={accent}
       swatch={`#${last}`}
       disabled={!color.isEnabled}
-      onApply={() => apply(last)}
     >
       <PaletteButton onPick={() => apply('auto')}>{t('home.font.automatic')}</PaletteButton>
       <div className={rc.paletteTitle}>{t('home.font.themeColors')}</div>
@@ -201,7 +186,7 @@ export function FontColorButton({ icon, accent }: { readonly icon: ReactNode; re
           <Swatch key={hex} hex={hex} title={t(`home.colors.${name}`)} onPick={() => apply(hex)} />
         ))}
       </div>
-    </SplitButton>
+    </ColorMenuButton>
   );
 }
 
@@ -214,13 +199,12 @@ export function HighlightButton({ icon, accent }: { readonly icon: ReactNode; re
     setTimeout(focusEditor, 0);
   };
   return (
-    <SplitButton
+    <ColorMenuButton
       label={t('home.font.highlight')}
       icon={icon}
       accent={accent}
       swatch={`#${last[1]}`}
       disabled={!highlight.isEnabled}
-      onApply={() => apply(last[0])}
     >
       <div className="tw:mb-2 tw:grid tw:grid-cols-5 tw:gap-1">
         {HIGHLIGHT_COLORS.map((entry) => (
@@ -236,6 +220,6 @@ export function HighlightButton({ icon, accent }: { readonly icon: ReactNode; re
         ))}
       </div>
       <PaletteButton onPick={() => apply('none')}>{t('home.font.noColor')}</PaletteButton>
-    </SplitButton>
+    </ColorMenuButton>
   );
 }

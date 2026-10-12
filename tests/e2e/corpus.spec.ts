@@ -163,7 +163,7 @@ test(
     await type('Texto en negrita y con color ');
     await win.keyboard.press('Shift+Home');
     await win.getByRole('button', { name: 'Negrita', exact: true }).click();
-    await win.getByLabel('Color de fuente: más colores').click();
+    await win.getByRole('button', { name: 'Color de fuente', exact: true }).click();
     await win.getByRole('button', { name: 'Rojo oscuro' }).click();
     await win.keyboard.press('End');
     await win.keyboard.press('Enter');

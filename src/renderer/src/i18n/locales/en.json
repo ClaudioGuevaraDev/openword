@@ -103,8 +103,7 @@
       "standardColors": "Standard colors",
       "noColor": "No color",
       "documentFonts": "Document fonts",
-      "allFonts": "All fonts",
-      "moreColors": "{{label}}: more colors"
+      "allFonts": "All fonts"
     },
     "highlight": {
       "yellow": "Yellow",
