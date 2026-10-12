@@ -25,8 +25,10 @@ const isExecutable = async (path: string) => {
 function registryInstallPath(): Promise<string | null> {
   if (process.platform !== 'win32') return Promise.resolve(null);
   return new Promise((resolve) => {
+    // Ruta absoluta: Windows buscaría antes «reg» en la carpeta actual que en el PATH.
+    const reg = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'reg.exe');
     execFile(
-      'reg',
+      reg,
       ['query', 'HKLM\\SOFTWARE\\LibreOffice\\UNO\\InstallPath', '/ve'],
       { timeout: 5000, windowsHide: true },
       (err, out) => {

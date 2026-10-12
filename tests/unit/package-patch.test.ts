@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import CFB from 'cfb';
-import { strFromU8, unzipSync } from 'fflate';
+import { strFromU8, unzipSync, zipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import { MAIN_CONTENT_TYPES, sniffFileKind } from '../../src/shared/file-kinds';
 import { setBlankPaper, setMainContentType } from '../../src/shared/package-patch';
+import { unzipBounded, ZipTooLargeError } from '../../src/shared/zip';
 
 const listCfb = (bytes: Uint8Array) => CFB.read(bytes, { type: 'buffer' }).FileIndex.map((e) => e.name);
 const demo = new Uint8Array(
@@ -45,5 +46,13 @@ describe('setBlankPaper', () => {
     const xml = strFromU8(unzipSync(setBlankPaper(blank, 'a4'))['word/document.xml']!);
     expect(xml).toContain('<w:pgSz w:w="11906" w:h="16838"/>');
     expect(xml).toContain('w:left="1701"');
+  });
+});
+
+describe('unzipBounded', () => {
+  it('rechaza un paquete que se expande por encima del límite sin inflarlo', () => {
+    const zipped = zipSync({ 'a.xml': new Uint8Array(4096), 'b.xml': new Uint8Array(4096) });
+    expect(Object.keys(unzipBounded(zipped, 10_000))).toEqual(['a.xml', 'b.xml']);
+    expect(() => unzipBounded(zipped, 5000)).toThrow(ZipTooLargeError);
   });
 });

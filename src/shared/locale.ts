@@ -1,4 +1,4 @@
-import type { UiLanguage } from './ipc-contract';
+import type { Paper, UiLanguage } from './ipc-contract';
 
 /** Idioma de la interfaz a partir de los idiomas preferidos del SO (BCP-47). Español por defecto. */
 export function pickUiLanguage(preferred: readonly string[]): UiLanguage {
@@ -36,6 +36,6 @@ const LETTER_REGIONS = new Set([
   'VE',
 ]);
 
-export function defaultPaper(region: string | null): 'letter' | 'a4' {
+export function defaultPaper(region: string | null): Paper {
   return region && LETTER_REGIONS.has(region) ? 'letter' : 'a4';
 }

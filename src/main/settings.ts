@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { errnoCode } from '@shared/errors';
 import { IpcChannel } from '@shared/ipc-contract';
 import { DEFAULT_SETTINGS, mergeSettings, type Settings, type SettingsPatch } from '@shared/settings';
+import { push } from './ipc-router';
 import { logError } from './log';
 
 export class SettingsStore {
@@ -56,7 +57,7 @@ export class SettingsStore {
     // Solo tras persistir: memoria, disco y ventanas quedan siempre de acuerdo.
     this.current = next;
     for (const listener of this.listeners) listener(next);
-    for (const win of BrowserWindow.getAllWindows()) win.webContents.send(IpcChannel.settingsChanged, next);
+    for (const win of BrowserWindow.getAllWindows()) push(win.webContents, IpcChannel.settingsChanged, next);
     return next;
   }
 

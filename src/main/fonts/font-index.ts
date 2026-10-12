@@ -6,6 +6,7 @@ import { homedir } from 'node:os';
 import { extname, join } from 'node:path';
 import { z } from 'zod';
 import { errnoCode } from '@shared/errors';
+import type { ResolvedFontFace } from '@shared/ipc-contract';
 import { logError, logTo } from '../log';
 import { readSfntFaces, type SfntFace } from './sfnt-names';
 
@@ -13,17 +14,11 @@ export interface IndexedFace extends SfntFace {
   readonly file: string;
 }
 
-export interface ResolvedFace {
-  readonly family: string;
-  readonly weight: number;
-  readonly style: 'normal' | 'italic';
-  readonly faceIndex: number;
-  readonly bytes: Uint8Array;
-}
-
 const FONT_EXTENSIONS = new Set(['.ttf', '.otf', '.ttc', '.otc']);
 const CACHE_VERSION = 1;
 const MAX_FONT_BYTES = 64 * 1024 * 1024;
+/** Tope de bytes por respuesta de `resolve` (todo viaja por IPC de una vez). */
+const MAX_RESOLVE_BYTES = 256 * 1024 * 1024;
 
 /** Carpetas de fuentes por sistema operativo. */
 export function systemFontDirs(platform: NodeJS.Platform, env: NodeJS.ProcessEnv = process.env): string[] {
@@ -155,9 +150,10 @@ export class FontIndex {
   }
 
   /** Caras disponibles para estas familias (coincidencia sin mayúsculas, por nombre legacy o tipográfico). */
-  async resolve(families: readonly string[]): Promise<ResolvedFace[]> {
+  async resolve(families: readonly string[]): Promise<ResolvedFontFace[]> {
     const faces = await this.all();
-    const result: ResolvedFace[] = [];
+    const result: ResolvedFontFace[] = [];
+    let budget = MAX_RESOLVE_BYTES;
     for (const requested of new Set(families.map((f) => f.trim()).filter(Boolean))) {
       const wanted = requested.toLowerCase();
       // Preferir el nombre legacy (lo que Word escribe); si no hay, el tipográfico.
@@ -170,7 +166,8 @@ export class FontIndex {
         seen.add(key);
         try {
           const bytes = await readFile(face.file);
-          if (bytes.length > MAX_FONT_BYTES) continue;
+          if (bytes.length > MAX_FONT_BYTES || bytes.length > budget) continue;
+          budget -= bytes.length;
           result.push({
             family: requested,
             weight: face.weight,

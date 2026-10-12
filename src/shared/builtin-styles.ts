@@ -2,7 +2,8 @@
 // nota, TOC1… en la tabla de contenido) aunque la plantilla en blanco no los define; Word
 // ignora un estilo inexistente (la llamada de nota saldría sin superíndice). Al guardar se
 // agregan, con la definición estándar de Word (plantilla Normal), los que se usan y faltan.
-import { strFromU8, strToU8, unzipSync, zipSync, type Zippable } from 'fflate';
+import { strFromU8, strToU8, zipSync, type Zippable } from 'fflate';
+import { unzipBounded } from './zip';
 
 const HIDDEN = '<w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/>';
 
@@ -47,7 +48,7 @@ export function referencedStyleIds(parts: Readonly<Record<string, Uint8Array>>):
 
 /** Agrega a styles.xml los estilos integrados que el documento usa y no define. */
 export function ensureBuiltInStyles(bytes: Uint8Array): Uint8Array {
-  const parts = unzipSync(bytes);
+  const parts = unzipBounded(bytes);
   const styles = parts['word/styles.xml'];
   if (!styles) return bytes;
   const xml = strFromU8(styles);

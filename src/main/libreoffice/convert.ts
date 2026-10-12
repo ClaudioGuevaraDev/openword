@@ -5,6 +5,7 @@ import { execFile } from 'node:child_process';
 import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { logError, logTo } from '../log';
 
 const TIMEOUT_MS = 120_000;
 
@@ -23,11 +24,16 @@ export function conversionWorkRoot(soffice: string, home: string, userData: stri
 
 export class ConversionError extends Error {}
 
-export async function convertToDocx(
-  soffice: string,
-  inputPath: string,
-  workRoot: string,
-): Promise<Uint8Array> {
+// LibreOffice no admite dos procesos con el mismo perfil: las conversiones van en fila.
+let queue: Promise<unknown> = Promise.resolve();
+
+export function convertToDocx(soffice: string, inputPath: string, workRoot: string): Promise<Uint8Array> {
+  const run = queue.then(() => convertNow(soffice, inputPath, workRoot));
+  queue = run.catch(() => undefined);
+  return run;
+}
+
+async function convertNow(soffice: string, inputPath: string, workRoot: string): Promise<Uint8Array> {
   await mkdir(workRoot, { recursive: true });
   const dir = await mkdtemp(join(workRoot, 'conv-'));
   try {
@@ -53,18 +59,19 @@ export async function convertToDocx(
       execFile(
         soffice,
         args,
-        { timeout: TIMEOUT_MS, windowsHide: true, maxBuffer: 8 << 20 },
+        // SIGKILL: un soffice colgado ignora SIGTERM y dejaría el perfil bloqueado.
+        { timeout: TIMEOUT_MS, killSignal: 'SIGKILL', windowsHide: true, maxBuffer: 8 << 20 },
         (error, _stdout, stderr) => {
-          if (error) {
-            const killed = (error as NodeJS.ErrnoException & { killed?: boolean }).killed;
-            reject(
-              new ConversionError(
-                killed
-                  ? 'LibreOffice tardó demasiado en convertir el documento.'
-                  : `LibreOffice no pudo convertir el documento. ${String(stderr).trim()}`.trim(),
-              ),
-            );
-          } else resolve();
+          if (!error) return resolve();
+          // El detalle técnico va al registro; al usuario, un mensaje comprensible.
+          logError('libreoffice', `${error.message}\n${String(stderr).trim()}`);
+          reject(
+            new ConversionError(
+              error.killed
+                ? 'LibreOffice tardó demasiado en convertir el documento.'
+                : 'LibreOffice no pudo convertir el documento. Puede estar dañado o en un formato no compatible.',
+            ),
+          );
         },
       );
     });
@@ -75,6 +82,6 @@ export async function convertToDocx(
       throw new ConversionError('LibreOffice no generó el documento convertido.');
     }
   } finally {
-    await rm(dir, { recursive: true, force: true }).catch(() => undefined);
+    await rm(dir, { recursive: true, force: true }).catch(logTo('libreoffice'));
   }
 }

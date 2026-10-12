@@ -1,75 +1,93 @@
 // Puente mínimo y tipado entre el renderer (sin Node) y main. Nada de ipcRenderer crudo.
 import { contextBridge, ipcRenderer, webFrame, webUtils, type IpcRendererEvent } from 'electron';
-import { IpcChannel, type LoadedDocument, type MenuCommand, type OpenWordApi } from '@shared/ipc-contract';
-import type { Settings } from '@shared/settings';
+import {
+  IpcChannel,
+  type InvokeArgs,
+  type InvokeChannel,
+  type InvokeResult,
+  type OpenWordApi,
+  type PushChannel,
+  type PushChannels,
+  type SendChannel,
+  type SendChannels,
+} from '@shared/ipc-contract';
 
-function subscribe<T extends unknown[]>(channel: string, listener: (...args: T) => void): () => void {
-  const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...(args as T));
+// Los tipos salen del contrato; main valida cada argumento al recibirlo.
+const invoke = <C extends InvokeChannel>(channel: C, ...args: InvokeArgs<C>) =>
+  ipcRenderer.invoke(channel, ...args) as Promise<InvokeResult<C>>;
+
+const send = <C extends SendChannel>(channel: C, ...args: SendChannels[C]) =>
+  ipcRenderer.send(channel, ...args);
+
+function subscribe<C extends PushChannel>(
+  channel: C,
+  listener: (...args: PushChannels[C]) => void,
+): () => void {
+  const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...(args as PushChannels[C]));
   ipcRenderer.on(channel, wrapped);
   return () => ipcRenderer.removeListener(channel, wrapped);
 }
 
 const api: OpenWordApi = {
   app: {
-    info: () => ipcRenderer.invoke(IpcChannel.appInfo),
+    info: () => invoke(IpcChannel.appInfo),
   },
   window: {
-    setTitleBarTheme: (dark) => ipcRenderer.send(IpcChannel.windowTitleBarTheme, dark === true),
+    setTitleBarTheme: (dark) => send(IpcChannel.windowTitleBarTheme, dark === true),
   },
   doc: {
-    current: () => ipcRenderer.invoke(IpcChannel.docCurrent),
-    onReplaced: (listener) => subscribe<[LoadedDocument]>(IpcChannel.docReplaced, listener),
-    setState: (state) =>
-      ipcRenderer.send(IpcChannel.docSetState, { dirty: state.dirty, untouched: state.untouched }),
-    save: (bytes) => ipcRenderer.invoke(IpcChannel.docSave, bytes),
-    saveAs: (bytes) => ipcRenderer.invoke(IpcChannel.docSaveAs, bytes),
-    onSaveRequest: (listener) => subscribe<[string]>(IpcChannel.docSaveRequest, listener),
-    answerSaveRequest: (requestId, saved) => ipcRenderer.send(IpcChannel.docSaveAnswer, requestId, saved),
+    current: () => invoke(IpcChannel.docCurrent),
+    onReplaced: (listener) => subscribe(IpcChannel.docReplaced, listener),
+    setState: (state) => send(IpcChannel.docSetState, { dirty: state.dirty, untouched: state.untouched }),
+    save: (bytes) => invoke(IpcChannel.docSave, bytes),
+    saveAs: (bytes) => invoke(IpcChannel.docSaveAs, bytes),
+    onSaveRequest: (listener) => subscribe(IpcChannel.docSaveRequest, listener),
+    answerSaveRequest: (requestId, saved) => send(IpcChannel.docSaveAnswer, requestId, saved),
   },
   file: {
-    newDocument: () => ipcRenderer.send(IpcChannel.fileNew),
-    openDialog: () => ipcRenderer.invoke(IpcChannel.fileOpenDialog),
-    openRecent: (path) => ipcRenderer.invoke(IpcChannel.fileOpenRecent, path),
+    newDocument: () => send(IpcChannel.fileNew),
+    openDialog: () => invoke(IpcChannel.fileOpenDialog),
+    openRecent: (path) => invoke(IpcChannel.fileOpenRecent, path),
     openDropped: (files) => {
       const paths = files.map((file) => webUtils.getPathForFile(file)).filter((path) => path !== '');
-      return ipcRenderer.invoke(IpcChannel.fileOpenPaths, paths);
+      return invoke(IpcChannel.fileOpenPaths, paths);
     },
-    recent: () => ipcRenderer.invoke(IpcChannel.fileRecent),
-    closeWindow: () => ipcRenderer.send(IpcChannel.fileClose),
-    pickImage: () => ipcRenderer.invoke(IpcChannel.filePickImage),
+    recent: () => invoke(IpcChannel.fileRecent),
+    closeWindow: () => send(IpcChannel.fileClose),
+    pickImage: () => invoke(IpcChannel.filePickImage),
   },
   clipboard: {
-    read: () => ipcRenderer.invoke(IpcChannel.clipboardRead),
+    read: () => invoke(IpcChannel.clipboardRead),
   },
   menu: {
-    onCommand: (listener) => subscribe<[MenuCommand]>(IpcChannel.menuCommand, listener),
+    onCommand: (listener) => subscribe(IpcChannel.menuCommand, listener),
   },
   print: {
-    prepare: (bytes) => ipcRenderer.invoke(IpcChannel.printPrepare, bytes),
-    print: (jobId) => ipcRenderer.invoke(IpcChannel.printPrint, jobId),
-    savePdf: (jobId) => ipcRenderer.invoke(IpcChannel.printSavePdf, jobId),
-    dispose: (jobId) => ipcRenderer.send(IpcChannel.printDispose, jobId),
-    sourceBytes: () => ipcRenderer.invoke(IpcChannel.printSourceBytes),
-    rendered: (result) => ipcRenderer.send(IpcChannel.printRendered, result),
+    prepare: (bytes) => invoke(IpcChannel.printPrepare, bytes),
+    print: (jobId) => invoke(IpcChannel.printPrint, jobId),
+    savePdf: (jobId) => invoke(IpcChannel.printSavePdf, jobId),
+    dispose: (jobId) => send(IpcChannel.printDispose, jobId),
+    sourceBytes: () => invoke(IpcChannel.printSourceBytes),
+    rendered: (result) => send(IpcChannel.printRendered, result),
   },
   settings: {
-    get: () => ipcRenderer.invoke(IpcChannel.settingsGet),
-    update: (patch) => ipcRenderer.invoke(IpcChannel.settingsUpdate, patch),
-    onChange: (listener) => subscribe<[Settings]>(IpcChannel.settingsChanged, listener),
+    get: () => invoke(IpcChannel.settingsGet),
+    update: (patch) => invoke(IpcChannel.settingsUpdate, patch),
+    onChange: (listener) => subscribe(IpcChannel.settingsChanged, listener),
   },
   spell: {
     isMisspelled: (word) => typeof word === 'string' && word.length <= 64 && webFrame.isWordMisspelled(word),
     suggestions: (word) =>
       typeof word === 'string' && word.length <= 64 ? webFrame.getWordSuggestions(word).slice(0, 8) : [],
-    addToDictionary: (word) => ipcRenderer.send(IpcChannel.spellAddWord, word),
-    availableLanguages: () => ipcRenderer.invoke(IpcChannel.spellLanguages),
+    addToDictionary: (word) => send(IpcChannel.spellAddWord, word),
+    availableLanguages: () => invoke(IpcChannel.spellLanguages),
   },
   recovery: {
-    snapshot: (bytes) => ipcRenderer.invoke(IpcChannel.recoverySnapshot, bytes),
+    snapshot: (bytes) => invoke(IpcChannel.recoverySnapshot, bytes),
   },
   fonts: {
-    families: () => ipcRenderer.invoke(IpcChannel.fontFamilies),
-    resolve: (families) => ipcRenderer.invoke(IpcChannel.fontResolve, [...families]),
+    families: () => invoke(IpcChannel.fontFamilies),
+    resolve: (families) => invoke(IpcChannel.fontResolve, [...families]),
   },
 };
 

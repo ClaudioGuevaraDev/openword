@@ -33,9 +33,16 @@ export function registerAppSchemePrivileges(): void {
 
 export function handleAppProtocol(rendererDir: string): void {
   protocol.handle(APP_SCHEME, async (request) => {
+    if (request.method !== 'GET' && request.method !== 'HEAD')
+      return new Response('Method not allowed', { status: 405 });
     const target = resolveAppPath(request.url, rendererDir);
     if (!target) return new Response('Not found', { status: 404 });
-    const res = await net.fetch(pathToFileURL(target).toString());
+    let res: Response;
+    try {
+      res = await net.fetch(pathToFileURL(target).toString());
+    } catch {
+      return new Response('Not found', { status: 404 }); // archivo inexistente o ilegible
+    }
     if (!res.ok) return new Response('Not found', { status: 404 });
     const headers = new Headers();
     headers.set('Content-Type', MIME[extname(target).toLowerCase()] ?? 'application/octet-stream');

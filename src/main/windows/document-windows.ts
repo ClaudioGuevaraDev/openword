@@ -4,7 +4,7 @@ import { app, BrowserWindow, dialog, shell, type WebContents } from 'electron';
 import { randomUUID } from 'node:crypto';
 import { basename, extname, join } from 'node:path';
 import { CONVERTIBLE_KINDS, NATIVE_KINDS } from '@shared/file-kinds';
-import type { DocumentNotice, LoadedDocument, SaveResult } from '@shared/ipc-contract';
+import type { DocumentNotice, LoadedDocument, SaveResult, UiLanguage } from '@shared/ipc-contract';
 import { IpcChannel } from '@shared/ipc-contract';
 import { pickUiLanguage } from '@shared/locale';
 import { ensureBuiltInStyles } from '@shared/builtin-styles';
@@ -14,6 +14,7 @@ import { readDocumentFile } from '../documents/open';
 import type { RecentFiles } from '../documents/recent';
 import type { RecoveryStore } from '../documents/recovery';
 import { writeDocxAtomic } from '../documents/save-atomic';
+import { push } from '../ipc-router';
 import { logTo } from '../log';
 import { createDocumentWindow } from '../window';
 
@@ -60,7 +61,7 @@ export class DocumentWindows {
     private readonly converter: Converter,
     private readonly recovery: RecoveryStore,
     /** Idioma de la interfaz (Opciones o, en "automático", el del sistema). */
-    private readonly uiLanguage: () => 'es' | 'en' = () => pickUiLanguage(app.getPreferredSystemLanguages()),
+    private readonly uiLanguage: () => UiLanguage = () => pickUiLanguage(app.getPreferredSystemLanguages()),
   ) {}
 
   // ---------- consulta ----------
@@ -172,7 +173,7 @@ export class DocumentWindows {
     record.dirty = false;
     record.untouched = false;
     this.updateTitle(record);
-    record.win.webContents.send(IpcChannel.docReplaced, doc);
+    push(record.win.webContents, IpcChannel.docReplaced, doc);
     focus(record.win);
   }
 
@@ -450,7 +451,7 @@ export class DocumentWindows {
     const requestId = `${record.id}:${randomUUID()}`;
     return new Promise<boolean>((resolve) => {
       this.saveAnswers.set(requestId, resolve);
-      record.win.webContents.send(IpcChannel.docSaveRequest, requestId);
+      push(record.win.webContents, IpcChannel.docSaveRequest, requestId);
     }).finally(() => this.saveAnswers.delete(requestId));
   }
 

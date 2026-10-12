@@ -1,5 +1,6 @@
 // Ajustes mínimos al paquete OOXML que el motor no hace por sí mismo.
-import { strFromU8, strToU8, unzipSync, zipSync, type Zippable } from 'fflate';
+import { strFromU8, strToU8, zipSync, type Zippable } from 'fflate';
+import { unzipBounded } from './zip';
 import { MAIN_CONTENT_TYPES } from './file-kinds';
 
 export type MainKind = keyof typeof MAIN_CONTENT_TYPES;
@@ -21,7 +22,7 @@ function mainPartName(entries: Record<string, Uint8Array>): string {
  * Las demás partes se copian sin modificar su contenido.
  */
 export function setMainContentType(bytes: Uint8Array, kind: MainKind): Uint8Array {
-  const entries = unzipSync(bytes);
+  const entries = unzipBounded(bytes);
   const types = entries['[Content_Types].xml'];
   if (!types) throw new Error('Paquete OOXML sin [Content_Types].xml');
   const part = mainPartName(entries);
@@ -56,7 +57,7 @@ export type Paper = 'letter' | 'a4';
  */
 export function setBlankPaper(bytes: Uint8Array, paper: Paper): Uint8Array {
   if (paper === 'letter') return bytes;
-  const entries = unzipSync(bytes);
+  const entries = unzipBounded(bytes);
   const doc = entries['word/document.xml'];
   if (!doc) return bytes;
   const xml = strFromU8(doc)

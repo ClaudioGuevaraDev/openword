@@ -80,10 +80,10 @@ function PrintSection() {
               if (state.kind !== 'ready') return;
               const result = await window.openword.print.print(state.job.jobId);
               setStatus(
-                result.ok
+                result.status === 'printed'
                   ? t('backstage.printSent')
-                  : result.error
-                    ? `${t('backstage.printFailed')}: ${result.error}`
+                  : result.status === 'error'
+                    ? `${t('backstage.printFailed')}: ${result.message}`
                     : '',
               );
             }}

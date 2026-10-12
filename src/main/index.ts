@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { errorMessage } from '@shared/errors';
 import { pickUiLanguage } from '@shared/locale';
 import { extractDocumentPaths } from './cli-args';
+import { readEnv } from './env';
 import { RecentFiles } from './documents/recent';
 import { RecoveryStore } from './documents/recovery';
 import { SettingsStore } from './settings';
@@ -26,12 +27,13 @@ function applySpellcheckLanguages(languages: readonly string[]): void {
   session.defaultSession.setSpellCheckerLanguages(chosen.length > 0 ? chosen : ['es']);
 }
 
+const env = readEnv(process.env, app.isPackaged);
 // Solo en desarrollo: electron-vite define esta variable con la URL del servidor de Vite.
-const devServerUrl = !app.isPackaged ? process.env['ELECTRON_RENDERER_URL'] : undefined;
+const devServerUrl = env.ELECTRON_RENDERER_URL;
 
 // Carpeta de datos alternativa (pruebas E2E aisladas). Debe fijarse antes del bloqueo de
 // instancia única, que depende de ella.
-if (process.env['OPENWORD_USER_DATA']) app.setPath('userData', process.env['OPENWORD_USER_DATA']);
+if (env.OPENWORD_USER_DATA) app.setPath('userData', env.OPENWORD_USER_DATA);
 
 configureLog(join(app.getPath('userData'), 'openword.log'));
 process.on('unhandledRejection', logTo('unhandledRejection'));
@@ -93,6 +95,7 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
     );
     registerIpcHandlers({
       devServerUrl,
+      env,
       windows,
       recents,
       fonts,

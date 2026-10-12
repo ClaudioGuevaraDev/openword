@@ -1,24 +1,15 @@
 // Contrato entre el proceso main y el renderer. El preload expone `window.openword`
 // con exactamente esta forma; main registra un handler por canal.
+import type { Paper } from './package-patch';
 import type { Settings, SettingsPatch } from './settings';
 
 export type UiLanguage = 'es' | 'en';
-export type Paper = 'letter' | 'a4';
+export type { Paper } from './package-patch';
 
 export interface AppInfo {
   readonly version: string;
-  readonly platform:
-    | 'aix'
-    | 'android'
-    | 'darwin'
-    | 'freebsd'
-    | 'haiku'
-    | 'linux'
-    | 'openbsd'
-    | 'sunos'
-    | 'win32'
-    | 'cygwin'
-    | 'netbsd';
+  /** Igual que `process.platform` (el renderer no tiene los tipos de Node). */
+  readonly platform: string;
   readonly uiLanguage: UiLanguage;
   /** Región del SO (por ejemplo "MX", "ES", "US"): decide papel Carta/A4 y unidades de la regla. */
   readonly region: string | null;
@@ -71,12 +62,36 @@ export interface PrintJob {
   readonly pages: number;
 }
 
-/** Lo que la ventana de impresión informa al terminar de pintar. */
-export interface PrintRenderInfo {
-  readonly pages: number;
-  /** Tamaños de página distintos, en px CSS ("816x1056"). */
-  readonly sizes: readonly string[];
-  readonly measurer: string;
+/** Lo que la ventana de impresión informa al terminar de pintar (o por qué no pudo). */
+export type PrintRenderResult =
+  | {
+      readonly ok: true;
+      readonly pages: number;
+      /** Tamaños de página distintos, en px CSS ("816x1056"). */
+      readonly sizes: readonly string[];
+      readonly measurer: string;
+    }
+  | { readonly ok: false; readonly error: string };
+
+/** Resultado del diálogo de impresión del sistema. */
+export type PrintOutcome =
+  | { readonly status: 'printed' }
+  | { readonly status: 'canceled' }
+  | { readonly status: 'error'; readonly message: string };
+
+export interface DocState {
+  readonly dirty: boolean;
+  readonly untouched: boolean;
+}
+
+export interface PickedImage {
+  readonly name: string;
+  readonly bytes: Uint8Array;
+}
+
+export interface ClipboardContent {
+  readonly text: string;
+  readonly html: string;
 }
 
 export interface OpenWordApi {
@@ -93,7 +108,7 @@ export interface OpenWordApi {
     /** Main reemplaza el documento de una ventana en blanco sin tocar. */
     onReplaced(listener: (doc: LoadedDocument) => void): Unsubscribe;
     /** El renderer informa si hay cambios sin guardar y si la ventana sigue "sin tocar". */
-    setState(state: { readonly dirty: boolean; readonly untouched: boolean }): void;
+    setState(state: DocState): void;
     save(bytes: Uint8Array): Promise<SaveResult>;
     saveAs(bytes: Uint8Array): Promise<SaveResult>;
     /** Main pide guardar (al cerrar). El renderer responde con `answerSaveRequest`. */
@@ -109,11 +124,11 @@ export interface OpenWordApi {
     recent(): Promise<readonly RecentFile[]>;
     closeWindow(): void;
     /** Diálogo para elegir una imagen a insertar (null si se cancela). */
-    pickImage(): Promise<{ readonly name: string; readonly bytes: Uint8Array } | null>;
+    pickImage(): Promise<PickedImage | null>;
   };
   readonly clipboard: {
     /** Lee el portapapeles del sistema (para el botón Pegar de la cinta). */
-    read(): Promise<{ readonly text: string; readonly html: string }>;
+    read(): Promise<ClipboardContent>;
   };
   readonly menu: {
     onCommand(listener: (command: MenuCommand) => void): Unsubscribe;
@@ -122,13 +137,13 @@ export interface OpenWordApi {
     /** Pinta el documento en una ventana oculta y devuelve el PDF (vista previa). */
     prepare(bytes: Uint8Array): Promise<PrintJob>;
     /** Abre el diálogo de impresión del sistema para un trabajo preparado. */
-    print(jobId: string): Promise<{ readonly ok: boolean; readonly error?: string }>;
+    print(jobId: string): Promise<PrintOutcome>;
     /** Guarda el PDF de un trabajo preparado (diálogo Guardar). */
     savePdf(jobId: string): Promise<SaveResult>;
     dispose(jobId: string): void;
     /** Solo para la ventana de impresión: bytes a pintar y aviso de que terminó. */
     sourceBytes(): Promise<Uint8Array>;
-    rendered(result: PrintRenderInfo | { readonly error: string }): void;
+    rendered(result: PrintRenderResult): void;
   };
   readonly settings: {
     get(): Promise<Settings>;
@@ -151,6 +166,60 @@ export interface OpenWordApi {
     resolve(families: readonly string[]): Promise<readonly ResolvedFontFace[]>;
   };
 }
+
+// ----- canales -----
+// Un único mapa por dirección: el preload, los handlers de main y los envíos de main se
+// tipan a partir de aquí, así un canal no puede tener una forma distinta en cada lado.
+
+/** renderer → main con respuesta (`ipcRenderer.invoke` / `ipcMain.handle`). */
+export interface InvokeChannels {
+  'app:info': { args: []; result: AppInfo };
+  'doc:current': { args: []; result: LoadedDocument };
+  'doc:save': { args: [bytes: Uint8Array]; result: SaveResult };
+  'doc:save-as': { args: [bytes: Uint8Array]; result: SaveResult };
+  'file:open-dialog': { args: []; result: void };
+  'file:open-recent': { args: [path: string]; result: void };
+  'file:open-paths': { args: [paths: readonly string[]]; result: void };
+  'file:recent': { args: []; result: readonly RecentFile[] };
+  'file:pick-image': { args: []; result: PickedImage | null };
+  'clipboard:read': { args: []; result: ClipboardContent };
+  'print:prepare': { args: [bytes: Uint8Array]; result: PrintJob };
+  'print:print': { args: [jobId: string]; result: PrintOutcome };
+  'print:save-pdf': { args: [jobId: string]; result: SaveResult };
+  'print:source-bytes': { args: []; result: Uint8Array };
+  'settings:get': { args: []; result: Settings };
+  'settings:update': { args: [patch: SettingsPatch]; result: Settings };
+  'spell:languages': { args: []; result: readonly string[] };
+  'recovery:snapshot': { args: [bytes: Uint8Array]; result: void };
+  'fonts:families': { args: []; result: readonly string[] };
+  'fonts:resolve': { args: [families: readonly string[]]; result: readonly ResolvedFontFace[] };
+}
+
+/** renderer → main sin respuesta (`ipcRenderer.send` / `ipcMain.on`). */
+export interface SendChannels {
+  'window:title-bar-theme': [dark: boolean];
+  'doc:set-state': [state: DocState];
+  'doc:save-answer': [requestId: string, saved: boolean];
+  'file:new': [];
+  'file:close': [];
+  'print:dispose': [jobId: string];
+  'print:rendered': [result: PrintRenderResult];
+  'spell:add-word': [word: string];
+}
+
+/** main → renderer (`webContents.send` / `ipcRenderer.on`). */
+export interface PushChannels {
+  'doc:replaced': [doc: LoadedDocument];
+  'doc:save-request': [requestId: string];
+  'settings:changed': [settings: Settings];
+  'menu:command': [command: MenuCommand];
+}
+
+export type InvokeChannel = keyof InvokeChannels;
+export type SendChannel = keyof SendChannels;
+export type PushChannel = keyof PushChannels;
+export type InvokeArgs<C extends InvokeChannel> = InvokeChannels[C]['args'];
+export type InvokeResult<C extends InvokeChannel> = InvokeChannels[C]['result'];
 
 export const IpcChannel = {
   appInfo: 'app:info',
@@ -185,4 +254,12 @@ export const IpcChannel = {
   recoverySnapshot: 'recovery:snapshot',
   fontFamilies: 'fonts:families',
   fontResolve: 'fonts:resolve',
-} as const;
+} as const satisfies Record<string, InvokeChannel | SendChannel | PushChannel>;
+
+// Todo canal de los mapas tiene nombre en IpcChannel (el `satisfies` cubre el sentido inverso).
+type Assert<T extends true> = T;
+type UnnamedChannel = Exclude<
+  InvokeChannel | SendChannel | PushChannel,
+  (typeof IpcChannel)[keyof typeof IpcChannel]
+>;
+export type EveryChannelNamed = Assert<[UnnamedChannel] extends [never] ? true : false>;

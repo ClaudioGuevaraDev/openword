@@ -2,9 +2,11 @@
 // derecha en vez de recargar). macOS exige un menú de aplicación para ⌘C/⌘V/⌘Q.
 import { app, BrowserWindow, Menu, type MenuItemConstructorOptions } from 'electron';
 import { IpcChannel, type MenuCommand } from '@shared/ipc-contract';
+import { push } from './ipc-router';
 
 function sendToFocused(command: MenuCommand): void {
-  BrowserWindow.getFocusedWindow()?.webContents.send(IpcChannel.menuCommand, command);
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) push(win.webContents, IpcChannel.menuCommand, command);
 }
 
 export function installApplicationMenu(): void {

@@ -4,6 +4,7 @@
 import { composeFontOrigins, createDocxEditor, defineFontResolver } from '@docx-editor.dev/core';
 import '@docx-editor.dev/core/styles/editor.css';
 import { bundledFonts, systemFonts } from '../editor/fonts';
+import { errorMessage } from '@shared/errors';
 import { pageCss } from './page-css';
 
 const fonts = defineFontResolver((request) => composeFontOrigins([systemFonts, bundledFonts], request));
@@ -53,9 +54,12 @@ async function render(): Promise<void> {
   await frame();
   await frame();
 
-  window.openword.print.rendered({ pages: total, sizes, measurer: editor.fontMeasurement().measurer });
+  window.openword.print.rendered({
+    ok: true,
+    pages: total,
+    sizes,
+    measurer: editor.fontMeasurement().measurer,
+  });
 }
 
-render().catch((error: unknown) =>
-  window.openword.print.rendered({ error: String((error as Error)?.message ?? error) }),
-);
+render().catch((error: unknown) => window.openword.print.rendered({ ok: false, error: errorMessage(error) }));
