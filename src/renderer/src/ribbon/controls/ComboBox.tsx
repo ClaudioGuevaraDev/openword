@@ -155,7 +155,9 @@ export function ComboBox({
               data-index={index}
               aria-selected={option.value === value}
               className={cx(
-                'tw:cursor-pointer tw:rounded-md tw:px-2.5 tw:py-1.5 tw:text-[14px] tw:whitespace-nowrap',
+                // Fuera de la vista no se maqueta la fila: así la primera apertura no carga
+                // todas las fuentes del sistema a la vez, solo las de las filas visibles.
+                'tw:cursor-pointer tw:rounded-md tw:px-2.5 tw:py-1.5 tw:text-[14px] tw:whitespace-nowrap tw:[contain-intrinsic-size:auto_30px] tw:[content-visibility:auto]',
                 option.value === value
                   ? 'tw:bg-pressed'
                   : index === active
