@@ -1,7 +1,7 @@
 {
   "name": "openword",
   "productName": "OpenWord",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "private": true,
   "description": "Procesador de textos de escritorio compatible con Word",
   "author": "OpenWord",
@@ -28,6 +28,7 @@
     "fidelity:report": "pnpm run build && playwright test --config playwright.fidelity.config.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@docx-editor.dev/core": "2.27.0",
     "@docx-editor.dev/fonts": "2.27.0",
     "@docx-editor.dev/i18n": "2.27.0",

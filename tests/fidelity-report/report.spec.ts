@@ -25,34 +25,37 @@ test('informe de fidelidad de paginación frente a Word', async () => {
     const win = await app.firstWindow();
     await waitForDocument(win);
     for (const { file } of manifest.documents) {
-      const key = file.replace('/', '__').replace(/\.docx$/, '');
-      const base64 = readFileSync(join(CORPUS, file)).toString('base64');
-      const ourPdf = join(REPORT, `${key}.openword.pdf`);
-      // main escribe el PDF directo a disco (diálogo de guardado simulado): nada grande cruza procesos.
-      await mockDialogs(app, { save: ourPdf });
-      const ours = await win.evaluate(async (data) => {
-        try {
-          const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
-          const job = await window.openword.print.prepare(bytes);
-          const saved = await window.openword.print.savePdf(job.jobId);
-          window.openword.print.dispose(job.jobId);
-          return saved.status === 'saved' ? { ok: true as const } : { error: JSON.stringify(saved) };
-        } catch (error) {
-          return { error: String(error) };
+      // Un paso por documento: el informe y la traza muestran por dónde va y dónde falló.
+      await test.step(file, async () => {
+        const key = file.replace('/', '__').replace(/\.docx$/, '');
+        const base64 = readFileSync(join(CORPUS, file)).toString('base64');
+        const ourPdf = join(REPORT, `${key}.openword.pdf`);
+        // main escribe el PDF directo a disco (diálogo de guardado simulado): nada grande cruza procesos.
+        await mockDialogs(app, { save: ourPdf });
+        const ours = await win.evaluate(async (data) => {
+          try {
+            const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+            const job = await window.openword.print.prepare(bytes);
+            const saved = await window.openword.print.savePdf(job.jobId);
+            window.openword.print.dispose(job.jobId);
+            return saved.status === 'saved' ? { ok: true as const } : { error: JSON.stringify(saved) };
+          } catch (error) {
+            return { error: String(error) };
+          }
+        }, base64);
+        if ('error' in ours) {
+          rows.push({ file, error: ours.error });
+          return;
         }
-      }, base64);
-      if ('error' in ours) {
-        rows.push({ file, error: ours.error });
-        continue;
-      }
-      const ourPages = await pdfPages(new Uint8Array(readFileSync(ourPdf)));
-      const reference = join(REFERENCE, `${key}.pdf`);
-      if (!existsSync(reference)) {
-        rows.push({ file, ourPages: ourPages.length, reference: false });
-        continue;
-      }
-      const wordPages = await pdfPages(new Uint8Array(readFileSync(reference)));
-      rows.push({ file, reference: true, ...comparePagination(ourPages, wordPages) });
+        const ourPages = await pdfPages(new Uint8Array(readFileSync(ourPdf)));
+        const reference = join(REFERENCE, `${key}.pdf`);
+        if (!existsSync(reference)) {
+          rows.push({ file, ourPages: ourPages.length, reference: false });
+          return;
+        }
+        const wordPages = await pdfPages(new Uint8Array(readFileSync(reference)));
+        rows.push({ file, reference: true, ...comparePagination(ourPages, wordPages) });
+      });
     }
   } finally {
     await closeAll(app);

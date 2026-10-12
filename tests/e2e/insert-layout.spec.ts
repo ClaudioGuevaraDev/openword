@@ -1,50 +1,21 @@
-import { expect, test, type ElectronApplication, type Page } from '@playwright/test';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { deflateSync } from 'node:zlib';
-import { strFromU8, unzipSync } from 'fflate';
-import { closeAll, launchApp, mockDialogs, waitForDocument } from './launch';
+import { FIXTURES, mockDialogs, waitForDocument } from './launch';
+import { clickDocument, expect, mod, saveAndRead, test as base } from './fixtures';
 
-const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
-
-let app: ElectronApplication;
-let win: Page;
-let dir: string;
-let out: string;
-
-test.beforeEach(async () => {
-  app = await launchApp();
-  win = await app.firstWindow();
-  await waitForDocument(win);
-  dir = mkdtempSync(join(tmpdir(), 'ow-insert-'));
-  out = join(dir, 'resultado.docx');
-  await mockDialogs(app, { save: out });
-  await win
-    .locator('.docx-page')
-    .first()
-    .click({ position: { x: 150, y: 120 } });
+const test = base.extend<{ out: string }>({
+  // Cada prueba empieza con el cursor en la página y "Guardar como" simulado hacia `out`.
+  out: [
+    async ({ app, win, workDir }, use) => {
+      const out = join(workDir, 'resultado.docx');
+      await mockDialogs(app, { save: out });
+      await clickDocument(win);
+      await use(out);
+    },
+    { auto: true },
+  ],
 });
-
-test.afterEach(async () => {
-  await closeAll(app);
-});
-
-async function savedPackage(): Promise<Record<string, string>> {
-  await win.keyboard.press(`${mod}+s`);
-  await expect
-    .poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]!.getTitle()))
-    .toBe('resultado.docx - OpenWord');
-  const entries = unzipSync(new Uint8Array(readFileSync(out)));
-  return Object.fromEntries(
-    Object.entries(entries).map(([name, data]) => [
-      name,
-      /\.(xml|rels)$/.test(name) ? strFromU8(data) : `<binario ${data.length}>`,
-    ]),
-  );
-}
-
-const tab = (id: string) => win.getByTestId(`tab-${id}`);
 
 /** PNG de 2×2 rojo, generado a mano (cabecera + IHDR + IDAT + IEND). */
 function tinyPng(): Buffer {
@@ -98,101 +69,112 @@ function tinyBmp(): Buffer {
   return Buffer.concat([header, pixels]);
 }
 
-test('insertar tabla 3×2 con la cuadrícula; la pestaña Tabla agrega y elimina filas', async () => {
-  await tab('insert').click();
+test('insertar tabla 3×2 con la cuadrícula; la pestaña Tabla agrega y elimina filas', async ({
+  app,
+  win,
+  out,
+}) => {
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-table').click();
   await win.getByRole('gridcell', { name: 'Tabla de 3 × 2' }).click();
-  await expect(tab('table')).toBeVisible();
-  await tab('table').click();
+  await expect(win.getByRole('tab', { name: 'Tabla' })).toBeVisible();
+  await win.getByRole('tab', { name: 'Tabla' }).click();
   await win.getByTestId('row-below').click();
   await win.getByTestId('col-right').click();
-  const pkg = await savedPackage();
+  const pkg = await saveAndRead(app, win, out);
   const xml = pkg['word/document.xml']!;
   expect(xml.match(/<w:tbl>/g)).toHaveLength(1);
   expect(xml.match(/<w:tr[ >]/g)).toHaveLength(3);
   expect(xml.match(/<w:gridCol /g)).toHaveLength(4);
 });
 
-test('eliminar tabla quita la pestaña contextual', async () => {
-  await tab('insert').click();
+test('eliminar tabla quita la pestaña contextual', async ({ win }) => {
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-table').click();
   await win.getByRole('gridcell', { name: 'Tabla de 2 × 2' }).click();
-  await tab('table').click();
+  await win.getByRole('tab', { name: 'Tabla' }).click();
   await win.getByTestId('delete-table').click();
-  await expect(tab('table')).toHaveCount(0);
-  await expect(tab('home')).toHaveAttribute('aria-selected', 'true');
+  await expect(win.getByRole('tab', { name: 'Tabla' })).toHaveCount(0);
+  await expect(win.getByRole('tab', { name: 'Inicio' })).toHaveAttribute('aria-selected', 'true');
 });
 
-test('insertar imágenes PNG y BMP (convertida a PNG) desde el diálogo', async () => {
-  writeFileSync(join(dir, 'roja.png'), tinyPng());
-  writeFileSync(join(dir, 'azul.bmp'), tinyBmp());
-  await tab('insert').click();
-  await mockDialogs(app, { save: out, open: [join(dir, 'roja.png')] });
+test('insertar imágenes PNG y BMP (convertida a PNG) desde el diálogo', async ({
+  app,
+  win,
+  out,
+  workDir,
+}) => {
+  writeFileSync(join(workDir, 'roja.png'), tinyPng());
+  writeFileSync(join(workDir, 'azul.bmp'), tinyBmp());
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await mockDialogs(app, { save: out, open: [join(workDir, 'roja.png')] });
   await win.getByTestId('insert-image').click();
-  await expect(win.locator('.docx-page img').first()).toBeVisible();
+  await expect(win.locator('.docx-page').getByRole('img').first()).toBeVisible();
   // La imagen recién insertada queda seleccionada (como en Word): mover el cursor detrás.
   await win.keyboard.press('ArrowRight');
   await win.keyboard.press('End');
   await win.keyboard.press('Enter');
-  await mockDialogs(app, { save: out, open: [join(dir, 'azul.bmp')] });
-  await tab('insert').click();
+  await mockDialogs(app, { save: out, open: [join(workDir, 'azul.bmp')] });
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-image').click();
-  await expect(win.locator('.docx-page img')).toHaveCount(2);
+  await expect(win.locator('.docx-page').getByRole('img')).toHaveCount(2);
   await expect(win.getByTestId('notice-error')).toHaveCount(0);
-  const pkg = await savedPackage();
+  const pkg = await saveAndRead(app, win, out);
   const media = Object.keys(pkg).filter((name) => name.startsWith('word/media/'));
-  expect(media).toHaveLength(2);
-  expect(media.every((name) => name.endsWith('.png'))).toBe(true);
+  expect(media).toEqual([expect.stringMatching(/\.png$/), expect.stringMatching(/\.png$/)]);
   expect(pkg['word/document.xml']!.match(/<w:drawing[\s>]/g) ?? []).toHaveLength(2);
 });
 
-test('salto de página y salto de sección (página siguiente)', async () => {
+test('salto de página y salto de sección (página siguiente)', async ({ app, win, out }) => {
   await win.keyboard.type('Página uno');
-  await tab('insert').click();
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-page-break').click();
   await win.keyboard.type('Página dos');
-  await tab('layout').click();
+  await win.getByRole('tab', { name: 'Disposición' }).click();
   await win.getByTestId('layout-breaks').click();
   await win.getByRole('menuitem', { name: /Página siguiente/ }).click();
   await expect(win.getByTestId('status-page')).toHaveText(/de 3/);
-  const xml = (await savedPackage())['word/document.xml']!;
+  const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
   expect(xml).toContain('<w:br w:type="page"/>');
   expect(xml.match(/<w:sectPr/g)?.length).toBeGreaterThanOrEqual(2);
 });
 
-test('encabezado: escribir, primera página diferente y cerrar', async () => {
-  await tab('insert').click();
+test('encabezado: escribir, primera página diferente y cerrar', async ({ app, win, out }) => {
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-header').click();
-  await expect(tab('headerFooter')).toHaveAttribute('aria-selected', 'true');
+  await expect(win.getByRole('tab', { name: 'Encabezado y pie de página' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
   await win.keyboard.type('Informe anual');
-  await win.getByTestId('hf-first-page').check();
+  await win.getByRole('checkbox', { name: 'Primera página diferente' }).check();
   await win.getByTestId('hf-close').click();
-  await expect(tab('headerFooter')).toHaveCount(0);
-  const pkg = await savedPackage();
+  await expect(win.getByRole('tab', { name: 'Encabezado y pie de página' })).toHaveCount(0);
+  const pkg = await saveAndRead(app, win, out);
   const headers = Object.entries(pkg).filter(([name]) => /^word\/header\d+\.xml$/.test(name));
-  expect(headers.some(([, xml]) => xml.includes('Informe anual'))).toBe(true);
+  expect(headers.map(([, xml]) => xml)).toContainEqual(expect.stringContaining('Informe anual'));
   expect(pkg['word/document.xml']).toContain('<w:titlePg');
 });
 
-test('número de página al final de la página crea un pie con el campo PAGE', async () => {
-  await tab('insert').click();
+test('número de página al final de la página crea un pie con el campo PAGE', async ({ app, win, out }) => {
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-page-number').click();
   await win.getByRole('menuitem', { name: 'Final de página' }).click();
   await win.getByTestId('hf-close').click();
-  const pkg = await savedPackage();
+  const pkg = await saveAndRead(app, win, out);
   const footers = Object.entries(pkg).filter(([name]) => /^word\/footer\d+\.xml$/.test(name));
-  expect(footers.some(([, xml]) => /PAGE/.test(xml))).toBe(true);
+  expect(footers.map(([, xml]) => xml)).toContainEqual(expect.stringMatching(/PAGE/));
 });
 
-test('Disposición: márgenes Estrecho, orientación horizontal y tamaño A4', async () => {
-  await tab('layout').click();
+test('Disposición: márgenes Estrecho, orientación horizontal y tamaño A4', async ({ app, win, out }) => {
+  await win.getByRole('tab', { name: 'Disposición' }).click();
   await win.getByTestId('layout-margins').click();
   await win.getByRole('menuitemradio', { name: /Estrecho/ }).click();
   await win.getByTestId('layout-size').click();
   await win.getByRole('menuitemradio', { name: /\bA4\b/ }).click();
   await win.getByTestId('layout-orientation').click();
   await win.getByRole('menuitemradio', { name: 'Horizontal' }).click();
-  const xml = (await savedPackage())['word/document.xml']!;
+  const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
   const pgMar = /<w:pgMar [^>]*>/.exec(xml)?.[0] ?? '';
   const pgSz = /<w:pgSz [^>]*>/.exec(xml)?.[0] ?? '';
   for (const side of ['top', 'bottom', 'left', 'right']) expect(pgMar).toContain(`w:${side}="720"`);
@@ -201,9 +183,9 @@ test('Disposición: márgenes Estrecho, orientación horizontal y tamaño A4', a
   expect(pgSz).toContain('w:orient="landscape"');
 });
 
-test('Disposición: sangría izquierda y espaciado antes', async () => {
+test('Disposición: sangría izquierda y espaciado antes', async ({ app, win, out }) => {
   await win.keyboard.type('Párrafo con sangría');
-  await tab('layout').click();
+  await win.getByRole('tab', { name: 'Disposición' }).click();
   const unit = await win.evaluate(() =>
     window.openword.app.info().then((i) => (i.region === 'US' ? 'in' : 'cm')),
   );
@@ -213,36 +195,37 @@ test('Disposición: sangría izquierda y espaciado antes', async () => {
   const before = win.getByTestId('space-before');
   await before.fill('12');
   await before.press('Enter');
-  const xml = (await savedPackage())['word/document.xml']!;
+  const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
   expect(/<w:ind [^>]*>/.exec(xml)?.[0]).toContain('w:left="1440"');
   expect(/<w:spacing [^>]*>/.exec(xml)?.[0]).toContain('w:before="240"');
 });
 
-test('Referencias: tabla de contenido y nota al pie', async () => {
+test('Referencias: tabla de contenido y nota al pie', async ({ app, win, out }) => {
   await win.keyboard.type('Introducción');
   await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
   await win.keyboard.press('End');
   await win.keyboard.press('Enter');
   await win.keyboard.type('Texto con nota');
-  await tab('references').click();
+  await win.getByRole('tab', { name: 'Referencias' }).click();
   await win.getByTestId('insert-footnote').click();
   await win.keyboard.type('Fuente de la nota');
-  await win
-    .locator('.docx-page')
-    .first()
-    .click({ position: { x: 150, y: 110 } });
+  await clickDocument(win, { x: 150, y: 110 });
   await win.keyboard.press(`${mod}+Home`);
-  await tab('references').click();
+  await win.getByRole('tab', { name: 'Referencias' }).click();
   await win.getByTestId('insert-toc').click();
-  const pkg = await savedPackage();
+  const pkg = await saveAndRead(app, win, out);
   expect(pkg['word/document.xml']).toMatch(/TOC \\o/);
   expect(pkg['word/footnotes.xml']).toContain('Fuente de la nota');
 });
 
-test('vínculo: se crea desde la cinta y Ctrl+clic lo abre fuera solo si es http(s)', async () => {
+test('vínculo: se crea desde la cinta y Ctrl+clic lo abre fuera solo si es http(s)', async ({
+  app,
+  win,
+  out,
+}) => {
   await win.keyboard.type('Sitio web');
   await win.keyboard.press(`${mod}+a`);
-  await tab('insert').click();
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-link').click();
   // El texto a mostrar se rellena con la selección, pero en CI a veces Ctrl+A aún no llegó al
   // motor: se escribe explícitamente para no depender de ello.
@@ -250,7 +233,7 @@ test('vínculo: se crea desde la cinta y Ctrl+clic lo abre fuera solo si es http
   await win.getByPlaceholder('https://example.com').fill('https://example.com/openword');
   await win.getByRole('button', { name: 'Aplicar' }).click();
   // El motor solo abre el vínculo al hacer clic dentro de su <a>: se espera a que esté dibujado.
-  const link = win.locator('.docx-page a.docx-hyperlink', { hasText: 'Sitio web' }).first();
+  const link = win.locator('.docx-page').getByRole('link', { name: 'Sitio web' }).first();
   await expect(link).toBeVisible();
 
   await app.evaluate(({ shell }) => {
@@ -260,67 +243,65 @@ test('vínculo: se crea desde la cinta y Ctrl+clic lo abre fuera solo si es http
       g.__owExternal.push(url);
     }) as typeof shell.openExternal;
   });
-  await link.click({ modifiers: [mod === 'Meta' ? 'Meta' : 'Control'] });
+  await link.click({ modifiers: [mod] });
   await expect
     .poll(() => app.evaluate(() => (globalThis as unknown as { __owExternal: string[] }).__owExternal))
     .toEqual(['https://example.com/openword']);
   expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
 
-  const pkg = await savedPackage();
+  const pkg = await saveAndRead(app, win, out);
   expect(pkg['word/document.xml']).toContain('<w:hyperlink');
   expect(pkg['word/_rels/document.xml.rels']).toContain('https://example.com/openword');
 });
 
-test('pestaña Imagen: girar una imagen en línea; el ajuste explica por qué no aplica', async () => {
-  writeFileSync(join(dir, 'roja.png'), tinyPng());
-  await mockDialogs(app, { save: out, open: [join(dir, 'roja.png')] });
-  await tab('insert').click();
+test('pestaña Imagen: girar una imagen en línea; el ajuste explica por qué no aplica', async ({
+  app,
+  win,
+  out,
+  workDir,
+}) => {
+  writeFileSync(join(workDir, 'roja.png'), tinyPng());
+  await mockDialogs(app, { save: out, open: [join(workDir, 'roja.png')] });
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-image').click();
-  await win.locator('.docx-page img').first().click();
-  await expect(tab('picture')).toHaveAttribute('aria-selected', 'true');
+  await win.locator('.docx-page').getByRole('img').first().click();
+  await expect(win.getByRole('tab', { name: 'Formato de imagen' })).toHaveAttribute('aria-selected', 'true');
   await expect(win.getByTestId('image-wrap')).toBeDisabled();
   await expect(win.getByTestId('image-wrap')).toHaveAttribute(
     'title',
     /solo se puede cambiar en imágenes flotantes/,
   );
   await win.getByRole('button', { name: 'Girar 90° a la derecha' }).click();
-  const xml = (await savedPackage())['word/document.xml']!;
+  const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
   expect(xml).toMatch(/rot="5400000"/);
 });
 
-test('pestaña Imagen: cambiar el ajuste de una imagen flotante', async () => {
-  const path = join(dir, 'flotante.docx');
-  writeFileSync(path, readFileSync(join(__dirname, '../fixtures/float-wrap-comprehensive-test.docx')));
-  const floating = await launchApp({ args: [path] });
-  try {
-    const w = await floating.firstWindow();
-    await waitForDocument(w);
-    await w.locator('.docx-page img').first().click();
-    await expect(w.getByTestId('tab-picture')).toHaveAttribute('aria-selected', 'true');
-    await expect(w.getByTestId('image-wrap')).toBeEnabled();
-    await w.getByTestId('image-wrap').click();
-    await w.getByRole('menuitemradio', { name: /Arriba y abajo/ }).click();
-    await w.keyboard.press(`${mod}+s`);
-    await expect
-      .poll(() => floating.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]!.getTitle()))
-      .toBe('flotante.docx - OpenWord');
-    const xml = strFromU8(unzipSync(new Uint8Array(readFileSync(path)))['word/document.xml']!);
-    expect(xml).toContain('<wp:wrapTopAndBottom');
-  } finally {
-    await closeAll(floating);
-  }
+test('pestaña Imagen: cambiar el ajuste de una imagen flotante', async ({ launch, workDir }) => {
+  const path = join(workDir, 'flotante.docx');
+  writeFileSync(path, readFileSync(join(FIXTURES, 'float-wrap-comprehensive-test.docx')));
+  const floating = await launch({ args: [path] });
+  const w = await floating.firstWindow();
+  await waitForDocument(w);
+  // Las imágenes del documento no tienen texto alternativo (alt=""): no tienen rol img.
+  await w.locator('.docx-page img').first().click();
+  await expect(w.getByRole('tab', { name: 'Formato de imagen' })).toHaveAttribute('aria-selected', 'true');
+  await expect(w.getByTestId('image-wrap')).toBeEnabled();
+  await w.getByTestId('image-wrap').click();
+  await w.getByRole('menuitemradio', { name: /Arriba y abajo/ }).click();
+  const pkg = await saveAndRead(floating, w, path);
+  expect(pkg['word/document.xml']).toContain('<wp:wrapTopAndBottom');
 });
 
-test('pestaña Tabla: bordes y sombreado de celda', async () => {
-  await tab('insert').click();
+test('pestaña Tabla: bordes y sombreado de celda', async ({ app, win, out }) => {
+  await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-table').click();
   await win.getByRole('gridcell', { name: 'Tabla de 2 × 2' }).click();
-  await tab('table').click();
+  await win.getByRole('tab', { name: 'Tabla' }).click();
   await win.getByTestId('table-borders').click();
   await win.getByRole('menuitem', { name: 'Bordes externos' }).click();
   await win.getByRole('button', { name: 'Sombreado' }).click();
   await win.getByRole('menuitem', { name: 'Amarillo claro' }).click();
-  const xml = (await savedPackage())['word/document.xml']!;
+  const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
   expect(xml).toMatch(/<w:shd [^>]*w:fill="FFF2CC"/);
   expect(xml).toMatch(/<w:(top|tblBorders|tcBorders)/);
 });
