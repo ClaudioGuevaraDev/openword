@@ -1,9 +1,9 @@
+# Cada push a main y cada PR: comprobaciones rápidas. Las E2E y los instaladores van en release.yml.
 name: CI
 
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
   workflow_dispatch:
     inputs:
@@ -35,75 +35,6 @@ jobs:
       - name: Corpus de fidelidad (lectura y escritura sin pérdidas, sin DOM)
         run: pnpm run fidelity
 
-  e2e:
-    name: E2E (${{ matrix.os }})
-    needs: checks
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Descargar binario de Electron
-        run: node node_modules/electron/install.js
-      - name: LibreOffice (para las pruebas de conversión real)
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer
-      - run: pnpm run build
-      - name: Playwright (Linux, con pantalla virtual)
-        if: runner.os == 'Linux'
-        run: xvfb-run --auto-servernum pnpm exec playwright test
-        env:
-          OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
-      - name: Playwright
-        if: runner.os != 'Linux'
-        run: pnpm exec playwright test
-        env:
-          OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
-      - name: Documentos guardados por OpenWord (para la validación OOXML)
-        if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v7
-        with:
-          name: corpus-out
-          path: corpus-out/
-          retention-days: 7
-      - uses: actions/upload-artifact@v7
-        if: failure()
-        with:
-          name: playwright-${{ matrix.os }}
-          path: test-results/
-          retention-days: 7
-
-  ooxml-validation:
-    name: Validación OOXML (Open XML SDK)
-    needs: e2e
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '10.0.x'
-      - uses: actions/download-artifact@v8
-        with:
-          name: corpus-out
-          path: corpus-out
-      - run: dotnet build tools/ooxml-validator -c Release -o validator-bin
-      - name: Sin errores nuevos respecto de los originales
-        run: node scripts/validate-ooxml.mjs corpus-out
-        env:
-          OOXML_VALIDATOR: validator-bin/OoxmlValidator.dll
-
   fidelity-report:
     name: Informe de fidelidad frente a Word
     if: github.event_name == 'workflow_dispatch' && inputs.fidelity_report
@@ -125,35 +56,3 @@ jobs:
           name: informe-fidelidad
           path: tests/fidelity/report/
           retention-days: 30
-
-  package:
-    name: Instalador (${{ matrix.os }})
-    needs: [e2e, ooxml-validation]
-    if: startsWith(github.ref, 'refs/tags/v')
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
-      # Sin firma por ahora: la firma y notarización necesitan certificados (ver docs/DISTRIBUCION.md).
-      - run: pnpm exec electron-builder --publish never
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-      - uses: actions/upload-artifact@v7
-        with:
-          name: openword-${{ matrix.os }}
-          path: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.zip
-            dist/*.AppImage
-            dist/*.deb
-          retention-days: 14

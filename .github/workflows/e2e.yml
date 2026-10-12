@@ -1,0 +1,79 @@
+# E2E en los 3 SO y validación OOXML de lo que guarda la app.
+# La llama release.yml al publicar una versión; también se puede lanzar a mano (Actions → E2E).
+name: E2E
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: E2E (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Descargar binario de Electron
+        run: node node_modules/electron/install.js
+      - name: LibreOffice (para las pruebas de conversión real)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer
+      - run: pnpm run build
+      - name: Playwright (Linux, con pantalla virtual)
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum pnpm exec playwright test
+        env:
+          OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
+      - name: Playwright
+        if: runner.os != 'Linux'
+        run: pnpm exec playwright test
+        env:
+          OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
+      - name: Documentos guardados por OpenWord (para la validación OOXML)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: corpus-out
+          path: corpus-out/
+          retention-days: 7
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-${{ matrix.os }}
+          path: test-results/
+          retention-days: 7
+
+  ooxml-validation:
+    name: Validación OOXML (Open XML SDK)
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/download-artifact@v8
+        with:
+          name: corpus-out
+          path: corpus-out
+      - run: dotnet build tools/ooxml-validator -c Release -o validator-bin
+      - name: Sin errores nuevos respecto de los originales
+        run: node scripts/validate-ooxml.mjs corpus-out
+        env:
+          OOXML_VALIDATOR: validator-bin/OoxmlValidator.dll

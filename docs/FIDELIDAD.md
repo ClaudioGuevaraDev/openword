@@ -1,13 +1,13 @@
 # Fidelidad con Microsoft Word
 
-OpenWord verifica la compatibilidad con Word en cuatro niveles. Los tres primeros corren en cada CI; el cuarto necesita Microsoft Word una sola vez.
+OpenWord verifica la compatibilidad con Word en cuatro niveles. El primero corre en cada push y PR; el segundo y el tercero, al publicar una versión (o a mano, con el workflow E2E); el cuarto necesita Microsoft Word una sola vez.
 
-| Nivel                       | Qué comprueba                                                                                                                                                                       | Cómo se ejecuta                                   |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| 1. Corpus sin DOM           | Los 39 documentos de `tests/corpus` se leen y se escriben con el motor sin perder partes, con binarios idénticos y XML equivalente.                                                 | `pnpm run fidelity`                               |
-| 2. Corpus en la app         | Lo mismo, pero abriendo cada documento en OpenWord y usando "Guardar como" (el camino real del usuario). Incluye un documento creado desde cero con todas las funciones de la v1.   | `pnpm run test:e2e` (`tests/e2e/corpus.spec.ts`)  |
-| 3. Validación OOXML         | Los documentos guardados por OpenWord no tienen errores de esquema nuevos según el Open XML SDK de Microsoft (las reglas de Word). El documento creado desde cero no tiene ninguno. | Job `ooxml-validation` del CI (o en local, abajo) |
-| 4. Paginación frente a Word | El PDF de OpenWord tiene las mismas páginas y los mismos saltos de página que el de Word.                                                                                           | `pnpm run fidelity:report`                        |
+| Nivel                       | Qué comprueba                                                                                                                                                                       | Cómo se ejecuta                                         |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1. Corpus sin DOM           | Los 39 documentos de `tests/corpus` se leen y se escriben con el motor sin perder partes, con binarios idénticos y XML equivalente.                                                 | `pnpm run fidelity`                                     |
+| 2. Corpus en la app         | Lo mismo, pero abriendo cada documento en OpenWord y usando "Guardar como" (el camino real del usuario). Incluye un documento creado desde cero con todas las funciones de la v1.   | `pnpm run test:e2e` (`tests/e2e/corpus.spec.ts`)        |
+| 3. Validación OOXML         | Los documentos guardados por OpenWord no tienen errores de esquema nuevos según el Open XML SDK de Microsoft (las reglas de Word). El documento creado desde cero no tiene ninguno. | Job `ooxml-validation` de `e2e.yml` (o en local, abajo) |
+| 4. Paginación frente a Word | El PDF de OpenWord tiene las mismas páginas y los mismos saltos de página que el de Word.                                                                                           | `pnpm run fidelity:report`                              |
 
 Si LibreOffice está instalado, las E2E también comprueban que abre y exporta a PDF los documentos guardados por OpenWord.
 

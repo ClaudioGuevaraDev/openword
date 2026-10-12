@@ -1,0 +1,60 @@
+# Al publicar una versión (push de un tag v*): comprueba el tag, corre las E2E y la validación
+# OOXML (e2e.yml) y, solo si pasan, genera los instaladores de los 3 SO.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: El tag coincide con package.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          expected="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME#v}" != "$expected" ]; then
+            echo "::error::El tag $GITHUB_REF_NAME no coincide con la versión de package.json ($expected). Usa el tag v$expected."
+            exit 1
+          fi
+          echo "Versión $expected"
+
+  e2e:
+    name: E2E
+    needs: version
+    uses: ./.github/workflows/e2e.yml
+
+  package:
+    name: Instalador (${{ matrix.os }})
+    needs: e2e
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      # Sin firma por ahora: la firma y notarización necesitan certificados (ver docs/DISTRIBUCION.md).
+      - run: pnpm exec electron-builder --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: openword-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+          retention-days: 14
