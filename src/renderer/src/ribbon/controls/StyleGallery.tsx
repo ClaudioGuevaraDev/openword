@@ -9,7 +9,7 @@ import { Popover } from '@renderer/ui/Popover';
 
 type StyleOption = ReturnType<typeof useParagraphStyle>['options'][number];
 
-const VISIBLE = 5;
+const VISIBLE = 4;
 
 function previewStyle(option: StyleOption): CSSProperties {
   const p = option.preview;
@@ -43,7 +43,7 @@ export function StyleGallery() {
       aria-pressed={style.value === option.styleId}
       aria-label={nameOf(option)}
       className={cx(
-        'tw:flex tw:w-[70px] tw:cursor-pointer tw:flex-col tw:justify-between tw:overflow-hidden tw:rounded-md tw:border tw:px-[5px] tw:py-1 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:enabled:bg-hover',
+        'tw:flex tw:w-[70px] tw:cursor-pointer tw:flex-col tw:justify-center tw:gap-2 tw:overflow-hidden tw:rounded-md tw:border tw:px-2 tw:py-1.5 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:enabled:bg-hover',
         style.value === option.styleId
           ? 'tw:border-pressed-line tw:bg-pressed'
           : 'tw:border-transparent tw:bg-transparent',
@@ -66,7 +66,7 @@ export function StyleGallery() {
 
   return (
     <div
-      className="tw:flex tw:h-[66px] tw:items-stretch tw:gap-0.5 tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-0.5"
+      className="tw:box-border tw:flex tw:h-21 tw:items-stretch tw:gap-1 tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1"
       role="group"
       aria-label={t('home.styles.label')}
       data-testid="style-gallery"
@@ -78,7 +78,7 @@ export function StyleGallery() {
         align="end"
         role="dialog"
         aria-label={t('home.styles.label')}
-        className="tw:max-h-[320px] tw:grid-cols-[repeat(5,70px)] tw:gap-0.5 tw:overflow-y-auto tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1 tw:shadow-float tw:open:grid tw:[&>button]:h-[60px]"
+        className="tw:max-h-[320px] tw:grid-cols-[repeat(5,70px)] tw:gap-1 tw:overflow-y-auto tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1.5 tw:shadow-float tw:open:grid tw:[&>button]:h-[64px]"
         anchor={({ anchorStyle, triggerProps }) => (
           <button
             type="button"

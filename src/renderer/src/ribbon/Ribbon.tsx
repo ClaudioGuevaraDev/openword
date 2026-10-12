@@ -161,13 +161,13 @@ export function Ribbon() {
           aria-hidden="true"
         />
       </div>
-      <div className="tw:px-1.5 tw:pt-1.5 tw:pb-1.5">
+      <div className="tw:px-2 tw:pt-1.5 tw:pb-2">
         <div
           key={shownTab}
           id="ribbon-panel"
           role="tabpanel"
           aria-labelledby={`ribbon-tab-${shownTab}`}
-          className="ow-panel-in tw:flex tw:min-h-[92px] tw:items-stretch tw:overflow-x-auto tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1 tw:pt-1.5 tw:shadow-card"
+          className="ow-panel-in tw:flex tw:items-stretch tw:overflow-x-auto tw:overflow-y-hidden tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1.5 tw:pt-2 tw:shadow-card"
         >
           {panel()}
         </div>

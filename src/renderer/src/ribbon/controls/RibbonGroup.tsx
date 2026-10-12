@@ -17,16 +17,17 @@ export function RibbonGroup({
     // no una <section>: cada pestaña tiene varios y no deben contar como regiones de la página.
     <div
       role="group"
-      className="tw:relative tw:flex tw:flex-col tw:px-1.5 tw:after:absolute tw:after:top-[12%] tw:after:right-0 tw:after:h-[76%] tw:after:w-px tw:after:bg-line tw:last:after:hidden"
+      className="tw:relative tw:flex tw:flex-col tw:px-2.5 tw:after:absolute tw:after:top-[12%] tw:after:right-0 tw:after:h-[76%] tw:after:w-px tw:after:bg-line tw:last:after:hidden"
       aria-label={label}
     >
-      <div className="tw:flex tw:flex-1 tw:items-start tw:gap-0.5">{children}</div>
-      <div className="tw:relative tw:px-3.5 tw:pt-0.5 tw:pb-[3px] tw:text-center tw:text-[11px] tw:whitespace-nowrap tw:text-muted">
+      {/* Altura común (la de un botón grande): las pilas de 2 o 3 filas se reparten en ella. */}
+      <div className="tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1">{children}</div>
+      <div className="tw:relative tw:px-3.5 tw:pt-1 tw:pb-1 tw:text-center tw:text-[11px] tw:whitespace-nowrap tw:text-muted">
         {label}
         {onLauncher && (
           <button
             type="button"
-            className="tw:absolute tw:-right-1 tw:-bottom-1 tw:inline-flex tw:size-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:hover:bg-hover tw:hover:text-accent"
+            className="tw:absolute tw:right-0 tw:bottom-0 tw:inline-flex tw:size-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:hover:bg-hover tw:hover:text-accent"
             aria-label={launcherLabel ?? label}
             aria-haspopup="dialog"
             title={launcherLabel ?? label}
@@ -51,9 +52,9 @@ export function RibbonGroup({
 
 /** Fila de botones pequeños dentro de un grupo. */
 export function RibbonRow({ children }: { readonly children: ReactNode }) {
-  return <div className="tw:flex tw:items-center tw:gap-px">{children}</div>;
+  return <div className="tw:flex tw:items-center tw:gap-0.5">{children}</div>;
 }
 
 export function RibbonStack({ children }: { readonly children: ReactNode }) {
-  return <div className="tw:flex tw:flex-col tw:gap-0.5">{children}</div>;
+  return <div className="tw:flex tw:flex-col tw:justify-evenly tw:self-stretch">{children}</div>;
 }

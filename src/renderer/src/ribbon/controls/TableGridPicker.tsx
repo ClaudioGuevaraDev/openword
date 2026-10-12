@@ -73,8 +73,9 @@ export function TableGridPicker({
           onMouseDown={(e) => e.preventDefault()}
         >
           <span className={rc.icon}>{icon}</span>
-          <span className={rc.label}>
-            {label} <ChevronDown12Regular className={rc.miniArrow} />
+          <span className={rc.labelWithArrow}>
+            {label}
+            <ChevronDown12Regular className={rc.miniArrow} />
           </span>
         </button>
       )}

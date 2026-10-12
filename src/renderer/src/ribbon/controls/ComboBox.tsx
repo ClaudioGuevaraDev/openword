@@ -76,12 +76,12 @@ export function ComboBox({
       style={{ minWidth: width }}
       anchor={({ anchorStyle, triggerProps }) => (
         <div
-          className="tw:inline-flex tw:h-6 tw:rounded-md tw:border tw:border-line tw:bg-input tw:focus-within:border-accent tw:has-focus-visible:outline-2 tw:has-focus-visible:-outline-offset-1 tw:has-focus-visible:outline-accent"
+          className="tw:box-border tw:inline-flex tw:h-7 tw:rounded-md tw:border tw:border-line tw:bg-input tw:focus-within:border-accent tw:has-focus-visible:outline-2 tw:has-focus-visible:-outline-offset-1 tw:has-focus-visible:outline-accent"
           style={{ ...anchorStyle, width }}
         >
           <input
             ref={input}
-            className="tw:min-w-0 tw:flex-1 tw:border-0 tw:bg-transparent tw:px-1 tw:font-[family-name:inherit] tw:text-[12px] tw:text-fg tw:outline-none"
+            className="tw:min-w-0 tw:flex-1 tw:border-0 tw:bg-transparent tw:pr-1 tw:pl-2 tw:font-[family-name:inherit] tw:text-[12px] tw:text-fg tw:outline-none"
             aria-label={label}
             title={label}
             role="combobox"
@@ -124,7 +124,7 @@ export function ComboBox({
           <button
             type="button"
             {...triggerProps}
-            className="tw:w-6 tw:flex-none tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-[9px] tw:text-muted"
+            className="tw:inline-flex tw:w-6 tw:flex-none tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-r-[5px] tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:hover:enabled:bg-hover tw:[&>svg]:size-3"
             aria-label={label}
             tabIndex={-1}
             disabled={disabled}
@@ -143,7 +143,7 @@ export function ComboBox({
             <div
               key={`h-${option.label}`}
               role="presentation"
-              className="tw:px-2.5 tw:pt-1.5 tw:pb-0.5 tw:text-[11px] tw:font-semibold tw:text-muted"
+              className="tw:px-2.5 tw:pt-2 tw:pb-1 tw:text-[11px] tw:font-semibold tw:text-muted"
             >
               {option.label}
             </div>
@@ -155,7 +155,7 @@ export function ComboBox({
               data-index={index}
               aria-selected={option.value === value}
               className={cx(
-                'tw:cursor-pointer tw:px-2.5 tw:py-1 tw:text-[14px] tw:whitespace-nowrap',
+                'tw:cursor-pointer tw:rounded-md tw:px-2.5 tw:py-1.5 tw:text-[14px] tw:whitespace-nowrap',
                 option.value === value
                   ? 'tw:bg-pressed'
                   : index === active

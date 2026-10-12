@@ -32,10 +32,10 @@ export function MeasureField({
   };
 
   return (
-    <label className="tw:grid tw:grid-cols-[82px_64px] tw:items-center tw:gap-1 tw:text-[12px]">
+    <label className="tw:grid tw:grid-cols-[82px_68px] tw:items-center tw:gap-2 tw:text-[12px]">
       <span className="tw:text-fg">{label}</span>
       <input
-        className="tw:h-[22px] tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:outline-none tw:focus:border-accent tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-accent"
+        className="tw:box-border tw:h-7 tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-2 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:outline-none tw:focus:border-accent tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-accent"
         aria-label={label}
         data-testid={testId}
         value={shown}

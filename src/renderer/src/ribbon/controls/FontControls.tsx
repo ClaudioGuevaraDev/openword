@@ -34,7 +34,7 @@ export function FontFamilyBox() {
     <ComboBox
       label={t('home.font.family')}
       testId="font-family"
-      width={150}
+      width={156}
       value={font.value ?? ''}
       options={options}
       disabled={!font.isEnabled}

@@ -5,7 +5,7 @@ import { Menu, MenuItem } from '@renderer/ui/Menu';
 import * as rc from '../ribbon-classes';
 
 const half =
-  'tw:cursor-pointer tw:border-0 tw:bg-transparent tw:text-fg tw:font-[family-name:inherit] tw:text-[12px] tw:hover:bg-hover';
+  'tw:flex tw:cursor-pointer tw:items-center tw:justify-center tw:border-0 tw:bg-transparent tw:text-fg tw:font-[family-name:inherit] tw:text-[12px] tw:transition-colors tw:duration-100 tw:hover:bg-hover tw:active:bg-pressed tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-spark';
 
 /** Pegar (botón grande) con el menú de opciones de pegado debajo, como en Word. */
 export function PasteButton({
@@ -17,10 +17,10 @@ export function PasteButton({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="tw:flex tw:h-[66px] tw:w-[54px] tw:flex-col tw:items-stretch tw:rounded-md tw:border tw:border-transparent tw:hover:border-line">
+    <div className="tw:group tw:box-border tw:flex tw:h-21 tw:min-w-14 tw:flex-col tw:items-stretch tw:rounded-md tw:border tw:border-transparent tw:transition-colors tw:hover:border-line">
       <button
         type="button"
-        className={`${half} tw:flex-1 tw:[&>svg]:size-8`}
+        className={`${half} tw:flex-1 tw:rounded-t-[5px] tw:pt-1 tw:[&>svg]:size-8 tw:[&>svg]:text-accent`}
         aria-label={t('home.clipboard.paste')}
         title={`${t('home.clipboard.paste')} (${shortcut})`}
         data-testid="paste"
@@ -35,13 +35,16 @@ export function PasteButton({
           <button
             type="button"
             {...triggerProps}
-            className={`${half} tw:min-h-6 tw:py-0.5 tw:whitespace-nowrap`}
+            className={`${half} tw:min-h-7 tw:gap-0.5 tw:rounded-b-[5px] tw:border-t tw:border-transparent tw:px-2 tw:whitespace-nowrap tw:group-hover:border-line`}
             style={anchorStyle}
             aria-label={t('home.clipboard.pasteOptions')}
             title={t('home.clipboard.pasteOptions')}
             onMouseDown={(e) => e.preventDefault()}
           >
-            {t('home.clipboard.paste')} <ChevronDown12Regular className={rc.miniArrow} />
+            <span className={rc.labelWithArrow}>
+              {t('home.clipboard.paste')}
+              <ChevronDown12Regular className={rc.miniArrow} />
+            </span>
           </button>
         )}
       >

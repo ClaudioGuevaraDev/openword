@@ -7,7 +7,7 @@ import { focusEditor } from '@renderer/editor/document-actions';
 import { Popover } from '@renderer/ui/Popover';
 import * as rc from '../ribbon-classes';
 
-const paletteGrid = 'tw:grid tw:grid-cols-10 tw:gap-[3px]';
+const paletteGrid = 'tw:grid tw:grid-cols-10 tw:gap-1';
 
 // Colores del tema Office y colores estándar de Word, con su nombre (para el lector de pantalla).
 const THEME_COLORS: readonly (readonly [string, string])[] = [
@@ -60,6 +60,7 @@ const ClosePalette = createContext<() => void>(() => {});
 function SplitButton({
   label,
   icon,
+  accent,
   swatch,
   disabled,
   onApply,
@@ -67,6 +68,8 @@ function SplitButton({
 }: {
   readonly label: string;
   readonly icon: ReactNode;
+  /** Icono "Accent" de Fluent: la barra de color, dibujada en el hueco que deja el icono. */
+  readonly accent: ReactNode;
   readonly swatch: string;
   readonly disabled: boolean;
   readonly onApply: () => void;
@@ -75,7 +78,8 @@ function SplitButton({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
-    <span className="tw:inline-flex tw:items-stretch">
+    // El botón y su flecha se leen como un solo control: al pasar por encima se enmarcan juntos.
+    <span className="tw:inline-flex tw:items-stretch tw:rounded-md tw:ring-line tw:transition-shadow tw:hover:has-enabled:ring-1">
       <button
         type="button"
         className={`${rc.button} tw:rounded-r-none`}
@@ -88,9 +92,12 @@ function SplitButton({
         <span className={rc.icon}>
           {icon}
           <span
-            className="tw:-mt-0.5 tw:block tw:h-1 tw:w-[18px] tw:border tw:border-black/15"
-            style={{ background: swatch }}
-          />
+            className="tw:absolute tw:inset-0 tw:[&>svg]:size-5"
+            style={{ color: swatch }}
+            aria-hidden="true"
+          >
+            {accent}
+          </span>
         </span>
       </button>
       <Popover
@@ -103,7 +110,7 @@ function SplitButton({
           <button
             type="button"
             {...triggerProps}
-            className="tw:inline-flex tw:min-w-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-r-[3px] tw:border tw:border-transparent tw:bg-transparent tw:px-0.5 tw:text-[9px] tw:text-muted tw:hover:enabled:border-line tw:hover:enabled:bg-hover"
+            className="tw:inline-flex tw:w-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-r-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:duration-100 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-spark tw:hover:enabled:bg-hover tw:active:enabled:bg-pressed tw:disabled:cursor-default tw:disabled:opacity-40 tw:[&>svg]:size-3"
             style={anchorStyle}
             aria-label={t('home.font.moreColors', { label })}
             disabled={disabled}
@@ -163,7 +170,7 @@ function Swatch({
   );
 }
 
-export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
+export function FontColorButton({ icon, accent }: { readonly icon: ReactNode; readonly accent: ReactNode }) {
   const { t } = useTranslation();
   const color = useEditorValueCommand('text.color');
   const [last, setLast] = useState('C00000');
@@ -176,6 +183,7 @@ export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
     <SplitButton
       label={t('home.font.color')}
       icon={icon}
+      accent={accent}
       swatch={`#${last}`}
       disabled={!color.isEnabled}
       onApply={() => apply(last)}
@@ -197,7 +205,7 @@ export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
   );
 }
 
-export function HighlightButton({ icon }: { readonly icon: ReactNode }) {
+export function HighlightButton({ icon, accent }: { readonly icon: ReactNode; readonly accent: ReactNode }) {
   const { t } = useTranslation();
   const highlight = useEditorValueCommand('text.highlight');
   const [last, setLast] = useState<readonly [string, string]>(HIGHLIGHT_COLORS[0]!);
@@ -209,11 +217,12 @@ export function HighlightButton({ icon }: { readonly icon: ReactNode }) {
     <SplitButton
       label={t('home.font.highlight')}
       icon={icon}
+      accent={accent}
       swatch={`#${last[1]}`}
       disabled={!highlight.isEnabled}
       onApply={() => apply(last[0])}
     >
-      <div className="tw:mb-1.5 tw:grid tw:grid-cols-5 tw:gap-[3px]">
+      <div className="tw:mb-2 tw:grid tw:grid-cols-5 tw:gap-1">
         {HIGHLIGHT_COLORS.map((entry) => (
           <Swatch
             key={entry[0]}

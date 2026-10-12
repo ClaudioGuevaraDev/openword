@@ -6,6 +6,7 @@ import {
   FontDecrease20Regular,
   FontIncrease20Regular,
   Highlight20Regular,
+  HighlightAccent20Filled,
   PaintBrush20Regular,
   Search20Regular,
   SelectAllOn20Regular,
@@ -17,6 +18,7 @@ import {
   TextBulletListLtr20Regular,
   TextClearFormatting20Regular,
   TextColor20Regular,
+  TextColorAccent20Filled,
   TextIndentDecreaseLtr20Regular,
   TextIndentIncreaseLtr20Regular,
   TextItalic20Regular,
@@ -150,8 +152,8 @@ export function HomeTab({
               label={t('home.font.superscript')}
               shortcut={k('Mod+Shift+=')}
             />
-            <HighlightButton icon={<Highlight20Regular />} />
-            <FontColorButton icon={<TextColor20Regular />} />
+            <HighlightButton icon={<Highlight20Regular />} accent={<HighlightAccent20Filled />} />
+            <FontColorButton icon={<TextColor20Regular />} accent={<TextColorAccent20Filled />} />
           </RibbonRow>
         </RibbonStack>
       </RibbonGroup>
