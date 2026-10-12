@@ -29,25 +29,30 @@ async function toPng(bytes: Uint8Array, name: string): Promise<Uint8Array> {
   canvas.height = Math.max(1, Math.round((source.height || 150) * scale));
   canvas.getContext('2d')?.drawImage(source, 0, 0, canvas.width, canvas.height);
   const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-  if (!png) throw new Error('No se pudo convertir la imagen.');
+  if (!png) throw new Error('canvas.toBlob no devolvió la imagen');
   return new Uint8Array(await png.arrayBuffer());
 }
 
-/** Inserta una imagen en la posición del cursor. Devuelve un mensaje de error o null. */
+/** Por qué no se insertó una imagen; la interfaz lo traduce. */
+export type InsertImageError =
+  | { readonly code: 'unreadable' | 'unsupported'; readonly name: string }
+  | { readonly code: 'failed'; readonly reason: string };
+
+/** Inserta una imagen en la posición del cursor. Devuelve el error o null. */
 export async function insertImage(
   editor: DocxEditorInstance,
   bytes: Uint8Array,
   name: string,
-): Promise<string | null> {
+): Promise<InsertImageError | null> {
   let normalized = normalizeImageBytes(bytes);
   if (!normalized.ok) {
     try {
       normalized = normalizeImageBytes(await toPng(bytes, name));
     } catch {
-      return `No se pudo leer la imagen «${name}».`;
+      return { code: 'unreadable', name };
     }
   }
-  if (!normalized.ok) return `Formato de imagen no soportado: «${name}».`;
+  if (!normalized.ok) return { code: 'unsupported', name };
   // Como Word: una imagen más ancha que el área de texto se reduce para caber.
   const page = editor.snapshot().pageSetup;
   const maxWidthPt = page
@@ -62,7 +67,5 @@ export async function insertImage(
     heightPoints: normalized.heightPoints * ratio,
     description: name,
   });
-  return result.ok
-    ? null
-    : `No se pudo insertar la imagen: ${'reason' in result ? String(result.reason) : 'error'}`;
+  return result.ok ? null : { code: 'failed', reason: 'reason' in result ? String(result.reason) : 'error' };
 }

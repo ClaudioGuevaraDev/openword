@@ -60,7 +60,9 @@
     "exportPdfHint": "Preserves layout, formatting and fonts: the PDF looks the same on any computer.",
     "exportPdfButton": "Create PDF",
     "exported": "Saved «{{name}}».",
-    "options": "Options"
+    "options": "Options",
+    "previewPage": "Page {{page}}",
+    "noDocument": "No document is open."
   },
   "notices": {
     "macros": "This document contains macros. OpenWord never runs them, but keeps them when saving.",
@@ -100,7 +102,8 @@
       "standardColors": "Standard colors",
       "noColor": "No color",
       "documentFonts": "Document fonts",
-      "allFonts": "All fonts"
+      "allFonts": "All fonts",
+      "moreColors": "{{label}}: more colors"
     },
     "highlight": {
       "yellow": "Yellow",
@@ -176,7 +179,10 @@
     },
     "illustrations": {
       "label": "Illustrations",
-      "image": "Pictures"
+      "image": "Pictures",
+      "imageUnreadable": "Could not read the image “{{name}}”.",
+      "imageUnsupported": "Unsupported image format: “{{name}}”.",
+      "imageFailed": "Could not insert the image: {{reason}}"
     },
     "links": {
       "label": "Links",
@@ -395,5 +401,8 @@
     "noSuggestions": "(No suggestions)",
     "ignoreAll": "Ignore All",
     "addToDictionary": "Add to Dictionary"
+  },
+  "units": {
+    "pt": "pt"
   }
 }

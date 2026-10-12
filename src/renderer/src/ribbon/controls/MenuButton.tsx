@@ -13,6 +13,8 @@ export interface MenuEntry {
   readonly checked?: boolean;
   readonly disabled?: boolean;
   readonly separatorBefore?: boolean;
+  /** Abre un cuadro de diálogo: el foco debe quedarse en él, no volver al documento. */
+  readonly opensDialog?: boolean;
   readonly onSelect: () => void;
 }
 
@@ -64,7 +66,7 @@ export function MenuButton({
             onSelect={() => {
               entry.onSelect();
               // El foco vuelve al documento para seguir escribiendo.
-              setTimeout(focusEditor, 0);
+              if (!entry.opensDialog) setTimeout(focusEditor, 0);
             }}
           >
             <span className={rc.menuCheck}>{entry.checked ? '✓' : ''}</span>

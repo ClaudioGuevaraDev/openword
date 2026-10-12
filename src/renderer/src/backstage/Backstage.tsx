@@ -1,7 +1,9 @@
 // Vista "Archivo" a pantalla completa, como el Backstage de Word.
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft20Regular, DocumentText20Regular } from '@fluentui/react-icons';
+import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
+import { remoteErrorMessage } from '@shared/errors';
 import type { PrintJob, RecentFile } from '@shared/ipc-contract';
 import {
   closeWindow,
@@ -34,7 +36,7 @@ function usePrintJob(): JobState {
     void (async () => {
       try {
         const bytes = await currentDocumentBytes();
-        if (!bytes) throw new Error('No hay documento abierto.');
+        if (!bytes) throw new Error(i18next.t('backstage.noDocument'));
         const job = await window.openword.print.prepare(bytes);
         if (cancelled) {
           window.openword.print.dispose(job.jobId);
@@ -46,10 +48,7 @@ function usePrintJob(): JobState {
         if (!cancelled)
           setState({
             kind: 'error',
-            message: String((error as Error).message ?? error).replace(
-              /^Error invoking remote method '[^']+': (Error: )?/,
-              '',
-            ),
+            message: remoteErrorMessage(error),
           });
       }
     })();
@@ -133,7 +132,7 @@ function ExportSection() {
             : '',
       );
     } catch (error) {
-      setStatus(String((error as Error).message ?? error));
+      setStatus(remoteErrorMessage(error));
     } finally {
       if (jobId) window.openword.print.dispose(jobId);
       setBusy(false);

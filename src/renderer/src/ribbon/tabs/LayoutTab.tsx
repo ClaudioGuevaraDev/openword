@@ -40,8 +40,8 @@ export function LayoutTab({
   const fmt = useCallback((twips: number) => formatMeasure(twips, unit, language), [unit, language]);
   const parse = useCallback((text: string) => parseMeasure(text, unit), [unit]);
   const fmtPt = useCallback(
-    (pt: number) => `${language === 'es' ? String(pt).replace('.', ',') : pt} pto`,
-    [language],
+    (pt: number) => `${language === 'es' ? String(pt).replace('.', ',') : pt} ${t('units.pt')}`,
+    [language, t],
   );
   const parsePt = useCallback((text: string) => {
     const n = Number(text.replace(',', '.').replace(/\s*(pto|pt)\.?$/i, ''));
@@ -120,6 +120,7 @@ export function LayoutTab({
               id: 'custom',
               label: t('layout.margins.custom'),
               separatorBefore: true,
+              opensDialog: true,
               onSelect: openPageSetupDialog,
             },
           ]}
@@ -155,6 +156,7 @@ export function LayoutTab({
               id: 'more',
               label: t('layout.size.more'),
               separatorBefore: true,
+              opensDialog: true,
               onSelect: openPageSetupDialog,
             },
           ]}

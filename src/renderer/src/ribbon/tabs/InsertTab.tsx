@@ -51,7 +51,10 @@ export function InsertTab({
     const picked = await window.openword.file.pickImage();
     if (!picked) return;
     const error = await insertImage(editor, picked.bytes, picked.name);
-    if (error) setError(error);
+    if (error?.code === 'failed') setError(t('insert.illustrations.imageFailed', { reason: error.reason }));
+    else if (error?.code === 'unreadable')
+      setError(t('insert.illustrations.imageUnreadable', { name: error.name }));
+    else if (error) setError(t('insert.illustrations.imageUnsupported', { name: error.name }));
     editor.focus();
   };
 

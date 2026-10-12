@@ -1,5 +1,5 @@
 // Archivo › Opciones: idioma, corrector ortográfico y recuperación automática.
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { mergeSettings, type SettingsPatch } from '@shared/settings';
@@ -11,10 +11,15 @@ import * as bs from './backstage-classes';
 const OFFERED = ['es', 'es-MX', 'es-ES', 'es-AR', 'es-419', 'en-US', 'en-GB', 'pt-BR', 'fr', 'de', 'it'];
 
 export function OptionsSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const settings = useSettingsStore((s) => s.settings);
   const [available, setAvailable] = useState<readonly string[]>([]);
-  const [minutes, setMinutes] = useState(String(settings.autoRecoverMinutes));
+  // Lo escrito sin confirmar; null muestra el valor guardado (que otra ventana puede cambiar).
+  const [minutes, setMinutes] = useState<string | null>(null);
+  const languageNames = useMemo(
+    () => new Intl.DisplayNames([i18n.language], { type: 'language' }),
+    [i18n.language],
+  );
   const platform = useUiStore((s) => s.platform);
 
   useEffect(() => {
@@ -108,7 +113,7 @@ export function OptionsSection() {
                 checked={settings.spellcheck.languages.includes(code)}
                 onChange={(e) => toggleLanguage(code, e.target.checked)}
               />
-              {new Intl.DisplayNames([i18next.language], { type: 'language' }).of(code) ?? code}
+              {languageNames.of(code) ?? code}
             </label>
           ))}
         </fieldset>
@@ -123,12 +128,13 @@ export function OptionsSection() {
           max={120}
           className={`${bs.optionField} tw:w-16`}
           data-testid="option-autorecover"
-          value={minutes}
+          value={minutes ?? String(settings.autoRecoverMinutes)}
           onChange={(e) => setMinutes(e.target.value)}
           onBlur={() => {
             const value = Number(minutes);
-            if (Number.isInteger(value) && value >= 0 && value <= 120) update({ autoRecoverMinutes: value });
-            else setMinutes(String(settings.autoRecoverMinutes));
+            if (minutes !== null && Number.isInteger(value) && value >= 0 && value <= 120)
+              update({ autoRecoverMinutes: value });
+            setMinutes(null);
           }}
         />
         <span>{t('options.minutes')}</span>

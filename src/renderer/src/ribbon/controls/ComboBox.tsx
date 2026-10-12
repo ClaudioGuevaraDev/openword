@@ -35,22 +35,18 @@ export function ComboBox({
   readonly filter?: boolean;
   readonly testId?: string;
 }) {
-  const [draft, setDraft] = useState(value);
+  // Lo escrito y aún no aplicado; null muestra el valor actual (patrón de MeasureField).
+  const [draft, setDraft] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [typed, setTyped] = useState(false);
   const [active, setActive] = useState(-1);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (document.activeElement !== input.current) setDraft(value);
-  }, [value]);
-
   const visible = useMemo(() => {
-    if (!filter || !typed || !draft) return options;
+    if (!filter || !draft) return options;
     const needle = draft.toLowerCase();
     return options.filter((o) => !o.heading && o.label.toLowerCase().includes(needle));
-  }, [options, draft, typed, filter]);
+  }, [options, draft, filter]);
 
   const selectable = visible.map((o, i) => (o.heading ? -1 : i)).filter((i) => i >= 0);
 
@@ -60,15 +56,18 @@ export function ComboBox({
 
   const commit = (next: string) => {
     setOpen(false);
-    setTyped(false);
+    setDraft(null);
     if (next.trim()) onCommit(next.trim());
-    else setDraft(value);
   };
 
   return (
     <Popover
       open={open && !disabled}
-      onOpenChange={setOpen}
+      onOpenChange={(next) => {
+        setOpen(next);
+        // Cerrada con clic fuera: lo escrito sin confirmar se descarta.
+        if (!next && document.activeElement !== input.current) setDraft(null);
+      }}
       className={rc.comboList}
       style={{ minWidth: width }}
       anchor={({ anchorStyle, triggerProps }) => (
@@ -85,11 +84,10 @@ export function ComboBox({
             aria-expanded={open}
             data-testid={testId}
             disabled={disabled}
-            value={draft}
+            value={draft ?? value}
             onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => {
               setDraft(e.target.value);
-              setTyped(true);
               setOpen(true);
               setActive(-1);
             }}
@@ -97,11 +95,8 @@ export function ComboBox({
               if (e.key === 'Enter') {
                 e.preventDefault();
                 const chosen = active >= 0 ? visible[active] : undefined;
-                commit(chosen ? chosen.value : draft);
+                commit(chosen ? chosen.value : (draft ?? value));
               } else if (e.key === 'Escape') {
-                setDraft(value);
-                setOpen(false);
-                setTyped(false);
                 commit('');
               } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
@@ -115,10 +110,7 @@ export function ComboBox({
               }
             }}
             onBlur={() => {
-              if (!open) {
-                setTyped(false);
-                setDraft(value);
-              }
+              if (!open) setDraft(null);
             }}
           />
           <button
@@ -130,7 +122,7 @@ export function ComboBox({
             disabled={disabled}
             onMouseDown={(e) => e.preventDefault()}
             // Abre y cierra la lista como invocador del popover (no cuenta como clic fuera).
-            onClick={() => setTyped(false)}
+            onClick={() => setDraft(null)}
           >
             <ChevronDown12Regular />
           </button>

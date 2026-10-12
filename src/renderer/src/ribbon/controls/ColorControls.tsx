@@ -69,6 +69,7 @@ function SplitButton({
   readonly onApply: () => void;
   readonly children: (close: () => void) => ReactNode;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
     <span className="tw:inline-flex tw:items-stretch">
@@ -99,7 +100,7 @@ function SplitButton({
             {...triggerProps}
             className="tw:cursor-pointer tw:rounded-r-[3px] tw:border tw:border-transparent tw:bg-transparent tw:px-0.5 tw:text-[9px] tw:text-muted tw:hover:enabled:border-line tw:hover:enabled:bg-hover"
             style={anchorStyle}
-            aria-label={`${label}: más colores`}
+            aria-label={t('home.font.moreColors', { label })}
             disabled={disabled}
             onMouseDown={(e) => e.preventDefault()}
           >

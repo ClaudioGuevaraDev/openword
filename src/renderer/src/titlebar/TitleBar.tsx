@@ -11,6 +11,7 @@ import { openFind, redo, saveDocument, undo } from '@renderer/editor/document-ac
 import { useDocumentStore } from '@renderer/state/document-store';
 import { useUiStore } from '@renderer/state/ui-store';
 import { cx } from '@renderer/ui/cx';
+import { shortcutLabel } from '@renderer/ribbon/shortcut-label';
 
 /** Logotipo de OpenWord: hoja redondeada con una W y el punto coral de la marca. */
 function Logo() {
@@ -57,8 +58,10 @@ export function TitleBar() {
   const { t } = useTranslation();
   const displayName = useDocumentStore((s) => s.displayName);
   const dirty = useDocumentStore((s) => s.dirty);
-  const mac = useUiStore((s) => s.platform) === 'darwin';
-  const mod = mac ? '⌘' : 'Ctrl+';
+  const platform = useUiStore((s) => s.platform);
+  const language = useUiStore((s) => s.language);
+  const mac = platform === 'darwin';
+  const keys = (combo: string) => shortcutLabel(combo, platform, language);
 
   return (
     <header
@@ -81,16 +84,22 @@ export function TitleBar() {
         <Logo />
         <div
           className="tw:ml-1.5 tw:flex tw:items-center tw:gap-0.5"
-          role="toolbar"
+          role="group"
           aria-label={t('titlebar.quickAccess')}
         >
-          <QuickButton label={`${t('titlebar.save')} (${mod}S)`} onClick={() => void saveDocument('save')}>
+          <QuickButton
+            label={`${t('titlebar.save')} (${keys('Mod+S')})`}
+            onClick={() => void saveDocument('save')}
+          >
             <Save20Regular />
           </QuickButton>
-          <QuickButton label={`${t('titlebar.undo')} (${mod}Z)`} onClick={undo}>
+          <QuickButton label={`${t('titlebar.undo')} (${keys('Mod+Z')})`} onClick={undo}>
             <ArrowUndo20Regular />
           </QuickButton>
-          <QuickButton label={`${t('titlebar.redo')} (${mod}Y)`} onClick={redo}>
+          <QuickButton
+            label={`${t('titlebar.redo')} (${keys(mac ? 'Mod+Shift+Z' : 'Mod+Y')})`}
+            onClick={redo}
+          >
             <ArrowRedo20Regular />
           </QuickButton>
         </div>
@@ -123,7 +132,7 @@ export function TitleBar() {
         <Search16Regular className="tw:flex-none" />
         <span className="tw:flex-1 tw:truncate">{t('titlebar.search')}</span>
         <kbd className="tw:rounded tw:bg-white/15 tw:px-1.5 tw:font-[family-name:inherit] tw:text-[11px] tw:text-white/80">
-          {mod}F
+          {keys('Mod+F')}
         </kbd>
       </button>
       <span />

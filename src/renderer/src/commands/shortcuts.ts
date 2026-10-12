@@ -1,6 +1,7 @@
 // Atajos de nivel de aplicación (los de edición, como Ctrl+B, los maneja el motor).
 import {
   closeWindow,
+  focusEditor,
   newDocument,
   openDocument,
   openFind,
@@ -12,14 +13,24 @@ import {
 import { useUiStore } from '@renderer/state/ui-store';
 import { matchShortcut, type Platform } from './shortcut-map';
 
+const ESCAPE_OWNERS =
+  '[role="dialog"], [role="menu"], [role="listbox"], [role="combobox"], [popover]:popover-open';
+
+function escapeBelongsToWidget(): boolean {
+  const focused = document.activeElement;
+  return focused instanceof Element && focused.closest(ESCAPE_OWNERS) !== null;
+}
+
 export function installAppShortcuts(platform: Platform): () => void {
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.isComposing || e.defaultPrevented) return;
-    // Esc cierra el cuadro Buscar y reemplazar aunque el foco esté en el documento.
-    if (e.key === 'Escape' && useUiStore.getState().replaceDialogOpen) {
+    // Esc cierra el cuadro Buscar y reemplazar aunque el foco esté en el documento. Si el foco
+    // está en el propio cuadro, en un menú o en otra ventana emergente, Esc es de ellos.
+    if (e.key === 'Escape' && useUiStore.getState().replaceDialogOpen && !escapeBelongsToWidget()) {
       e.preventDefault();
       e.stopPropagation();
       useUiStore.getState().setReplaceDialogOpen(false);
+      focusEditor();
       return;
     }
     const action = matchShortcut(e, platform, useUiStore.getState().activeTab === 'file');

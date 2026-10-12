@@ -1,6 +1,6 @@
 // Buscar y reemplazar (Ctrl+H), como el cuadro de Word. No es modal: se puede seguir
 // editando el documento con el cuadro abierto.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useDocxEditor, useDocumentSearch } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { replaceAllMatches, replaceOneMatch } from './replace-text';
@@ -30,6 +30,11 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
     findInput.current?.focus();
     findInput.current?.select();
   }, []);
+
+  // Al cerrarse por cualquier vía (botón, Esc desde el documento, cambio de pestaña) se
+  // quitan los resaltados de las coincidencias.
+  const clearSearch = useEffectEvent(() => search.clear());
+  useEffect(() => () => clearSearch(), []);
 
   const options = { matchCase: search.matchCase, wholeWord: search.wholeWord };
 
@@ -79,7 +84,6 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
   };
 
   const close = () => {
-    search.clear();
     onClose();
     editor?.focus();
   };

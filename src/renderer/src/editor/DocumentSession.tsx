@@ -6,6 +6,7 @@ import type { DocumentChange } from '@docx-editor.dev/core';
 import { useDocumentStore } from '@renderer/state/document-store';
 import { useSettingsStore } from '@renderer/state/settings-store';
 import { redo, registerEditor, registerSave, undo, type SaveMode } from './document-actions';
+import { remoteErrorMessage } from '@shared/errors';
 
 let recoverIntervalOverride: number | undefined;
 /** Solo pruebas: acorta el intervalo de recuperación automática. */
@@ -105,7 +106,7 @@ export function DocumentSession({
         if (result.status === 'error') store.setError(result.message);
         return false;
       } catch (error) {
-        store.setError((error as Error).message);
+        store.setError(remoteErrorMessage(error));
         return false;
       } finally {
         useDocumentStore.getState().setBusy(false);

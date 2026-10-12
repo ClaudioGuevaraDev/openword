@@ -60,7 +60,9 @@
     "exportPdfHint": "Conserva el diseño, el formato y las fuentes: el PDF se ve igual en cualquier equipo.",
     "exportPdfButton": "Crear PDF",
     "exported": "Se guardó «{{name}}».",
-    "options": "Opciones"
+    "options": "Opciones",
+    "previewPage": "Página {{page}}",
+    "noDocument": "No hay documento abierto."
   },
   "notices": {
     "macros": "Este documento contiene macros. OpenWord no las ejecuta, pero las conserva al guardar.",
@@ -100,7 +102,8 @@
       "standardColors": "Colores estándar",
       "noColor": "Sin color",
       "documentFonts": "Fuentes del documento",
-      "allFonts": "Todas las fuentes"
+      "allFonts": "Todas las fuentes",
+      "moreColors": "{{label}}: más colores"
     },
     "highlight": {
       "yellow": "Amarillo",
@@ -176,7 +179,10 @@
     },
     "illustrations": {
       "label": "Ilustraciones",
-      "image": "Imágenes"
+      "image": "Imágenes",
+      "imageUnreadable": "No se pudo leer la imagen «{{name}}».",
+      "imageUnsupported": "Formato de imagen no soportado: «{{name}}».",
+      "imageFailed": "No se pudo insertar la imagen: {{reason}}"
     },
     "links": {
       "label": "Vínculos",
@@ -395,5 +401,8 @@
     "noSuggestions": "(Sin sugerencias)",
     "ignoreAll": "Omitir todo",
     "addToDictionary": "Agregar al diccionario"
+  },
+  "units": {
+    "pt": "pto"
   }
 }
