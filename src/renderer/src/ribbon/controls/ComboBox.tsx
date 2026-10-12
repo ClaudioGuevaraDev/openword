@@ -124,7 +124,7 @@ export function ComboBox({
           <button
             type="button"
             {...triggerProps}
-            className="tw:w-4 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-[9px] tw:text-muted"
+            className="tw:w-6 tw:flex-none tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-[9px] tw:text-muted"
             aria-label={label}
             tabIndex={-1}
             disabled={disabled}

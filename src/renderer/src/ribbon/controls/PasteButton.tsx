@@ -35,7 +35,7 @@ export function PasteButton({
           <button
             type="button"
             {...triggerProps}
-            className={`${half} tw:py-0.5 tw:whitespace-nowrap`}
+            className={`${half} tw:min-h-6 tw:py-0.5 tw:whitespace-nowrap`}
             style={anchorStyle}
             aria-label={t('home.clipboard.pasteOptions')}
             title={t('home.clipboard.pasteOptions')}

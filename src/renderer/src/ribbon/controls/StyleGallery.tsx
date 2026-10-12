@@ -53,7 +53,11 @@ export function StyleGallery() {
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => apply(option.styleId)}
     >
-      <span className="tw:overflow-hidden tw:text-clip tw:whitespace-nowrap" style={previewStyle(option)}>
+      <span
+        className="tw:overflow-hidden tw:text-clip tw:whitespace-nowrap"
+        style={previewStyle(option)}
+        aria-hidden="true"
+      >
         AaBbCc
       </span>
       <span className="tw:truncate tw:text-[11px] tw:text-muted">{nameOf(option)}</span>

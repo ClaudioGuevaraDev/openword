@@ -58,7 +58,7 @@
     --ow-bg-statusbar: #f3f5f9;
     --ow-fg-statusbar: #4b5563;
     --ow-fg: #1d2330;
-    --ow-fg-muted: #667085;
+    --ow-fg-muted: #556070; /* 4,5:1 o más también sobre los fondos azulados (WCAG AA) */
     --ow-border: #dde2ea;
     --ow-accent: #185abd;
     --ow-accent-hover: #2b7cff;
