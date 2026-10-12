@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { shortcutLabel } from '../../src/renderer/src/ribbon/shortcut-label';
 import { builtInStyleName } from '../../src/renderer/src/ribbon/controls/style-names';
-import { matchShortcut } from '../../src/renderer/src/commands/shortcut-map';
 
 const es = (key: string, opts?: Record<string, unknown>) =>
   (
@@ -32,21 +31,5 @@ describe('builtInStyleName', () => {
   });
   it('deja intactos los estilos propios del documento', () => {
     expect(builtInStyleName('MiEstilo', 'Mi estilo corporativo', es)).toBeNull();
-  });
-});
-
-describe('atajos de tamaño de fuente', () => {
-  const key = (k: string, shift = true) => ({
-    key: k,
-    ctrlKey: true,
-    metaKey: false,
-    shiftKey: shift,
-    altKey: false,
-  });
-  it('Ctrl+Mayús+> / < y Ctrl+] / [', () => {
-    expect(matchShortcut(key('>'), 'other', false)).toBe('growFont');
-    expect(matchShortcut(key('<'), 'other', false)).toBe('shrinkFont');
-    expect(matchShortcut(key(']', false), 'other', false)).toBe('growFont');
-    expect(matchShortcut(key('[', false), 'other', false)).toBe('shrinkFont');
   });
 });

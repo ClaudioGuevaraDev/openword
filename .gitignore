@@ -7,3 +7,4 @@ playwright-report/
 tests/fidelity/report/
 tools/ooxml-validator/bin/
 tools/ooxml-validator/obj/
+coverage/

@@ -37,3 +37,24 @@ describe('matchShortcut', () => {
     expect(matchShortcut(key('n', { ctrlKey: true, altKey: true }), 'other', false)).toBeNull();
   });
 });
+
+describe('atajos de tamaño de fuente', () => {
+  it('Ctrl+Mayús+> / < y Ctrl+] / [', () => {
+    expect(matchShortcut(key('>', { ctrlKey: true, shiftKey: true }), 'other', false)).toBe('growFont');
+    expect(matchShortcut(key('<', { ctrlKey: true, shiftKey: true }), 'other', false)).toBe('shrinkFont');
+    expect(matchShortcut(key(']', { ctrlKey: true }), 'other', false)).toBe('growFont');
+    expect(matchShortcut(key('[', { ctrlKey: true }), 'other', false)).toBe('shrinkFont');
+  });
+});
+
+describe('atajos Buscar / Reemplazar', () => {
+  it('Ctrl+F / Ctrl+H en Windows y Linux', () => {
+    expect(matchShortcut(key('f', { ctrlKey: true }), 'other', false)).toBe('find');
+    expect(matchShortcut(key('h', { ctrlKey: true }), 'other', false)).toBe('replace');
+  });
+  it('macOS: ⌘F busca, Ctrl+H reemplaza y ⌘H queda para ocultar la app', () => {
+    expect(matchShortcut(key('f', { metaKey: true }), 'darwin', false)).toBe('find');
+    expect(matchShortcut(key('h', { ctrlKey: true }), 'darwin', false)).toBe('replace');
+    expect(matchShortcut(key('h', { metaKey: true }), 'darwin', false)).toBeNull();
+  });
+});

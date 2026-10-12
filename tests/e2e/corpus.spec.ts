@@ -47,6 +47,7 @@ test.describe('corpus: abrir y guardar sin editar en la app', { tag: '@slow' }, 
     app = await launchApp();
     await waitForDocument(await app.firstWindow());
   });
+
   test.afterAll(async () => {
     await closeAll(app);
     rmSync(app.userData, { recursive: true, force: true, maxRetries: 3 });

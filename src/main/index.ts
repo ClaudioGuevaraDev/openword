@@ -27,6 +27,9 @@ function applySpellcheckLanguages(languages: readonly string[]): void {
   session.defaultSession.setSpellCheckerLanguages(chosen.length > 0 ? chosen : ['es']);
 }
 
+// Trazas de error con las rutas de src/ (el build incluye sourcemaps de main y preload).
+process.setSourceMapsEnabled(true);
+
 const env = readEnv(process.env, app.isPackaged);
 // Solo en desarrollo: electron-vite define esta variable con la URL del servidor de Vite.
 const devServerUrl = env.ELECTRON_RENDERER_URL;

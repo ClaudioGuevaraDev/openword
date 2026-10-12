@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { DocxEditorInstance, TextMatch } from '@docx-editor.dev/core';
 import { replaceAllMatches } from '../../src/renderer/src/editor/replace-text';
-import { matchShortcut } from '../../src/renderer/src/commands/shortcut-map';
 
 const match = (paragraphIndex: number, start: number): TextMatch =>
   ({
@@ -44,25 +43,5 @@ describe('replaceAllMatches', () => {
     } as unknown as DocxEditorInstance;
     replaceAllMatches(editor, [match(0, 0)], '');
     expect(types).toEqual(['setSelection', 'deleteText']);
-  });
-});
-
-describe('atajos Buscar / Reemplazar', () => {
-  const k = (key: string, mods: Partial<Record<'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey', boolean>>) => ({
-    key,
-    ctrlKey: false,
-    metaKey: false,
-    shiftKey: false,
-    altKey: false,
-    ...mods,
-  });
-  it('Ctrl+F / Ctrl+H en Windows y Linux', () => {
-    expect(matchShortcut(k('f', { ctrlKey: true }), 'other', false)).toBe('find');
-    expect(matchShortcut(k('h', { ctrlKey: true }), 'other', false)).toBe('replace');
-  });
-  it('macOS: ⌘F busca, Ctrl+H reemplaza y ⌘H queda para ocultar la app', () => {
-    expect(matchShortcut(k('f', { metaKey: true }), 'darwin', false)).toBe('find');
-    expect(matchShortcut(k('h', { ctrlKey: true }), 'darwin', false)).toBe('replace');
-    expect(matchShortcut(k('h', { metaKey: true }), 'darwin', false)).toBeNull();
   });
 });

@@ -12,7 +12,6 @@
     "src/shared/**/*",
     "tests/unit/**/*",
     "scripts/**/*",
-    "tests/fidelity/**/*",
-    "vitest.fidelity.config.ts"
+    "tests/fidelity/**/*"
   ]
 }

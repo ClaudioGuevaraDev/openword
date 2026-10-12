@@ -87,7 +87,6 @@ export const test = base.extend<Fixtures>({
   },
 
   // Playwright exige desestructurar el primer argumento aunque no use otros fixtures.
-  // eslint-disable-next-line no-empty-pattern
   workDir: async ({}, use, testInfo) => {
     const dir = testInfo.outputPath('work');
     mkdirSync(dir, { recursive: true });
