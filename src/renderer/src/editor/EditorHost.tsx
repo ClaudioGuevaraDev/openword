@@ -123,6 +123,9 @@ export function EditorHost({
             tab={ui.navigationTab}
             onTabChange={ui.setNavigationTab}
             paneWidth={280}
+            // La regla vertical mide 20 px y el botón va a 32 px: lo apartamos para que no quede
+            // pegado. No se usa --docx-nav-inset porque también movería el panel abierto.
+            toggle={ui.showRulers ? { style: { insetInlineStart: 48 } } : true}
           />
           <DocxEditor.Viewport className="tw:min-h-0 tw:flex-1 tw:overflow-auto">
             {ui.showRulers && (
