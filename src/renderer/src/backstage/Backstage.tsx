@@ -1,5 +1,6 @@
 // Vista "Archivo" a pantalla completa, como el Backstage de Word.
 import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft20Regular, DocumentText20Regular } from '@fluentui/react-icons';
 import { useTranslation } from 'react-i18next';
 import type { PrintJob, RecentFile } from '@shared/ipc-contract';
 import {
@@ -17,7 +18,7 @@ import { cx } from '@renderer/ui/cx';
 import * as bs from './backstage-classes';
 
 const navButton =
-  'tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-6 tw:py-2.5 tw:text-left tw:text-on-tabbar tw:font-[family-name:inherit] tw:hover:bg-white/15 tw:text-[14px]';
+  'tw:mx-2 tw:cursor-pointer tw:rounded-lg tw:border-0 tw:bg-transparent tw:px-4 tw:py-2 tw:text-left tw:text-on-tabbar tw:font-[family-name:inherit] tw:text-[14px] tw:transition-colors tw:hover:bg-white/15 tw:focus-visible:outline-2 tw:focus-visible:outline-white/70';
 
 type JobState =
   | { readonly kind: 'preparing' }
@@ -68,7 +69,7 @@ function PrintSection() {
   return (
     <section className={bs.content}>
       <h1 className={bs.title}>{t('backstage.print')}</h1>
-      <div className="tw:flex tw:h-[calc(100vh-120px)] tw:gap-8">
+      <div className="tw:flex tw:h-[calc(100vh-160px)] tw:gap-8">
         <div className="tw:w-60 tw:flex-none">
           <button
             type="button"
@@ -95,7 +96,7 @@ function PrintSection() {
           )}
           {status && <p role="status">{status}</p>}
         </div>
-        <div className="tw:min-w-0 tw:flex-1 tw:overflow-auto tw:rounded tw:bg-canvas tw:p-4">
+        <div className="ow-canvas tw:min-w-0 tw:flex-1 tw:overflow-auto tw:rounded-xl tw:border tw:border-line tw:p-4">
           {state.kind === 'preparing' && <p className={bs.hint}>{t('backstage.preparing')}</p>}
           {state.kind === 'error' && (
             <p className={bs.error} role="alert">
@@ -179,20 +180,25 @@ function HomeSection() {
       {recent.length === 0 ? (
         <p className={bs.hint}>{t('backstage.noRecent')}</p>
       ) : (
-        <ul className="tw:m-0 tw:list-none tw:p-0" data-testid="recent-list">
+        <ul className="tw:m-0 tw:flex tw:list-none tw:flex-col tw:gap-1 tw:p-0" data-testid="recent-list">
           {recent.map((file) => (
             <li key={file.path}>
               <button
                 type="button"
-                className="tw:flex tw:w-full tw:max-w-[720px] tw:cursor-pointer tw:flex-col tw:rounded tw:border-0 tw:bg-transparent tw:px-3 tw:py-2 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:hover:bg-line"
+                className="tw:group tw:flex tw:w-full tw:max-w-[720px] tw:cursor-pointer tw:items-center tw:gap-3 tw:rounded-lg tw:border tw:border-transparent tw:bg-transparent tw:px-3 tw:py-2 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:border-line tw:hover:bg-ribbon tw:hover:shadow-card"
                 onClick={() => {
                   setActiveTab('home');
                   void window.openword.file.openRecent(file.path);
                 }}
                 title={file.path}
               >
-                <span className="tw:text-[14px]">{file.name}</span>
-                <span className="tw:text-[12px] tw:text-muted">{file.folder}</span>
+                <span className="tw:inline-flex tw:size-9 tw:flex-none tw:items-center tw:justify-center tw:rounded-lg tw:bg-pressed tw:text-accent">
+                  <DocumentText20Regular />
+                </span>
+                <span className="tw:flex tw:min-w-0 tw:flex-col">
+                  <span className="tw:truncate tw:text-[14px] tw:font-medium">{file.name}</span>
+                  <span className="tw:truncate tw:text-[12px] tw:text-muted">{file.folder}</span>
+                </span>
               </button>
             </li>
           ))}
@@ -217,7 +223,10 @@ export function Backstage() {
     <button
       type="button"
       aria-current={section === id ? 'page' : undefined}
-      className={cx(navButton, section === id && 'tw:bg-white/20! tw:font-semibold')}
+      className={cx(
+        navButton,
+        section === id && 'tw:bg-white/22! tw:font-semibold tw:shadow-[inset_3px_0_0_var(--ow-spark)]',
+      )}
       onClick={() => setSection(id)}
       data-testid={`backstage-${id}`}
     >
@@ -227,19 +236,21 @@ export function Backstage() {
 
   return (
     <div
-      className="tw:fixed tw:inset-0 tw:z-[1000] tw:flex tw:bg-app"
+      // Debajo de la barra de título, que sigue visible (y arrastrable) como en Word.
+      className="tw:fixed tw:inset-x-0 tw:top-10 tw:bottom-0 tw:z-[1000] tw:flex tw:bg-app"
       role="dialog"
       aria-label={t('tabs.file')}
       data-testid="backstage"
     >
-      <nav className="tw:flex tw:w-[200px] tw:flex-col tw:bg-tabbar tw:py-3">
+      <nav className="ow-header ow-backstage-nav tw:flex tw:w-[200px] tw:flex-none tw:flex-col tw:gap-0.5 tw:py-3">
         <button
           type="button"
-          className="tw:mb-3 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-6 tw:py-2.5 tw:text-left tw:font-[family-name:inherit] tw:text-[20px] tw:text-on-tabbar tw:hover:bg-white/15"
+          className="tw:mx-2 tw:mb-3 tw:inline-flex tw:size-9 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-full tw:border tw:border-white/30 tw:bg-transparent tw:text-on-tabbar tw:transition-colors tw:hover:bg-white/15"
           onClick={back}
           aria-label={t('backstage.back')}
+          title={t('backstage.back')}
         >
-          ←
+          <ArrowLeft20Regular />
         </button>
         {tab('home', t('backstage.info'))}
         <button type="button" className={navButton} onClick={run(newDocument)}>

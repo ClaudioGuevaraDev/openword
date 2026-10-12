@@ -1,3 +1,4 @@
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Cuadro combinado de la cinta (fuente, tamaño): se puede escribir o elegir de la lista.
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '@renderer/ui/cx';
@@ -72,7 +73,7 @@ export function ComboBox({
       style={{ minWidth: width }}
       anchor={({ anchorStyle, triggerProps }) => (
         <div
-          className="tw:inline-flex tw:h-6 tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:focus-within:border-accent"
+          className="tw:inline-flex tw:h-6 tw:rounded-md tw:border tw:border-line tw:bg-input tw:focus-within:border-accent"
           style={{ ...anchorStyle, width }}
         >
           <input
@@ -131,7 +132,7 @@ export function ComboBox({
             // Abre y cierra la lista como invocador del popover (no cuenta como clic fuera).
             onClick={() => setTyped(false)}
           >
-            ▾
+            <ChevronDown12Regular />
           </button>
         </div>
       )}

@@ -10,6 +10,7 @@ import { Ribbon } from './ribbon/Ribbon';
 import { useDocumentStore } from './state/document-store';
 import { useUiStore } from './state/ui-store';
 import { StatusBar } from './statusbar/StatusBar';
+import { TitleBar } from './titlebar/TitleBar';
 
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const subscribeDark = (notify: () => void) => {
@@ -24,6 +25,7 @@ function useDarkMode(): boolean {
   const dark = theme === 'dark' || (theme === 'system' && systemDark);
   useEffect(() => {
     document.documentElement.dataset['theme'] = dark ? 'dark' : 'light';
+    window.openword.window.setTitleBarTheme(dark);
   }, [dark]);
   return dark;
 }
@@ -57,6 +59,7 @@ export function App({ info }: { readonly info: AppInfo }) {
     // La clase "dark" activa también el modo oscuro del motor (invierte la vista de la página,
     // sin cambiar los colores guardados).
     <div className={`docx-editor ${dark ? 'dark' : ''} tw:flex tw:h-screen tw:flex-col`} data-testid="app">
+      <TitleBar />
       {doc && source && (
         <EditorHost
           key={`${doc.docId}:${loadSeq}`}

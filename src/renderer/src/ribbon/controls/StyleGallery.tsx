@@ -1,3 +1,4 @@
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Galería de estilos del documento (Inicio › Estilos), con vista previa de cada estilo.
 import { useState, type CSSProperties } from 'react';
 import { useDocxEditor, useParagraphStyle } from '@docx-editor.dev/react';
@@ -42,7 +43,7 @@ export function StyleGallery() {
       role="option"
       aria-selected={style.value === option.styleId}
       className={cx(
-        'tw:flex tw:w-[70px] tw:cursor-pointer tw:flex-col tw:justify-between tw:overflow-hidden tw:border tw:px-[5px] tw:py-1 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:hover:enabled:border-line tw:hover:enabled:bg-hover',
+        'tw:flex tw:w-[70px] tw:cursor-pointer tw:flex-col tw:justify-between tw:overflow-hidden tw:rounded-md tw:border tw:px-[5px] tw:py-1 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:enabled:bg-hover',
         style.value === option.styleId
           ? 'tw:border-pressed-line tw:bg-pressed'
           : 'tw:border-transparent tw:bg-transparent',
@@ -61,7 +62,7 @@ export function StyleGallery() {
 
   return (
     <div
-      className="tw:flex tw:h-[66px] tw:items-stretch tw:rounded-[3px] tw:border tw:border-line tw:bg-input"
+      className="tw:flex tw:h-[66px] tw:items-stretch tw:gap-0.5 tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-0.5"
       role="listbox"
       aria-label={t('home.styles.label')}
       data-testid="style-gallery"
@@ -71,19 +72,19 @@ export function StyleGallery() {
         open={open}
         onOpenChange={setOpen}
         align="end"
-        className="tw:max-h-[320px] tw:grid-cols-[repeat(5,70px)] tw:gap-0.5 tw:overflow-y-auto tw:rounded tw:border tw:border-line tw:bg-input tw:p-1 tw:shadow-[0_4px_16px_rgb(0_0_0/20%)] tw:open:grid tw:[&>button]:h-[60px]"
+        className="tw:max-h-[320px] tw:grid-cols-[repeat(5,70px)] tw:gap-0.5 tw:overflow-y-auto tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1 tw:shadow-float tw:open:grid tw:[&>button]:h-[60px]"
         anchor={({ anchorStyle, triggerProps }) => (
           <button
             type="button"
             {...triggerProps}
-            className="tw:w-4 tw:cursor-pointer tw:border-0 tw:border-l tw:border-line tw:bg-transparent tw:p-0 tw:text-[9px] tw:text-muted"
+            className="tw:inline-flex tw:w-4 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:hover:bg-hover tw:hover:text-accent"
             style={anchorStyle}
             aria-label={t('home.styles.more')}
             title={t('home.styles.more')}
             disabled={!style.isEnabled || style.options.length === 0}
             onMouseDown={(e) => e.preventDefault()}
           >
-            ▾
+            <ChevronDown12Regular />
           </button>
         )}
       >

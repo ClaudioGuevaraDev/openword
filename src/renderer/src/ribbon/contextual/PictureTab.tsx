@@ -62,7 +62,7 @@ function AltTextButton() {
     >
       <div className={rc.paletteTitle}>{t('picture.size.altTextPrompt')}</div>
       <textarea
-        className="tw:mb-1.5 tw:box-border tw:w-full tw:resize-y tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:p-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg"
+        className="tw:mb-1.5 tw:box-border tw:w-full tw:resize-y tw:rounded-md tw:border tw:border-line tw:bg-input tw:p-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg"
         value={draft}
         rows={4}
         autoFocus

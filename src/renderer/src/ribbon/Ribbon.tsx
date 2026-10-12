@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useEditorState, useHeaderFooterState } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { useUiStore, type RibbonTab } from '@renderer/state/ui-store';
@@ -48,6 +48,7 @@ export function Ribbon() {
   }, [contextual, activeTab, setActiveTab]);
 
   const tabs = [...STANDARD_TABS, ...contextual];
+  const [tabListRef, indicatorStyle] = useTabIndicator(activeTab, tabs.length);
 
   const panel = () => {
     switch (activeTab) {
@@ -71,43 +72,90 @@ export function Ribbon() {
   };
 
   return (
-    <div className="tw:flex-none tw:border-b tw:border-line tw:bg-ribbon tw:select-none">
+    <div className="tw:flex-none tw:bg-app tw:select-none">
       <div
-        className="tw:flex tw:gap-0.5 tw:bg-tabbar tw:px-2 tw:pt-1"
+        ref={tabListRef}
+        className="ow-header tw:relative tw:flex tw:items-end tw:gap-0.5 tw:px-2 tw:pb-1"
         role="tablist"
         aria-label={t('ribbon.label')}
       >
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            role="tab"
-            id={`ribbon-tab-${tab}`}
-            data-testid={`tab-${tab}`}
-            aria-selected={activeTab === tab}
-            aria-controls="ribbon-panel"
-            className={cx(
-              'tw:cursor-pointer tw:rounded-t tw:border-0 tw:bg-transparent tw:px-3.5 tw:py-1.5 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:hover:bg-white/15 tw:aria-selected:bg-tab-active tw:aria-selected:font-semibold',
-              tab === 'file' && 'tw:font-semibold',
-              contextual.includes(tab)
-                ? 'tw:text-[#fff3c4] tw:aria-selected:text-[#8a5a00] tw:dark:aria-selected:text-[#f0c060]'
-                : 'tw:text-on-tabbar tw:aria-selected:text-on-tab-active',
-            )}
-            onMouseDown={(e) => e.preventDefault()} // la cinta nunca roba el cursor del documento
-            onClick={() => setActiveTab(tab)}
-          >
-            {t(`tabs.${tab}`)}
-          </button>
-        ))}
+        {tabs.map((tab, i) => {
+          const isContextual = contextual.includes(tab);
+          return (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              id={`ribbon-tab-${tab}`}
+              data-testid={`tab-${tab}`}
+              aria-selected={activeTab === tab}
+              aria-controls="ribbon-panel"
+              className={cx(
+                'tw:relative tw:cursor-pointer tw:rounded-md tw:border-0 tw:px-3 tw:py-1 tw:font-[family-name:inherit] tw:text-[13px] tw:transition-colors tw:focus-visible:outline-2 tw:focus-visible:outline-white/70 tw:aria-selected:font-semibold',
+                tab === 'file'
+                  ? 'tw:mr-1 tw:bg-white/15 tw:font-semibold tw:text-on-tabbar tw:hover:bg-white/25'
+                  : isContextual
+                    ? 'tw:bg-contextual/20 tw:text-contextual tw:hover:bg-contextual/30 tw:aria-selected:bg-contextual tw:aria-selected:text-on-contextual'
+                    : 'tw:bg-transparent tw:text-on-tabbar/85 tw:hover:bg-white/12 tw:hover:text-on-tabbar tw:aria-selected:text-on-tabbar',
+                // Las contextuales van separadas, como en Word.
+                i === STANDARD_TABS.length && 'tw:ml-3',
+              )}
+              onMouseDown={(e) => e.preventDefault()} // la cinta nunca roba el cursor del documento
+              onClick={() => setActiveTab(tab)}
+            >
+              {t(`tabs.${tab}`)}
+            </button>
+          );
+        })}
+        {/* Subrayado coral bajo la pestaña activa: se desliza al cambiar de pestaña. */}
+        <span
+          className="ow-tab-indicator tw:pointer-events-none tw:absolute tw:bottom-0.5 tw:h-[3px] tw:rounded-full tw:bg-spark"
+          style={indicatorStyle}
+          aria-hidden="true"
+        />
       </div>
-      <div
-        id="ribbon-panel"
-        role="tabpanel"
-        aria-labelledby={`ribbon-tab-${activeTab}`}
-        className="tw:flex tw:min-h-[92px] tw:items-stretch tw:overflow-x-auto tw:px-1 tw:pt-1"
-      >
-        {panel()}
+      <div className="tw:px-1.5 tw:pt-1.5 tw:pb-1.5">
+        <div
+          key={activeTab}
+          id="ribbon-panel"
+          role="tabpanel"
+          aria-labelledby={`ribbon-tab-${activeTab}`}
+          className="ow-panel-in tw:flex tw:min-h-[92px] tw:items-stretch tw:overflow-x-auto tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1 tw:pt-1.5 tw:shadow-card"
+        >
+          {panel()}
+        </div>
       </div>
     </div>
   );
+}
+
+/** Posición del subrayado de la pestaña activa (sin indicador en Archivo, que abre el Backstage). */
+function useTabIndicator(activeTab: RibbonTab, count: number) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const [style, setStyle] = useState<{ left: number; width: number; opacity: number }>({
+    left: 0,
+    width: 0,
+    opacity: 0,
+  });
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const measure = () => {
+      const tab = list.querySelector<HTMLElement>(`#ribbon-tab-${activeTab}`);
+      if (!tab || activeTab === 'file') {
+        setStyle((s) => ({ ...s, opacity: 0 }));
+        return;
+      }
+      const inset = 10;
+      setStyle({ left: tab.offsetLeft + inset, width: tab.offsetWidth - inset * 2, opacity: 1 });
+    };
+    measure();
+    // La fuente de la interfaz carga después del primer pintado y cambia el ancho de las pestañas.
+    const observer = new ResizeObserver(measure);
+    for (const child of list.children) observer.observe(child);
+    return () => observer.disconnect();
+  }, [activeTab, count]);
+
+  return [listRef, style] as const;
 }

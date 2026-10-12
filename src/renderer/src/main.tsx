@@ -6,6 +6,7 @@ import { setRecoverIntervalOverride } from './editor/DocumentSession';
 import { initI18n } from './i18n';
 import { useSettingsStore } from './state/settings-store';
 import { useUiStore } from './state/ui-store';
+import '@fontsource-variable/figtree';
 import './styles/app.css';
 
 async function bootstrap(): Promise<void> {

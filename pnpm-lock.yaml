@@ -165,6 +165,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@fontsource-variable/figtree':
+        specifier: 5.3.0
+        version: 5.3.0
     devDependencies:
       '@docx-editor.dev/core':
         specifier: 2.27.0
@@ -828,6 +832,9 @@ packages:
     resolution: {integrity: sha512-pvEVFOUrrtmIglqdfhDVX6XT80a5z9kX+Tso6NAzgmkko8nlURhOzNwvZZlsCK4yQseH/4NQdYoN8ijO7IHdNw==}
     peerDependencies:
       react: '>=16.8.0 <20.0.0'
+
+  '@fontsource-variable/figtree@5.3.0':
+    resolution: {integrity: sha512-VRVodD7OiG7apQwE8/2fMjaqpY/a0qRJqL5HtYj8CKIVps+9amaFcdfKmDIf7iqYQx6iPLlArVXAfKeIZmVcNQ==}
 
   '@griffel/core@1.21.4':
     resolution: {integrity: sha512-Pt6tjaBCOYYC76L7U5yl3r+UqOGXEbeskvYuqUsUzaVQR2ueoMErA2+bRjvVPFr8NvvhPVU+QNBqd9Deg5st2A==}
@@ -3848,6 +3855,8 @@ snapshots:
       '@griffel/react': 1.7.8(react@19.3.0)
       react: 19.3.0
       tslib: 2.8.1
+
+  '@fontsource-variable/figtree@5.3.0': {}
 
   '@griffel/core@1.21.4':
     dependencies:

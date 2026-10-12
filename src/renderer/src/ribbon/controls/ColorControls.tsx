@@ -1,3 +1,4 @@
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Color de fuente y resaltado: botón dividido (aplica el último color) + paleta.
 import { useState, type ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
@@ -102,7 +103,7 @@ function SplitButton({
             disabled={disabled}
             onMouseDown={(e) => e.preventDefault()}
           >
-            ▾
+            <ChevronDown12Regular />
           </button>
         )}
       >

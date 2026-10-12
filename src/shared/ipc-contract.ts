@@ -83,6 +83,10 @@ export interface OpenWordApi {
   readonly app: {
     info(): Promise<AppInfo>;
   };
+  readonly window: {
+    /** Colores de los botones nativos de ventana (minimizar, maximizar, cerrar) según el tema. */
+    setTitleBarTheme(dark: boolean): void;
+  };
   readonly doc: {
     /** Documento de esta ventana (al cargar la página). */
     current(): Promise<LoadedDocument>;
@@ -150,6 +154,7 @@ export interface OpenWordApi {
 
 export const IpcChannel = {
   appInfo: 'app:info',
+  windowTitleBarTheme: 'window:title-bar-theme',
   docCurrent: 'doc:current',
   docReplaced: 'doc:replaced',
   docSetState: 'doc:set-state',

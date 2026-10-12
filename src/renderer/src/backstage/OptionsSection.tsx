@@ -99,7 +99,7 @@ export function OptionsSection() {
       {platform === 'darwin' ? (
         <p className={bs.hint}>{t('options.macDictionaries')}</p>
       ) : (
-        <fieldset className="tw:my-2 tw:grid tw:max-w-[640px] tw:grid-cols-[repeat(3,minmax(160px,1fr))] tw:rounded tw:border tw:border-line tw:px-3 tw:py-2">
+        <fieldset className="tw:my-2 tw:grid tw:max-w-[640px] tw:grid-cols-[repeat(3,minmax(160px,1fr))] tw:rounded-lg tw:border tw:border-line tw:px-3 tw:py-2">
           <legend>{t('options.dictionaries')}</legend>
           {languages.map((code) => (
             <label key={code} className={bs.optionCheck}>

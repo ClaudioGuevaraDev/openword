@@ -92,13 +92,13 @@ export function EditorHost({
         {notices}
         {ui.showRulers && (
           <div
-            className="tw:flex tw:min-h-6 tw:flex-none tw:justify-center-safe tw:overflow-hidden tw:border-b tw:border-line tw:bg-canvas tw:py-0.5"
+            className="tw:flex tw:min-h-6 tw:flex-none tw:justify-center-safe tw:overflow-hidden tw:bg-canvas tw:py-0.5"
             data-testid="ruler"
           >
             <DocxEditor.HorizontalRuler unit={rulerUnit} />
           </div>
         )}
-        <div className="tw:relative tw:flex tw:min-h-0 tw:flex-1 tw:items-stretch tw:bg-canvas">
+        <div className="ow-canvas tw:relative tw:flex tw:min-h-0 tw:flex-1 tw:items-stretch">
           <DocxEditor.Navigation
             open={ui.navigationOpen}
             onOpenChange={(open) => ui.setNavigation(open)}

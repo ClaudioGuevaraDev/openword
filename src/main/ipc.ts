@@ -15,6 +15,7 @@ import { defaultPaper, pickRegion, pickUiLanguage } from '@shared/locale';
 import type { RecentFiles } from './documents/recent';
 import type { FontIndex } from './fonts/font-index';
 import { isTrustedOrigin } from './url-policy';
+import { titleBarOverlay } from './window';
 import type { DocumentWindows } from './windows/document-windows';
 import { registerPrintWindowIpc, type PrintJobs } from './windows/print-jobs';
 import type { SettingsStore } from './settings';
@@ -120,6 +121,12 @@ export function registerIpcHandlers({
     trusted(event);
     return recents.list();
   });
+  ipcMain.on(IpcChannel.windowTitleBarTheme, (event, dark: unknown) => {
+    trusted(event);
+    const win = windowOf(event);
+    if (win && process.platform !== 'darwin') win.setTitleBarOverlay(titleBarOverlay(dark === true));
+  });
+
   ipcMain.on(IpcChannel.fileClose, (event) => {
     trusted(event);
     windowOf(event)?.close();

@@ -13,6 +13,9 @@ const api: OpenWordApi = {
   app: {
     info: () => ipcRenderer.invoke(IpcChannel.appInfo),
   },
+  window: {
+    setTitleBarTheme: (dark) => ipcRenderer.send(IpcChannel.windowTitleBarTheme, dark === true),
+  },
   doc: {
     current: () => ipcRenderer.invoke(IpcChannel.docCurrent),
     onReplaced: (listener) => subscribe<[LoadedDocument]>(IpcChannel.docReplaced, listener),

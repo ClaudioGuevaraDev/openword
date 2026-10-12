@@ -23,53 +23,97 @@
   --color-muted: var(--ow-fg-muted);
   --color-line: var(--ow-border);
   --color-accent: var(--ow-accent);
+  --color-accent-hover: var(--ow-accent-hover);
   --color-tab-active: var(--ow-tab-active-bg);
   --color-on-tab-active: var(--ow-tab-active-fg);
   --color-hover: var(--ow-hover);
   --color-pressed: var(--ow-pressed);
   --color-pressed-line: var(--ow-pressed-border);
   --color-input: var(--ow-bg-input);
+  --color-spark: var(--ow-spark);
+  --color-contextual: var(--ow-contextual);
+  --color-on-contextual: var(--ow-fg-contextual);
+  --color-notice: var(--ow-bg-notice);
+  --color-notice-line: var(--ow-border-notice);
+  --color-danger: var(--ow-danger);
+  --color-danger-bg: var(--ow-bg-danger);
+  --color-danger-line: var(--ow-border-danger);
+  --shadow-card: var(--ow-shadow-card);
+  --shadow-float: var(--ow-shadow-float);
 }
 
 @layer base {
   :root {
     color-scheme: light;
-    --ow-font-ui: 'Segoe UI', system-ui, -apple-system, 'Ubuntu', 'Cantarell', sans-serif;
-    --ow-bg-app: #f3f3f3;
-    --ow-bg-ribbon: #f9f9f9;
-    --ow-bg-tabbar: #2b579a;
+    --ow-font-ui: 'Figtree Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    /* Cabecera (barra de título + pestañas + Archivo): el azul de Word, más vivo y con degradado. */
+    --ow-header: linear-gradient(100deg, #185abd 0%, #1f6ae0 55%, #2b7cff 100%);
+    --ow-titlebar-color: #185abd;
+    --ow-titlebar-symbol: #ffffff;
+    --ow-bg-app: #f3f5f9;
+    --ow-bg-ribbon: #ffffff;
+    --ow-bg-tabbar: #185abd;
     --ow-fg-tabbar: #ffffff;
-    --ow-bg-canvas: #e8e8e8;
-    --ow-bg-statusbar: #2b579a;
-    --ow-fg-statusbar: #ffffff;
-    --ow-fg: #1f1f1f;
-    --ow-fg-muted: #616161;
-    --ow-border: #d1d1d1;
-    --ow-accent: #2b579a;
-    --ow-tab-active-bg: #f9f9f9;
-    --ow-tab-active-fg: #2b579a;
-    --ow-hover: #e1e1e1;
-    --ow-pressed: #c8d7ee;
-    --ow-pressed-border: #8fb0dd;
+    --ow-bg-canvas: #e9edf3;
+    --ow-bg-statusbar: #f3f5f9;
+    --ow-fg-statusbar: #4b5563;
+    --ow-fg: #1d2330;
+    --ow-fg-muted: #667085;
+    --ow-border: #dde2ea;
+    --ow-accent: #185abd;
+    --ow-accent-hover: #2b7cff;
+    --ow-tab-active-bg: #ffffff;
+    --ow-tab-active-fg: #185abd;
+    --ow-hover: #eaf1fd;
+    --ow-pressed: #dbe7fb;
+    --ow-pressed-border: #9dbcf0;
     --ow-bg-input: #ffffff;
+    /* Toque juvenil: coral para lo que "está vivo" (pestaña activa, foco, sin guardar). */
+    --ow-spark: #ff6b5a;
+    --ow-contextual: #ffd666;
+    --ow-fg-contextual: #5c3d00;
+    --ow-bg-notice: #fff6d6;
+    --ow-border-notice: #f3d572;
+    --ow-danger: #c42b1c;
+    --ow-bg-danger: #fdecee;
+    --ow-border-danger: #f4b4bb;
+    --ow-shadow-card: 0 1px 2px rgb(16 24 40 / 6%), 0 2px 8px rgb(16 24 40 / 6%);
+    --ow-shadow-float: 0 4px 10px rgb(16 24 40 / 8%), 0 14px 32px rgb(16 24 40 / 14%);
+    --ow-shadow-page: 0 1px 3px rgb(16 24 40 / 10%), 0 8px 24px rgb(16 24 40 / 8%);
   }
 
   :root[data-theme='dark'] {
     color-scheme: dark;
-    --ow-bg-app: #1f1f1f;
-    --ow-bg-ribbon: #292929;
-    --ow-bg-tabbar: #1b3a66;
-    --ow-bg-canvas: #141414;
-    --ow-bg-statusbar: #1b3a66;
-    --ow-fg: #f0f0f0;
-    --ow-fg-muted: #b3b3b3;
-    --ow-border: #3d3d3d;
-    --ow-tab-active-bg: #292929;
+    --ow-header: linear-gradient(100deg, #0f2f66 0%, #133a7c 55%, #163f86 100%);
+    --ow-titlebar-color: #0f2f66;
+    --ow-bg-app: #1b1d22;
+    --ow-bg-ribbon: #25282e;
+    --ow-bg-tabbar: #0f2f66;
+    --ow-bg-canvas: #15171b;
+    --ow-bg-statusbar: #1b1d22;
+    --ow-fg-statusbar: #b4bac6;
+    --ow-fg: #eef0f4;
+    --ow-fg-muted: #9aa3b2;
+    --ow-border: #363a43;
+    --ow-accent: #4c8dff;
+    --ow-accent-hover: #6ea3ff;
+    --ow-tab-active-bg: #25282e;
     --ow-tab-active-fg: #a9c4ef;
-    --ow-hover: #3a3a3a;
-    --ow-pressed: #2c4466;
+    --ow-hover: #2f3540;
+    --ow-pressed: #23395e;
     --ow-pressed-border: #4a6fa5;
-    --ow-bg-input: #1f1f1f;
+    --ow-bg-input: #1b1d22;
+    --ow-spark: #ff8a7a;
+    --ow-contextual: #f0c060;
+    --ow-fg-contextual: #3a2700;
+    --ow-bg-notice: #3d3412;
+    --ow-border-notice: #6b5b1a;
+    --ow-danger: #ff8f84;
+    --ow-bg-danger: #43191e;
+    --ow-border-danger: #7a2e36;
+    --ow-shadow-card: 0 1px 2px rgb(0 0 0 / 30%), 0 2px 8px rgb(0 0 0 / 25%);
+    --ow-shadow-float: 0 4px 10px rgb(0 0 0 / 30%), 0 14px 32px rgb(0 0 0 / 45%);
+    --ow-shadow-page: 0 1px 3px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
   }
 
   html,
@@ -82,6 +126,8 @@
   body {
     font-family: var(--ow-font-ui);
     font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    accent-color: var(--ow-accent);
     color: var(--ow-fg);
     background: var(--ow-bg-app);
     overflow: hidden;
@@ -105,5 +151,143 @@
     background: transparent;
     overflow: visible;
     position-try-fallbacks: flip-block, flip-inline;
+  }
+}
+
+/* Cabecera unificada: barra de título y pestañas comparten el degradado azul. */
+.ow-header {
+  background: var(--ow-header);
+}
+
+/* Zona de arrastre de la ventana (barra de título propia). */
+.ow-drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.ow-no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Lienzo: un punteado muy sutil detrás de las páginas, como una mesa de trabajo. */
+.ow-canvas {
+  background-color: var(--ow-bg-canvas);
+  background-image: radial-gradient(rgb(100 116 139 / 9%) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.ow-canvas .docx-editor__scroll-container {
+  background: transparent;
+}
+/* Solo la sombra de la hoja: el contenido lo sigue pintando el motor. */
+.docx-editor .docx-page {
+  box-shadow: var(--ow-shadow-page);
+}
+
+/* Barras de desplazamiento finas y redondeadas. */
+.docx-editor ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.docx-editor ::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgb(100 116 139 / 35%) padding-box;
+}
+.docx-editor ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(100 116 139 / 55%);
+}
+.docx-editor ::-webkit-scrollbar-track,
+.docx-editor ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Deslizador de zoom de la barra de estado. */
+.ow-zoom-slider {
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ow-border);
+  outline: none;
+}
+.ow-zoom-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--ow-bg-ribbon);
+  border-radius: 50%;
+  background: var(--ow-spark);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 12%);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+.ow-zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+.ow-zoom-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ow-spark) 40%, transparent);
+}
+
+/* Movimiento: breve y solo si el sistema no pide reducirlo; nunca estorba al escribir. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ow-rise {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  @keyframes ow-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+  }
+
+  .ow-panel-in > * {
+    animation: ow-rise 160ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .ow-panel-in > :nth-child(2) {
+    animation-delay: 20ms;
+  }
+  .ow-panel-in > :nth-child(3) {
+    animation-delay: 40ms;
+  }
+  .ow-panel-in > :nth-child(4) {
+    animation-delay: 60ms;
+  }
+  .ow-panel-in > :nth-child(n + 5) {
+    animation-delay: 80ms;
+  }
+
+  .ow-backstage-nav {
+    animation: ow-slide-in 200ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .ow-backstage-content {
+    animation: ow-rise 240ms 60ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .ow-tab-indicator {
+    transition:
+      left 220ms cubic-bezier(0.3, 0.8, 0.3, 1),
+      width 220ms cubic-bezier(0.3, 0.8, 0.3, 1);
+  }
+
+  [popover].ow-popover {
+    transition:
+      opacity 120ms ease,
+      transform 120ms ease,
+      overlay 120ms allow-discrete,
+      display 120ms allow-discrete;
+    opacity: 0;
+    transform: translateY(-3px) scale(0.98);
+  }
+  [popover].ow-popover:popover-open {
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    [popover].ow-popover:popover-open {
+      opacity: 0;
+      transform: translateY(-3px) scale(0.98);
+    }
   }
 }

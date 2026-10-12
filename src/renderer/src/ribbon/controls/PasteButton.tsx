@@ -1,4 +1,4 @@
-import { ClipboardPaste24Regular } from '@fluentui/react-icons';
+import { ChevronDown12Regular, ClipboardPaste24Regular } from '@fluentui/react-icons';
 import { useTranslation } from 'react-i18next';
 import { pasteFromClipboard } from '@renderer/editor/document-actions';
 import { Menu, MenuItem } from '@renderer/ui/Menu';
@@ -17,7 +17,7 @@ export function PasteButton({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="tw:flex tw:h-[66px] tw:w-[54px] tw:flex-col tw:items-stretch tw:rounded-[3px] tw:border tw:border-transparent tw:hover:border-line">
+    <div className="tw:flex tw:h-[66px] tw:w-[54px] tw:flex-col tw:items-stretch tw:rounded-md tw:border tw:border-transparent tw:hover:border-line">
       <button
         type="button"
         className={`${half} tw:flex-1 tw:[&>svg]:size-8`}
@@ -39,7 +39,7 @@ export function PasteButton({
             style={anchorStyle}
             onMouseDown={(e) => e.preventDefault()}
           >
-            {t('home.clipboard.paste')} ▾
+            {t('home.clipboard.paste')} <ChevronDown12Regular className={rc.miniArrow} />
           </button>
         )}
       >

@@ -50,7 +50,7 @@ function PreviewPage({ pdf, pageNumber }: { readonly pdf: PDFDocumentProxy; read
   return (
     <canvas
       ref={canvas}
-      className="tw:block tw:bg-white tw:shadow-[0_1px_4px_rgb(0_0_0/25%)]"
+      className="tw:block tw:rounded-sm tw:bg-white tw:shadow-card"
       style={{ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH * ratio }}
       aria-label={`Página ${pageNumber}`}
       data-testid="preview-page"

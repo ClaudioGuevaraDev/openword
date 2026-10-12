@@ -1,3 +1,4 @@
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Insertar tabla eligiendo filas × columnas en una cuadrícula, como en Word.
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,7 +42,7 @@ export function TableGridPicker({
         >
           <span className={rc.icon}>{icon}</span>
           <span className={rc.label}>
-            {label} <span className={rc.miniArrow}>▾</span>
+            {label} <ChevronDown12Regular className={rc.miniArrow} />
           </span>
         </button>
       )}

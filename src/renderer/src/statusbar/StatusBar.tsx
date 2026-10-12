@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDocxEditor, useEditorEvent, useEditorState, useZoom } from '@docx-editor.dev/react';
+import { ZoomIn16Regular, ZoomOut16Regular } from '@fluentui/react-icons';
 import { useTranslation } from 'react-i18next';
 import { countWordsInParagraphs } from '@shared/word-count';
 
 const zoomButton =
-  'tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-1 tw:text-inherit tw:font-[family-name:inherit] tw:text-[length:inherit] tw:disabled:opacity-40';
+  'tw:inline-flex tw:size-5 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded tw:border-0 tw:bg-transparent tw:p-0 tw:text-inherit tw:transition-colors tw:hover:enabled:bg-hover tw:hover:enabled:text-accent tw:disabled:cursor-default tw:disabled:opacity-40';
+
+const chip = 'tw:rounded tw:px-1.5 tw:py-0.5';
 
 /** Palabras del cuerpo del documento (como la barra de estado de Word), recalculadas al editar. */
 function useWordCount(): number | null {
@@ -47,11 +50,11 @@ function ZoomControl() {
         aria-label={t('status.zoomOut')}
         title={t('status.zoomOut')}
       >
-        −
+        <ZoomOut16Regular />
       </button>
       <input
         type="range"
-        className="tw:w-[110px] tw:accent-white"
+        className="ow-zoom-slider tw:w-[110px]"
         min={10}
         max={500}
         step={10}
@@ -67,11 +70,11 @@ function ZoomControl() {
         aria-label={t('status.zoomIn')}
         title={t('status.zoomIn')}
       >
-        +
+        <ZoomIn16Regular />
       </button>
       <button
         type="button"
-        className="tw:min-w-11 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-1 tw:text-right tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-inherit"
+        className="tw:min-w-12 tw:cursor-pointer tw:rounded tw:border-0 tw:bg-transparent tw:px-1 tw:text-right tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-inherit tw:tabular-nums tw:hover:bg-hover"
         onClick={zoom.reset}
         title={t('status.zoomReset')}
         data-testid="zoom-percent"
@@ -89,14 +92,16 @@ export function StatusBar() {
 
   return (
     <footer
-      className="tw:flex tw:h-6 tw:flex-none tw:items-center tw:gap-4 tw:bg-statusbar tw:px-3 tw:text-[12px] tw:text-on-statusbar"
+      className="tw:flex tw:h-7 tw:flex-none tw:items-center tw:gap-1 tw:border-t tw:border-line tw:bg-statusbar tw:px-2 tw:text-[12px] tw:text-on-statusbar"
       data-testid="status-bar"
     >
-      <span data-testid="status-page">
+      <span className={chip} data-testid="status-page">
         {t('status.page', { current: page?.current ?? 1, total: page?.total ?? 1 })}
       </span>
-      <span data-testid="status-words">{words === null ? '' : t('status.words', { count: words })}</span>
-      <span>{t('status.language')}</span>
+      <span className={`${chip} tw:tabular-nums`} data-testid="status-words">
+        {words === null ? '' : t('status.words', { count: words })}
+      </span>
+      <span className={chip}>{t('status.language')}</span>
       <span className="tw:flex-1" />
       <ZoomControl />
     </footer>

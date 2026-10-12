@@ -35,7 +35,7 @@ export function MeasureField({
     <label className="tw:grid tw:grid-cols-[82px_64px] tw:items-center tw:gap-1 tw:text-[12px]">
       <span className="tw:text-fg">{label}</span>
       <input
-        className="tw:h-[22px] tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:px-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:focus:border-accent tw:focus:outline-none"
+        className="tw:h-[22px] tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:focus:border-accent tw:focus:outline-none"
         aria-label={label}
         data-testid={testId}
         value={shown}

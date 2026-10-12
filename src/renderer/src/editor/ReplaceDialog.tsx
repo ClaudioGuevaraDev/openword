@@ -7,10 +7,10 @@ import { replaceAllMatches, replaceOneMatch } from './replace-text';
 
 const field = 'tw:grid tw:grid-cols-[100px_1fr] tw:items-center tw:gap-2';
 const input =
-  'tw:h-6 tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:px-1.5 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:focus:border-accent tw:focus:outline-none';
+  'tw:h-7 tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1.5 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:focus:border-accent tw:focus:outline-none';
 const option = 'tw:flex tw:items-center tw:gap-1';
 const action =
-  'tw:cursor-pointer tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:px-2.5 tw:py-1 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:hover:enabled:bg-hover tw:disabled:cursor-default tw:disabled:opacity-50';
+  'tw:cursor-pointer tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-2.5 tw:py-1 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:hover:enabled:bg-hover tw:disabled:cursor-default tw:disabled:opacity-50';
 
 export function ReplaceDialog({ open, onClose }: { readonly open: boolean; readonly onClose: () => void }) {
   if (!open) return null;
@@ -86,7 +86,7 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
 
   return (
     <div
-      className="tw:absolute tw:top-3 tw:right-6 tw:z-50 tw:flex tw:w-[360px] tw:flex-col tw:gap-2 tw:rounded-md tw:border tw:border-line tw:bg-ribbon tw:p-3 tw:text-[12px] tw:text-fg tw:shadow-[0_8px_24px_rgb(0_0_0/20%)]"
+      className="tw:absolute tw:top-3 tw:right-6 tw:z-50 tw:flex tw:w-[360px] tw:flex-col tw:gap-2 tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:p-3.5 tw:text-[12px] tw:text-fg tw:shadow-float"
       role="dialog"
       aria-label={t('replace.title')}
       data-testid="replace-dialog"

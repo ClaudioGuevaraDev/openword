@@ -1,3 +1,4 @@
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 import type { ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +37,7 @@ export function LineSpacingMenu({
           onMouseDown={(e) => e.preventDefault()}
         >
           <span className={rc.icon}>{icon}</span>
-          <span className={rc.miniArrow}>▾</span>
+          <ChevronDown12Regular className={rc.miniArrow} />
         </button>
       )}
     >

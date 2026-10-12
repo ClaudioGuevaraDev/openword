@@ -14,6 +14,15 @@
     "picture": "Picture Format",
     "headerFooter": "Header & Footer"
   },
+  "titlebar": {
+    "quickAccess": "Quick Access Toolbar",
+    "save": "Save",
+    "undo": "Undo",
+    "redo": "Redo",
+    "search": "Search",
+    "saved": "Saved",
+    "unsaved": "Not saved"
+  },
   "ribbon": {
     "label": "Ribbon",
     "comingSoon": "This tab's tools arrive in upcoming milestones."

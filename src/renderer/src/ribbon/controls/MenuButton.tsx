@@ -1,3 +1,4 @@
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Botón de la cinta que abre un menú (Márgenes, Orientación, Saltos, Número de página…).
 import { Fragment, type ReactNode } from 'react';
 import { focusEditor } from '@renderer/editor/document-actions';
@@ -50,7 +51,7 @@ export function MenuButton({
         >
           <span className={rc.icon}>{icon}</span>
           <span className={rc.label}>
-            {label} <span className={rc.miniArrow}>▾</span>
+            {label} <ChevronDown12Regular className={rc.miniArrow} />
           </span>
         </button>
       )}
