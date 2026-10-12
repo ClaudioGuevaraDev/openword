@@ -26,6 +26,14 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # El binario de Electron no está en la caché de pnpm: se guarda aparte por versión del lockfile.
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/electron
+            ~/Library/Caches/electron
+            ~/AppData/Local/electron/Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Descargar binario de Electron
         run: node node_modules/electron/install.js
       - name: LibreOffice (para las pruebas de conversión real)
@@ -49,17 +57,21 @@ jobs:
           name: corpus-out
           path: corpus-out/
           retention-days: 7
+      # Informe HTML y trazas también cuando pasa (las pruebas reintentadas quedan como "flaky").
       - uses: actions/upload-artifact@v7
-        if: failure()
+        if: ${{ !cancelled() }}
         with:
           name: playwright-${{ matrix.os }}
-          path: test-results/
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
 
   ooxml-validation:
     name: Validación OOXML (Open XML SDK)
     needs: e2e
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

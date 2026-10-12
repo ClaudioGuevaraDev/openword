@@ -1,4 +1,5 @@
-# Cada push a main y cada PR: comprobaciones rápidas. Las E2E y los instaladores van en release.yml.
+# Cada push a main y cada PR: comprobaciones rápidas y las E2E de humo (@smoke) en Linux.
+# Las E2E completas y los instaladores van en release.yml.
 name: CI
 
 on:
@@ -15,10 +16,16 @@ on:
 permissions:
   contents: read
 
+# Un push nuevo a la misma rama o PR cancela la ejecución anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   checks:
     name: Lint, tipos, unitarias, corpus y licencias
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -31,15 +38,14 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run format:check
       - run: pnpm run typecheck
-      - run: pnpm test
+      - run: pnpm run test:coverage
       - name: Corpus de fidelidad (lectura y escritura sin pérdidas, sin DOM)
         run: pnpm run fidelity
 
-  fidelity-report:
-    name: Informe de fidelidad frente a Word
-    if: github.event_name == 'workflow_dispatch' && inputs.fidelity_report
-    needs: checks
+  smoke:
+    name: E2E de humo (Linux)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -48,6 +54,49 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # El binario de Electron no está en la caché de pnpm: se guarda aparte por versión del lockfile.
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/electron
+            ~/Library/Caches/electron
+            ~/AppData/Local/electron/Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Descargar binario de Electron
+        run: node node_modules/electron/install.js
+      - run: pnpm run build
+      - run: xvfb-run --auto-servernum pnpm exec playwright test --grep @smoke
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-smoke
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  fidelity-report:
+    name: Informe de fidelidad frente a Word
+    if: github.event_name == 'workflow_dispatch' && inputs.fidelity_report
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # El binario de Electron no está en la caché de pnpm: se guarda aparte por versión del lockfile.
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cache/electron
+            ~/Library/Caches/electron
+            ~/AppData/Local/electron/Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: node node_modules/electron/install.js
       - run: xvfb-run --auto-servernum pnpm run fidelity:report
       - uses: actions/upload-artifact@v7
