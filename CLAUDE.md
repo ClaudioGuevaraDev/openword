@@ -17,3 +17,11 @@ Lugares donde vive la versión (deben quedar todos iguales):
 - `pnpm-lock.yaml` no guarda la versión del proyecto: no hay que tocarlo.
 
 Si en el futuro la versión aparece en otro archivo (README, documentación, `electron-builder.yml`…), también se actualiza ahí. Antes de confirmar, se busca la versión anterior en el repositorio (sin `node_modules`) para no dejar ninguna desactualizada.
+
+## Regla: las librerías se instalan en versión exacta
+
+Toda dependencia nueva o actualizada se fija a **versión exacta** (`"1.2.3"`), nunca con rangos (`^1.2.3`, `~1.2.3`, `*`, `latest`).
+
+- Usar pnpm, el gestor del proyecto: `pnpm add -E paquete@1.2.3` o `pnpm add -D -E paquete@1.2.3`. `saveExact: true` en `pnpm-workspace.yaml` ya lo hace por defecto, pero se pasa `-E` igual y se indica la versión explícitamente.
+- Antes de instalar, consultar la versión con `pnpm view paquete version` y elegir una concreta. Si la librería tiene dependencias peer, deben ser compatibles con las versiones que ya usa el proyecto.
+- Después de instalar, revisar que `package.json` quedó sin `^` ni `~` y ejecutar `pnpm run check:deps`, que falla si alguna dependencia no tiene versión exacta.
