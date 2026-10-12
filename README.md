@@ -6,7 +6,7 @@
 
 **Procesador de textos de escritorio compatible con Microsoft Word, para Windows, macOS y Linux.**
 
-[![Versión](https://img.shields.io/badge/versión-0.2.26-blue)](package.json)
+[![Versión](https://img.shields.io/badge/versión-0.3.0-blue)](package.json)
 [![CI](https://github.com/ClaudioGuevaraDev/openword/actions/workflows/ci.yml/badge.svg)](https://github.com/ClaudioGuevaraDev/openword/actions/workflows/ci.yml)
 [![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-estricto-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)

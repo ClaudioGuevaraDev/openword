@@ -1,6 +1,6 @@
 import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Galería de estilos del documento (Inicio › Estilos), con vista previa de cada estilo.
-import { useState, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { useDocxEditor, useParagraphStyle } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { builtInStyleName } from './style-names';
@@ -9,7 +9,33 @@ import { Popover } from '@renderer/ui/Popover';
 
 type StyleOption = ReturnType<typeof useParagraphStyle>['options'][number];
 
-const VISIBLE = 4;
+// Medidas de la fila (en px) para calcular cuántas miniaturas caben: ancho mínimo de cada una,
+// separación, flecha del desplegable y padding + borde del contenedor a cada lado.
+const TILE = 70;
+const GAP = 4;
+const ARROW = 24;
+const INSET = 5;
+
+/** Cuántas miniaturas caben en una galería de `width` px (al menos una). */
+function fitCount(width: number): number {
+  return Math.max(1, Math.floor((width - INSET * 2 - ARROW + GAP) / (TILE + GAP)));
+}
+
+/** Número de miniaturas que caben en el elemento y que se recalcula al cambiar su ancho. */
+function useFitCount() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [count, setCount] = useState(1);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setCount(fitCount(el.getBoundingClientRect().width));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, count] as const;
+}
 
 function previewStyle(option: StyleOption): CSSProperties {
   const p = option.preview;
@@ -27,6 +53,7 @@ export function StyleGallery() {
   const editor = useDocxEditor();
   const style = useParagraphStyle();
   const [open, setOpen] = useState(false);
+  const [galleryRef, visible] = useFitCount();
 
   const apply = (id: string) => {
     style.setValue(id);
@@ -36,14 +63,17 @@ export function StyleGallery() {
 
   const nameOf = (option: StyleOption) => builtInStyleName(option.styleId, option.name, t) ?? option.name;
 
-  const tile = (option: StyleOption) => (
+  // En la fila, las miniaturas se estiran (hasta 96 px) para repartir el sobrante; en el
+  // desplegable son fijas.
+  const tile = (option: StyleOption, inRow = false) => (
     <button
       key={option.styleId}
       type="button"
       aria-pressed={style.value === option.styleId}
       aria-label={nameOf(option)}
       className={cx(
-        'tw:flex tw:w-[70px] tw:cursor-pointer tw:flex-col tw:justify-center tw:gap-2 tw:overflow-hidden tw:rounded-md tw:border tw:px-2 tw:py-1.5 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:enabled:bg-hover',
+        'tw:flex tw:cursor-pointer tw:flex-col tw:justify-center tw:gap-2 tw:overflow-hidden tw:rounded-md tw:border tw:px-2 tw:py-1.5 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:enabled:bg-hover',
+        inRow ? 'tw:max-w-24 tw:min-w-0 tw:flex-1' : 'tw:w-[70px]',
         style.value === option.styleId
           ? 'tw:border-pressed-line tw:bg-pressed'
           : 'tw:border-transparent tw:bg-transparent',
@@ -66,12 +96,13 @@ export function StyleGallery() {
 
   return (
     <div
-      className="tw:box-border tw:flex tw:h-21 tw:items-stretch tw:gap-1 tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1"
+      ref={galleryRef}
+      className="tw:box-border tw:flex tw:h-21 tw:min-w-[108px] tw:items-stretch tw:gap-1 tw:overflow-hidden tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1"
       role="group"
       aria-label={t('home.styles.label')}
       data-testid="style-gallery"
     >
-      {style.options.slice(0, VISIBLE).map(tile)}
+      {style.options.slice(0, visible).map((option) => tile(option, true))}
       <Popover
         open={open}
         onOpenChange={setOpen}
@@ -83,7 +114,7 @@ export function StyleGallery() {
           <button
             type="button"
             {...triggerProps}
-            className="tw:inline-flex tw:w-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:hover:bg-hover tw:hover:text-accent"
+            className="tw:ml-auto tw:inline-flex tw:w-6 tw:flex-none tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:hover:bg-hover tw:hover:text-accent"
             style={anchorStyle}
             aria-label={t('home.styles.more')}
             title={t('home.styles.more')}
@@ -94,7 +125,7 @@ export function StyleGallery() {
           </button>
         )}
       >
-        {style.options.map(tile)}
+        {style.options.map((option) => tile(option))}
       </Popover>
     </div>
   );

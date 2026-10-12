@@ -6,12 +6,15 @@ export function RibbonGroup({
   children,
   onLauncher,
   launcherLabel,
+  grow = false,
 }: {
   readonly label: string;
   readonly children: ReactNode;
   /** Pequeño botón de la esquina que abre el diálogo completo del grupo (como en Word). */
   readonly onLauncher?: () => void;
   readonly launcherLabel?: string;
+  /** Ocupa el espacio libre del panel (p. ej. la galería de estilos, que muestra los que quepan). */
+  readonly grow?: boolean;
 }) {
   return (
     // Divisor entre grupos, del borde superior del contenido al pie de la etiqueta, con el mismo
@@ -19,11 +22,19 @@ export function RibbonGroup({
     // cada pestaña tiene varios y no deben contar como regiones de la página.
     <div
       role="group"
-      className="tw:relative tw:flex tw:flex-col tw:px-1 tw:after:absolute tw:after:top-1 tw:after:right-0 tw:after:bottom-1 tw:after:w-px tw:after:bg-line tw:last:after:hidden"
+      className={cx(
+        'tw:relative tw:flex tw:flex-col tw:px-1 tw:after:absolute tw:after:top-1 tw:after:right-0 tw:after:bottom-1 tw:after:w-px tw:after:bg-line tw:last:after:hidden',
+        grow && 'tw:flex-1',
+      )}
       aria-label={label}
     >
       {/* Altura común (la de un botón grande): las pilas de 2 o 3 filas se reparten en ella. */}
-      <div className="tw:box-content tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1 tw:pt-1">
+      <div
+        className={cx(
+          'tw:box-content tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1 tw:pt-1',
+          grow && 'tw:[&>*]:flex-1',
+        )}
+      >
         {children}
       </div>
       <div className="tw:relative tw:px-3.5 tw:pt-1 tw:pb-1 tw:text-center tw:text-[11px] tw:whitespace-nowrap tw:text-muted">

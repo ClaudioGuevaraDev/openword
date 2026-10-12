@@ -235,7 +235,7 @@ export function HomeTab({
         </RibbonStack>
       </RibbonGroup>
 
-      <RibbonGroup label={t('home.styles.label')}>
+      <RibbonGroup label={t('home.styles.label')} grow>
         <StyleGallery />
       </RibbonGroup>
 
