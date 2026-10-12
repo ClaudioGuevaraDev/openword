@@ -68,20 +68,22 @@ pnpm install
 pnpm dev       # app con recarga en caliente (descarga el binario de Electron la primera vez)
 ```
 
+Las dependencias se fijan a versión exacta (`saveExact: true` en `pnpm-workspace.yaml`): `pnpm add -D paquete` guarda `"1.2.3"`, nunca `"^1.2.3"`.
+
 En Linux, `pnpm dev` agrega `--noSandbox` automáticamente: Ubuntu 24.04 o superior no permite el sandbox SUID de Chromium fuera de un paquete instalado. Los paquetes `.deb` lo resuelven al instalar.
 
-| Comando                             | Qué hace                                              |
-| ----------------------------------- | ----------------------------------------------------- |
-| `pnpm run build`                    | Compila main, preload y renderer en `out/`            |
-| `pnpm run typecheck`                | TypeScript (main/preload, renderer y E2E)             |
-| `pnpm run lint` / `pnpm run format` | ESLint / Prettier                                     |
-| `pnpm test`                         | Pruebas unitarias (Vitest)                            |
-| `pnpm run test:e2e`                 | Compila y ejecuta las E2E (Playwright sobre Electron) |
-| `pnpm run check:deps`               | Falla si aparece algún paquete Pro de docx-editor     |
-| `pnpm run fidelity`                 | Corpus de fidelidad: lectura y escritura sin pérdidas |
-| `pnpm run fidelity:report`          | Informe de paginación frente a PDF de Word            |
-| `pnpm run package:dir`              | Empaqueta sin instalador (`dist/<so>-unpacked`)       |
-| `pnpm run package`                  | Instaladores para el SO actual (`dist/`)              |
+| Comando                             | Qué hace                                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------- |
+| `pnpm run build`                    | Compila main, preload y renderer en `out/`                                                |
+| `pnpm run typecheck`                | TypeScript (main/preload, renderer y E2E)                                                 |
+| `pnpm run lint` / `pnpm run format` | ESLint / Prettier                                                                         |
+| `pnpm test`                         | Pruebas unitarias (Vitest)                                                                |
+| `pnpm run test:e2e`                 | Compila y ejecuta las E2E (Playwright sobre Electron)                                     |
+| `pnpm run check:deps`               | Falla si aparece algún paquete Pro de docx-editor o alguna dependencia sin versión exacta |
+| `pnpm run fidelity`                 | Corpus de fidelidad: lectura y escritura sin pérdidas                                     |
+| `pnpm run fidelity:report`          | Informe de paginación frente a PDF de Word                                                |
+| `pnpm run package:dir`              | Empaqueta sin instalador (`dist/<so>-unpacked`)                                           |
+| `pnpm run package`                  | Instaladores para el SO actual (`dist/`)                                                  |
 
 ## Estructura
 

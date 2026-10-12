@@ -1,3 +1,6 @@
+# Las dependencias se guardan con versión exacta ("1.2.3", nunca "^1.2.3").
+saveExact: true
+
 allowBuilds:
   electron-winstaller: true
   esbuild: true

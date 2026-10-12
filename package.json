@@ -1,7 +1,7 @@
 {
   "name": "openword",
   "productName": "OpenWord",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "description": "Procesador de textos de escritorio compatible con Word",
   "author": "OpenWord",
@@ -21,7 +21,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:e2e": "pnpm run build && playwright test",
-    "check:deps": "node scripts/check-forbidden-deps.mjs",
+    "check:deps": "node scripts/check-forbidden-deps.mjs && node scripts/check-exact-versions.mjs",
     "package": "pnpm run build && electron-builder",
     "package:dir": "pnpm run build && electron-builder --dir",
     "fidelity": "vitest run --config vitest.fidelity.config.ts",
