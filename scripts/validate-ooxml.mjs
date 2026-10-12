@@ -9,6 +9,14 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { z } from 'zod';
+
+// Lo que se lee de otros programas y archivos se valida antes de usarlo.
+const Manifest = z.object({ documents: z.array(z.object({ file: z.string().min(1) })) });
+const ValidatorOutput = z.record(
+  z.string(),
+  z.union([z.object({ errors: z.array(z.string()) }), z.object({ error: z.string() })]),
+);
 
 const savedDir = resolve(process.argv[2] ?? '');
 const validator = process.env.OOXML_VALIDATOR;
@@ -21,9 +29,13 @@ if (!process.argv[2] || !validator) {
 }
 
 const corpus = resolve('tests/corpus');
-const { documents } = JSON.parse(readFileSync(join(corpus, 'manifest.json'), 'utf8'));
+const { documents } = Manifest.parse(JSON.parse(readFileSync(join(corpus, 'manifest.json'), 'utf8')));
 const pairs = documents
-  .map(({ file }) => ({ file, original: join(corpus, file), saved: join(savedDir, file.replace('/', '__')) }))
+  .map(({ file }) => ({
+    file,
+    original: join(corpus, file),
+    saved: join(savedDir, file.replaceAll('/', '__')),
+  }))
   .filter((p) => existsSync(p.saved));
 if (pairs.length === 0) {
   console.error(`No hay documentos guardados en ${savedDir}`);
@@ -31,7 +43,11 @@ if (pairs.length === 0) {
 }
 
 const run = (files) =>
-  JSON.parse(execFileSync(dotnet, [validator, ...files], { encoding: 'utf8', maxBuffer: 64 << 20 }));
+  ValidatorOutput.parse(
+    JSON.parse(execFileSync(dotnet, [validator, ...files], { encoding: 'utf8', maxBuffer: 64 << 20 })),
+  );
+// Resultado de un archivo; si el validador no lo informó (ruta normalizada distinta), cuenta como error.
+const resultOf = (output, file) => output[file] ?? { error: 'el validador no devolvió resultado' };
 // Documentos creados desde cero por las E2E (created__*.docx): deben validar sin errores.
 const created = readdirSync(savedDir)
   .filter((f) => f.startsWith('created__') && f.endsWith('.docx'))
@@ -45,32 +61,32 @@ const key = (e) => e.replace(/\[\d+\]/g, '');
 const rows = [];
 let failures = 0;
 for (const p of pairs) {
-  const a = before[p.original];
-  const b = after[p.saved];
-  if (b.error) {
+  const a = resultOf(before, p.original);
+  const b = resultOf(after, p.saved);
+  if ('error' in b) {
     failures++;
     rows.push(`✘ ${p.file}: no se puede abrir el guardado (${b.error})`);
     continue;
   }
-  const known = new Set((a.errors ?? []).map(key));
+  const known = new Set(('errors' in a ? a.errors : []).map(key));
   const added = [...new Set(b.errors.map(key))].filter((e) => !known.has(e));
   if (added.length > 0) {
     failures++;
     rows.push(`✘ ${p.file}: ${added.length} error(es) nuevo(s)\n    ${added.slice(0, 5).join('\n    ')}`);
   } else {
     rows.push(
-      `✓ ${p.file} (errores del original: ${a.errors?.length ?? `no abre: ${a.error}`}, del guardado: ${b.errors.length})`,
+      `✓ ${p.file} (errores del original: ${'errors' in a ? a.errors.length : `no abre: ${a.error}`}, del guardado: ${b.errors.length})`,
     );
   }
 }
 if (created.length > 0) {
   const result = run(created);
   for (const file of created) {
-    const r = result[file];
-    if (r.error || r.errors.length > 0) {
+    const r = resultOf(result, file);
+    if ('error' in r || r.errors.length > 0) {
       failures++;
       rows.push(
-        `✘ ${file}: ${r.error ?? `${r.errors.length} error(es)\n    ${r.errors.slice(0, 5).join('\n    ')}`}`,
+        `✘ ${file}: ${'error' in r ? r.error : `${r.errors.length} error(es)\n    ${r.errors.slice(0, 5).join('\n    ')}`}`,
       );
     } else {
       rows.push(`✓ ${file.split('/').pop()} (creado por OpenWord): sin errores`);

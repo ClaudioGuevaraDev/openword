@@ -80,11 +80,14 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
+          # Caché de NuGet según el lockfile del validador.
+          cache: true
+          cache-dependency-path: tools/ooxml-validator/packages.lock.json
       - uses: actions/download-artifact@v8
         with:
           name: corpus-out
           path: corpus-out
-      - run: dotnet build tools/ooxml-validator -c Release -o validator-bin
+      - run: dotnet build tools/ooxml-validator -c Release -o validator-bin -p:RestoreLockedMode=true
       - name: Sin errores nuevos respecto de los originales
         run: node scripts/validate-ooxml.mjs corpus-out
         env:

@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Un aviso (p. ej. de nulabilidad) rompe la compilación en vez de pasar inadvertido. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Restauración reproducible: versiones exactas fijadas en packages.lock.json. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
