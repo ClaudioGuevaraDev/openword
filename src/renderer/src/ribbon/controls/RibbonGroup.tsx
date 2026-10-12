@@ -23,7 +23,7 @@ export function RibbonGroup({
     <div
       role="group"
       className={cx(
-        'tw:relative tw:flex tw:flex-col tw:px-1 tw:after:absolute tw:after:top-1 tw:after:right-0 tw:after:bottom-1 tw:after:w-px tw:after:bg-line tw:last:after:hidden',
+        'tw:relative tw:flex tw:flex-col tw:px-2 tw:after:absolute tw:after:top-1 tw:after:right-0 tw:after:bottom-1 tw:after:w-px tw:after:bg-line tw:last:after:hidden',
         grow && 'tw:flex-1',
       )}
       aria-label={label}
@@ -31,7 +31,7 @@ export function RibbonGroup({
       {/* Altura común (la de un botón grande): las pilas de 2 o 3 filas se reparten en ella. */}
       <div
         className={cx(
-          'tw:box-content tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1 tw:pt-1',
+          'tw:box-content tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1.5 tw:pt-1',
           grow && 'tw:[&>*]:flex-1',
         )}
       >
@@ -77,7 +77,7 @@ export function RibbonRow({
   readonly layout?: 'start' | 'spread';
 }) {
   return (
-    <div className={cx('tw:flex tw:items-center tw:gap-0.5', layout === 'spread' && 'tw:justify-between')}>
+    <div className={cx('tw:flex tw:items-center tw:gap-1', layout === 'spread' && 'tw:justify-between')}>
       {children}
     </div>
   );
