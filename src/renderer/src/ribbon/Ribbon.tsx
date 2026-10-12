@@ -108,7 +108,10 @@ export function Ribbon() {
 
   return (
     <div className="tw:flex-none tw:bg-app tw:select-none">
-      <div ref={tabListRef} className="ow-header tw:relative tw:flex tw:items-end tw:gap-0.5 tw:px-2 tw:pb-1">
+      <div
+        ref={tabListRef}
+        className="ow-header tw:relative tw:flex tw:items-end tw:gap-0.5 tw:px-2 tw:pb-2.5"
+      >
         <button
           type="button"
           id={FILE_BUTTON_ID}
@@ -156,7 +159,7 @@ export function Ribbon() {
         </div>
         {/* Subrayado coral bajo la pestaña activa: se desliza al cambiar de pestaña. */}
         <span
-          className="ow-tab-indicator tw:pointer-events-none tw:absolute tw:bottom-0.5 tw:h-[3px] tw:rounded-full tw:bg-spark"
+          className="ow-tab-indicator tw:pointer-events-none tw:absolute tw:bottom-1 tw:h-[3px] tw:rounded-full tw:bg-spark"
           style={indicatorStyle}
           aria-hidden="true"
         />
