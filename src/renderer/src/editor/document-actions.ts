@@ -54,6 +54,49 @@ export function selectAll(): void {
   currentEditor?.focus();
 }
 
+/** "Párrafo de lista": el estilo con la sangría que el motor pone al activar viñetas o números. */
+function isListParagraphStyle(editor: DocxEditorInstance, styleId: string | null): boolean {
+  if (!styleId) return false;
+  if (styleId.toLowerCase() === 'listparagraph') return true;
+  // Word en español lo guarda con otro id (p. ej. "Prrafodelista"), pero el nombre es el inglés.
+  const style = editor.getDocumentStyles().find((s) => s.styleId === styleId);
+  return style?.name.toLowerCase() === 'list paragraph';
+}
+
+/**
+ * Quita la lista (viñetas o números) de los párrafos de la selección, en un solo paso de deshacer.
+ * El motor, al desactivar, solo borra la numeración y deja el estilo Párrafo de lista con su
+ * sangría; aquí se quita también, como hace Word, para que el texto vuelva a su sitio.
+ */
+export function removeListFromSelection(): boolean {
+  const editor = currentEditor;
+  const surface = editor?.surface;
+  if (!editor || !surface?.isListParagraph()) return false;
+  const entries: { localName: string; remove: true }[] = [{ localName: 'numPr', remove: true }];
+  if (isListParagraphStyle(editor, surface.formatting().styleId)) {
+    entries.push({ localName: 'pStyle', remove: true });
+  }
+  surface.setParagraphProperties(entries);
+  return true;
+}
+
+/**
+ * Retroceso al inicio de un elemento de lista quita la viñeta o el número, como en Word (el motor
+ * uniría el párrafo con el anterior). Devuelve true si se ocupó de la tecla.
+ */
+export function backspaceRemovesList(e: KeyboardEvent): boolean {
+  if (e.key !== 'Backspace' || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return false;
+  const target = e.target instanceof Element ? e.target : null;
+  if (!target?.closest('.docx-editor') || target.closest('input, textarea')) return false;
+  const surface = currentEditor?.surface;
+  if (!surface) return false;
+  const { anchor, head } = surface.state().selection;
+  const atStart =
+    anchor.paragraphId === head.paragraphId && anchor.offset === head.offset && head.offset === 0;
+  if (!atStart || !surface.isListParagraph()) return false;
+  return removeListFromSelection();
+}
+
 /** Pegar desde la cinta: el motor recibe el contenido; lo leemos del portapapeles del sistema. */
 export async function pasteFromClipboard(plainText = false): Promise<void> {
   const editor = currentEditor;

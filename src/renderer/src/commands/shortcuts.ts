@@ -1,5 +1,6 @@
 // Atajos de nivel de aplicación (los de edición, como Ctrl+B, los maneja el motor).
 import {
+  backspaceRemovesList,
   closeWindow,
   focusEditor,
   newDocument,
@@ -31,6 +32,11 @@ export function installAppShortcuts(platform: Platform): () => void {
       e.stopPropagation();
       useUiStore.getState().setReplaceDialogOpen(false);
       focusEditor();
+      return;
+    }
+    // Antes que el motor (que escucha en burbuja e ignora los eventos ya atendidos).
+    if (backspaceRemovesList(e)) {
+      e.preventDefault();
       return;
     }
     const { backstageOpen, closeBackstage } = useUiStore.getState();

@@ -170,3 +170,58 @@ test('tabla desde la cuadrícula solo con el teclado', async ({ win }) => {
   await win.keyboard.press('Enter');
   await expect(win.getByRole('tab', { name: 'Tabla' })).toBeVisible();
 });
+
+// Viñetas y numeración: quitarlas (con el botón o con Retroceso al inicio) deja el párrafo como
+// estaba, sin numeración ni el estilo Párrafo de lista, que trae su propia sangría.
+const NO_LIST = (xml: string) => {
+  expect(xml).not.toContain('<w:numPr>');
+  expect(xml).not.toMatch(/<w:pStyle w:val="ListParagraph"/);
+};
+
+for (const name of ['Viñetas', 'Numeración']) {
+  test(`${name}: desactivar desde la cinta quita la lista y su sangría`, async ({ app, win, out }) => {
+    const button = win.getByRole('button', { name, exact: true });
+    await button.click();
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await win.keyboard.type('Elemento');
+    await button.click();
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
+    const xml = await savedXml(app, win, out);
+    expect(xml).toContain('Elemento');
+    NO_LIST(xml);
+  });
+
+  test(`${name}: Retroceso al inicio del elemento quita la lista y deja el texto`, async ({
+    app,
+    win,
+    out,
+  }) => {
+    const button = win.getByRole('button', { name, exact: true });
+    await button.click();
+    await win.keyboard.type('Elemento');
+    await expect(win.locator('.docx-page').first()).toContainText('Elemento');
+    await win.keyboard.press('Home');
+    await win.keyboard.press('Backspace');
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
+    // Deshacer la recupera en un solo paso, y rehacer la vuelve a quitar.
+    await win.keyboard.press(`${mod}+z`);
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await win.keyboard.press(`${mod}+y`);
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
+    const xml = await savedXml(app, win, out);
+    expect(xml).toContain('Elemento');
+    NO_LIST(xml);
+  });
+}
+
+test('Retroceso en medio de una viñeta borra un carácter y la viñeta sigue', async ({ app, win, out }) => {
+  const button = win.getByRole('button', { name: 'Viñetas', exact: true });
+  await button.click();
+  await win.keyboard.type('Elementos');
+  await expect(win.locator('.docx-page').first()).toContainText('Elementos');
+  await win.keyboard.press('Backspace');
+  await expect(win.locator('.docx-page').first()).not.toContainText('Elementos');
+  await expect(button).toHaveAttribute('aria-pressed', 'true');
+  const xml = await savedXml(app, win, out);
+  expect(xml).toContain('<w:numPr>');
+});

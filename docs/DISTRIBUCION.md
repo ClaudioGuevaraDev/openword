@@ -5,7 +5,7 @@
 ## Publicar una versión
 
 1. Sube la versión en `package.json` (lo hace `/conventional-commit`) y haz push a `main`.
-2. Crea y sube el tag con esa versión: `git tag v0.2.20 && git push origin v0.2.20`.
+2. Crea y sube el tag con esa versión: `git tag v0.2.21 && git push origin v0.2.21`.
 3. El workflow `release.yml`:
    - comprueba que el tag coincide con `package.json` (si no, falla en segundos);
    - corre las E2E en los 3 SO y la validación OOXML (`e2e.yml`);

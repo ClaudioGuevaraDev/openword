@@ -38,6 +38,7 @@ import { FontColorButton, HighlightButton } from '../controls/ColorControls';
 import { CommandButton } from '../controls/CommandButton';
 import { FontFamilyBox, FontSizeBox } from '../controls/FontControls';
 import { LineSpacingMenu } from '../controls/LineSpacingMenu';
+import { ListButton } from '../controls/ListButton';
 import { PasteButton } from '../controls/PasteButton';
 import { RibbonButton } from '../controls/RibbonButton';
 import { RibbonGroup, RibbonRow, RibbonStack } from '../controls/RibbonGroup';
@@ -165,15 +166,13 @@ export function HomeTab({
       >
         <RibbonStack>
           <RibbonRow>
-            <CommandButton
+            <ListButton
               command="list.bullet"
-              toggle
               icon={<TextBulletListLtr20Regular />}
               label={t('home.paragraph.bullets')}
             />
-            <CommandButton
+            <ListButton
               command="list.numbered"
-              toggle
               icon={<TextNumberListLtr20Regular />}
               label={t('home.paragraph.numbering')}
             />
