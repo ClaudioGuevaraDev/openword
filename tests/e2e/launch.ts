@@ -1,4 +1,5 @@
 import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -69,6 +70,20 @@ export function shownMessages(app: ElectronApplication): Promise<string[]> {
   return app.evaluate(() => (globalThis as unknown as { __owMessages: string[] }).__owMessages ?? []);
 }
 
+/** Mata la app de golpe. En Windows, con sus procesos hijos: si no, siguen bloqueando userData. */
+export function killApp(app: ElectronApplication): void {
+  const proc = app.process();
+  if (process.platform === 'win32' && proc.pid) {
+    try {
+      execFileSync('taskkill', ['/pid', String(proc.pid), '/T', '/F'], { stdio: 'ignore' });
+      return;
+    } catch {
+      // Ya terminó o taskkill falló: se intenta igual con kill().
+    }
+  }
+  proc.kill('SIGKILL');
+}
+
 /** Cierra sin preguntar (destruye las ventanas) y termina la app si sigue viva. */
 export async function closeAll(app: ElectronApplication): Promise<void> {
   try {
@@ -91,6 +106,6 @@ export async function closeAll(app: ElectronApplication): Promise<void> {
   ]);
   if (!closed) {
     console.warn('[e2e] la app no terminó en 10 s tras cerrar sus ventanas: se mata el proceso');
-    app.process().kill('SIGKILL');
+    killApp(app);
   }
 }

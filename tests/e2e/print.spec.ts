@@ -84,6 +84,18 @@ test('cerrar la ventana del documento descarta un trabajo de impresión pendient
   await win.keyboard.press(`${mod}+p`);
   await expect(win.getByTestId('print-pages')).toHaveText('6 páginas', { timeout: 60_000 });
   expect(await hiddenWindows()).toBe(1);
+  if (process.platform === 'darwin') {
+    // En macOS la app sigue viva sin ventanas: basta con que no quede la oculta de impresión.
+    await app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()
+        .find((w) => w.isVisible())!
+        .close(),
+    );
+    await expect
+      .poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length))
+      .toBe(0);
+    return;
+  }
   await Promise.all([
     app.waitForEvent('close'),
     app

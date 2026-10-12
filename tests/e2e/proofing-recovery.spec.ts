@@ -7,6 +7,7 @@ import { strFromU8, unzipSync } from 'fflate';
 import {
   closeAll,
   FIXTURES,
+  killApp,
   launchApp,
   mockDialogs,
   shownMessages,
@@ -138,7 +139,7 @@ test('recuperación: tras un cierre inesperado, el documento vuelve con sus camb
   await expect
     .poll(() => recoveryFiles().filter((f) => f.endsWith('.docx')).length, { timeout: 10_000 })
     .toBe(1);
-  app.process().kill('SIGKILL');
+  killApp(app);
   await app.waitForEvent('close').catch(() => undefined);
 
   await start({ userData, env });
