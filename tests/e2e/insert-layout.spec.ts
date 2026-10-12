@@ -242,10 +242,16 @@ test('Referencias: tabla de contenido y nota al pie', async () => {
 test('vínculo: se crea desde la cinta y Ctrl+clic lo abre fuera solo si es http(s)', async () => {
   await win.keyboard.type('Sitio web');
   await win.keyboard.press(`${mod}+a`);
-  await tab('insert').click();
-  await win.getByTestId('insert-link').click();
-  await win.getByPlaceholder('https://example.com').fill('https://example.com/openword');
-  await win.getByRole('button', { name: 'Aplicar' }).click();
+  // El motor solo abre el vínculo al hacer clic dentro de su <a>, y en máquinas lentas el
+  // primer "Aplicar" a veces no lo crea: se repite hasta que el vínculo está dibujado.
+  const link = win.locator('.docx-page a.docx-hyperlink', { hasText: 'Sitio web' }).first();
+  await expect(async () => {
+    await tab('insert').click();
+    await win.getByTestId('insert-link').click();
+    await win.getByPlaceholder('https://example.com').fill('https://example.com/openword');
+    await win.getByRole('button', { name: 'Aplicar' }).click();
+    await expect(link).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 30_000 });
 
   await app.evaluate(({ shell }) => {
     const g = globalThis as unknown as { __owExternal: string[] };
@@ -254,11 +260,7 @@ test('vínculo: se crea desde la cinta y Ctrl+clic lo abre fuera solo si es http
       g.__owExternal.push(url);
     }) as typeof shell.openExternal;
   });
-  await win
-    .locator('.docx-page')
-    .first()
-    .getByText('Sitio web')
-    .click({ modifiers: [mod === 'Meta' ? 'Meta' : 'Control'] });
+  await link.click({ modifiers: [mod === 'Meta' ? 'Meta' : 'Control'] });
   await expect
     .poll(() => app.evaluate(() => (globalThis as unknown as { __owExternal: string[] }).__owExternal))
     .toEqual(['https://example.com/openword']);

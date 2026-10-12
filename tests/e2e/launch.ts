@@ -70,18 +70,29 @@ export function shownMessages(app: ElectronApplication): Promise<string[]> {
   return app.evaluate(() => (globalThis as unknown as { __owMessages: string[] }).__owMessages ?? []);
 }
 
-/** Mata la app de golpe. En Windows, con sus procesos hijos: si no, siguen bloqueando userData. */
+/** Mata la app de golpe, con sus procesos hijos: si no, siguen bloqueando userData. */
 export function killApp(app: ElectronApplication): void {
   const proc = app.process();
-  if (process.platform === 'win32' && proc.pid) {
+  if (proc.pid) {
     try {
-      execFileSync('taskkill', ['/pid', String(proc.pid), '/T', '/F'], { stdio: 'ignore' });
+      if (process.platform === 'win32')
+        execFileSync('taskkill', ['/pid', String(proc.pid), '/T', '/F'], { stdio: 'ignore' });
+      // Playwright lanza Electron como líder de su propio grupo de procesos.
+      else process.kill(-proc.pid, 'SIGKILL');
       return;
     } catch {
-      // Ya terminó o taskkill falló: se intenta igual con kill().
+      // Ya terminó o no se pudo matar el árbol: se intenta igual con kill().
     }
   }
   proc.kill('SIGKILL');
+}
+
+/** Resuelve con `fallback` si la promesa no termina a tiempo (o falla). */
+function within<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise.catch(() => fallback),
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
 }
 
 /** Cierra sin preguntar (destruye las ventanas) y termina la app si sigue viva. */
@@ -92,18 +103,20 @@ export async function closeAll(app: ElectronApplication): Promise<void> {
   } catch {
     return; // Playwright ya liberó la app
   }
-  try {
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach((w) => w.destroy()));
-  } catch {
-    // La app ya terminó.
-  }
-  const closed = await Promise.race([
+  // Con límites de tiempo: si el proceso principal se colgó, no debe colgar también la limpieza.
+  await within(
+    app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach((w) => w.destroy())),
+    5_000,
+    undefined,
+  );
+  const closed = await within(
     app.close().then(
       () => true,
-      () => true,
+      () => true, // ya había terminado
     ),
-    new Promise<false>((resolve) => setTimeout(() => resolve(false), 10_000)),
-  ]);
+    10_000,
+    false,
+  );
   if (!closed) {
     console.warn('[e2e] la app no terminó en 10 s tras cerrar sus ventanas: se mata el proceso');
     killApp(app);
