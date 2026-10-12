@@ -18,7 +18,7 @@ export function RibbonGroup({
     // no una <section>: cada pestaña tiene varios y no deben contar como regiones de la página.
     <div
       role="group"
-      className="tw:relative tw:flex tw:flex-col tw:px-2.5 tw:after:absolute tw:after:top-[12%] tw:after:right-0 tw:after:h-[76%] tw:after:w-px tw:after:bg-line tw:last:after:hidden"
+      className="tw:relative tw:flex tw:flex-col tw:px-1 tw:after:absolute tw:after:top-[12%] tw:after:right-0 tw:after:h-[76%] tw:after:w-px tw:after:bg-line tw:last:after:hidden"
       aria-label={label}
     >
       {/* Altura común (la de un botón grande): las pilas de 2 o 3 filas se reparten en ella. */}
@@ -70,5 +70,5 @@ export function RibbonRow({
 }
 
 export function RibbonStack({ children }: { readonly children: ReactNode }) {
-  return <div className="tw:flex tw:flex-col tw:justify-evenly tw:self-stretch">{children}</div>;
+  return <div className="tw:flex tw:flex-col tw:justify-evenly tw:self-stretch tw:px-1.5">{children}</div>;
 }

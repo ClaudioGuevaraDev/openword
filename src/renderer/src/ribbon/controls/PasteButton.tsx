@@ -17,7 +17,7 @@ export function PasteButton({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="tw:group tw:box-border tw:flex tw:h-21 tw:min-w-14 tw:flex-col tw:items-stretch tw:rounded-md tw:border tw:border-transparent tw:transition-colors tw:hover:border-line">
+    <div className="tw:group tw:box-border tw:flex tw:h-16 tw:min-w-18 tw:grow tw:flex-col tw:items-stretch tw:rounded-md tw:border tw:border-transparent tw:transition-colors tw:hover:border-line">
       <button
         type="button"
         className={`${half} tw:flex-1 tw:rounded-t-[5px] tw:pt-1 tw:[&>svg]:size-8 tw:[&>svg]:text-accent`}

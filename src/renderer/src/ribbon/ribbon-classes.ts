@@ -7,7 +7,7 @@ const buttonBase =
 export const button = `${buttonBase} tw:min-h-7 tw:px-[5px] tw:py-0.5`;
 
 /** Botón grande: icono de 32 px sobre la etiqueta. */
-export const buttonLarge = `${buttonBase} tw:h-21 tw:min-w-14 tw:flex-col tw:justify-center tw:gap-1.5 tw:px-2 tw:py-1.5 tw:[&>span:first-child>svg]:size-8 tw:[&>span:first-child>svg]:text-accent`;
+export const buttonLarge = `${buttonBase} tw:h-16 tw:min-w-18 tw:grow tw:flex-col tw:justify-center tw:gap-1 tw:px-3 tw:py-1 tw:[&>span:first-child>svg]:size-8 tw:[&>span:first-child>svg]:text-accent`;
 
 export const icon =
   'tw:relative tw:inline-flex tw:flex-col tw:items-center tw:leading-none tw:[&>svg]:size-5';
