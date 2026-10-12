@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { mkdtemp, rm, copyFile } from 'node:fs/promises';
+import { mkdtemp, rm, copyFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -83,6 +83,27 @@ describe('FontIndex', () => {
     const cached = JSON.parse(await readFile(cache, 'utf8'));
     expect(Object.keys(cached.files)).toHaveLength(4);
     expect(await index(cache).families()).toEqual(['Caladea', 'Carlito']);
+  });
+
+  it('reconstruye el índice si la caché está dañada', async () => {
+    const cache = join(dir, 'broken-cache.json');
+    await writeFile(cache, JSON.stringify({ version: 1, files: null }));
+    expect(await index(cache).families()).toEqual(['Caladea', 'Carlito']);
+    const rebuilt = JSON.parse(await readFile(cache, 'utf8'));
+    expect(Object.keys(rebuilt.files)).toHaveLength(4);
+  });
+
+  it('vuelve a intentar indexar tras un fallo', async () => {
+    let calls = 0;
+    const idx = new FontIndex({
+      listFiles: async () => {
+        calls += 1;
+        if (calls === 1) throw new Error('fc-list falló');
+        return [join(dir, 'Carlito-Regular.ttf')];
+      },
+    });
+    await expect(idx.families()).rejects.toThrow('fc-list falló');
+    expect(await idx.families()).toEqual(['Carlito']);
   });
 });
 

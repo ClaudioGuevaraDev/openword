@@ -14,6 +14,7 @@ import { IpcChannel, type AppInfo, type LoadedDocument } from '@shared/ipc-contr
 import { defaultPaper, pickRegion, pickUiLanguage } from '@shared/locale';
 import type { RecentFiles } from './documents/recent';
 import type { FontIndex } from './fonts/font-index';
+import { logError } from './log';
 import { isTrustedOrigin } from './url-policy';
 import { titleBarOverlay } from './window';
 import type { DocumentWindows } from './windows/document-windows';
@@ -55,6 +56,18 @@ export function registerIpcHandlers({
     if (!record) throw new Error('Ventana desconocida');
     return record;
   };
+  /**
+   * `ipcMain.on` sin respuesta: un error aquí no tiene a quién volver y acabaría como
+   * excepción no capturada en main. Se registra y el mensaje se descarta.
+   */
+  const listen = (channel: string, listener: (event: IpcMainEvent, ...args: unknown[]) => void) =>
+    ipcMain.on(channel, (event, ...args: unknown[]) => {
+      try {
+        listener(event, ...args);
+      } catch (error) {
+        logError(`ipc ${channel}`, error);
+      }
+    });
   const windowOf = (event: IpcMainInvokeEvent | IpcMainEvent) =>
     BrowserWindow.fromWebContents(event.sender) ?? undefined;
 
@@ -80,7 +93,7 @@ export function registerIpcHandlers({
   // ----- documento de la ventana -----
   ipcMain.handle(IpcChannel.docCurrent, (event): LoadedDocument => recordOf(event).pending);
 
-  ipcMain.on(IpcChannel.docSetState, (event, state: unknown) => {
+  listen(IpcChannel.docSetState, (event, state) => {
     const record = recordOf(event);
     const parsed = z.object({ dirty: z.boolean(), untouched: z.boolean() }).parse(state);
     windows.setState(record, parsed.dirty, parsed.untouched);
@@ -93,12 +106,12 @@ export function registerIpcHandlers({
     windows.save(recordOf(event), Bytes.parse(bytes), true),
   );
 
-  ipcMain.on(IpcChannel.docSaveAnswer, (event, requestId: unknown, saved: unknown) => {
+  listen(IpcChannel.docSaveAnswer, (event, requestId, saved) => {
     windows.answerSaveRequest(recordOf(event), z.string().parse(requestId), z.boolean().parse(saved));
   });
 
   // ----- archivos -----
-  ipcMain.on(IpcChannel.fileNew, (event) => {
+  listen(IpcChannel.fileNew, (event) => {
     trusted(event);
     windows.newDocument();
   });
@@ -121,13 +134,13 @@ export function registerIpcHandlers({
     trusted(event);
     return recents.list();
   });
-  ipcMain.on(IpcChannel.windowTitleBarTheme, (event, dark: unknown) => {
+  listen(IpcChannel.windowTitleBarTheme, (event, dark) => {
     trusted(event);
     const win = windowOf(event);
     if (win && process.platform !== 'darwin') win.setTitleBarOverlay(titleBarOverlay(dark === true));
   });
 
-  ipcMain.on(IpcChannel.fileClose, (event) => {
+  listen(IpcChannel.fileClose, (event) => {
     trusted(event);
     windowOf(event)?.close();
   });
@@ -178,7 +191,7 @@ export function registerIpcHandlers({
     recordOf(event);
     return printJobs.savePdf(event.sender, z.string().parse(jobId));
   });
-  ipcMain.on(IpcChannel.printDispose, (event, jobId: unknown) => {
+  listen(IpcChannel.printDispose, (event, jobId) => {
     recordOf(event);
     printJobs.disposeOwnedBy(event.sender, z.string().parse(jobId));
   });
@@ -193,7 +206,7 @@ export function registerIpcHandlers({
     trusted(event);
     return settings.update(z.record(z.string(), z.unknown()).parse(patch));
   });
-  ipcMain.on(IpcChannel.spellAddWord, (event, word: unknown) => {
+  listen(IpcChannel.spellAddWord, (event, word) => {
     trusted(event);
     const text = z.string().min(1).max(64).parse(word);
     event.sender.session.addWordToSpellCheckerDictionary(text);

@@ -4,6 +4,9 @@ import { execFile } from 'node:child_process';
 import { open, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { extname, join } from 'node:path';
+import { z } from 'zod';
+import { errnoCode } from '@shared/errors';
+import { logError, logTo } from '../log';
 import { readSfntFaces, type SfntFace } from './sfnt-names';
 
 export interface IndexedFace extends SfntFace {
@@ -107,10 +110,23 @@ async function facesOfFile(file: string): Promise<SfntFace[]> {
   }
 }
 
-interface CacheFile {
-  readonly version: number;
-  readonly files: Record<string, { size: number; mtimeMs: number; faces: SfntFace[] }>;
-}
+const SfntFaceSchema = z.object({
+  faceIndex: z.number().int().min(0),
+  family: z.string(),
+  subfamily: z.string(),
+  typographicFamily: z.string().nullable(),
+  weight: z.number(),
+  italic: z.boolean(),
+}) satisfies z.ZodType<SfntFace>;
+
+const CacheFileSchema = z.object({
+  version: z.literal(CACHE_VERSION),
+  files: z.record(
+    z.string(),
+    z.object({ size: z.number(), mtimeMs: z.number(), faces: z.array(SfntFaceSchema) }),
+  ),
+});
+type CacheFile = z.infer<typeof CacheFileSchema>;
 
 export class FontIndex {
   private faces: Promise<IndexedFace[]> | undefined;
@@ -124,7 +140,11 @@ export class FontIndex {
 
   /** Construye (o reutiliza) el índice. Solo se vuelve a leer lo que cambió desde la caché. */
   all(): Promise<IndexedFace[]> {
-    this.faces ??= this.build();
+    // Si falla, no se guarda la promesa rechazada: el próximo intento vuelve a indexar.
+    this.faces ??= this.build().catch((error: unknown) => {
+      this.faces = undefined;
+      throw error;
+    });
     return this.faces;
   }
 
@@ -201,16 +221,20 @@ export class FontIndex {
 
   private async readCache(): Promise<CacheFile | null> {
     if (!this.options.cacheFile) return null;
+    let raw: unknown;
     try {
-      const parsed = JSON.parse(await readFile(this.options.cacheFile, 'utf8')) as CacheFile;
-      return parsed.version === CACHE_VERSION ? parsed : null;
-    } catch {
+      raw = JSON.parse(await readFile(this.options.cacheFile, 'utf8'));
+    } catch (error) {
+      if (errnoCode(error) !== 'ENOENT') logError('fonts', error);
       return null;
     }
+    // Caché de otra versión o dañada: se reconstruye desde cero.
+    const parsed = CacheFileSchema.safeParse(raw);
+    return parsed.success ? parsed.data : null;
   }
 
   private async writeCache(cache: CacheFile): Promise<void> {
     if (!this.options.cacheFile) return;
-    await writeFile(this.options.cacheFile, JSON.stringify(cache)).catch(() => undefined);
+    await writeFile(this.options.cacheFile, JSON.stringify(cache)).catch(logTo('fonts'));
   }
 }

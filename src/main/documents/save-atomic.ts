@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { constants } from 'node:fs';
 import { open, rename, stat, unlink, chmod } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
+import { errnoCode, errorMessage } from '@shared/errors';
 
 const ZIP_MAGIC = [0x50, 0x4b, 0x03, 0x04];
 const RETRYABLE = new Set(['EPERM', 'EBUSY', 'EACCES']);
@@ -60,7 +61,7 @@ export async function writeDocxAtomic(
         await rename(temp, target);
         break;
       } catch (error) {
-        const code = (error as NodeJS.ErrnoException).code ?? '';
+        const code = errnoCode(error);
         if (attempt >= 5 || !RETRYABLE.has(code)) throw error;
         await sleep(50 * 2 ** attempt);
       }
@@ -75,7 +76,7 @@ export async function writeDocxAtomic(
   } catch (error) {
     await unlink(temp).catch(() => undefined);
     if (error instanceof SaveError) throw error;
-    throw new SaveError(`No se pudo guardar "${basename(target)}": ${(error as Error).message}`, 'io', {
+    throw new SaveError(`No se pudo guardar "${basename(target)}": ${errorMessage(error)}`, 'io', {
       cause: error,
     });
   }

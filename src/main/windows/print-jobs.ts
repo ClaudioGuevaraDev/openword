@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
 import { IpcChannel, type PrintJob, type PrintRenderInfo, type SaveResult } from '@shared/ipc-contract';
+import { errorMessage } from '@shared/errors';
 import { APP_ORIGIN } from '../app-url';
 import { hardenWebContents } from '../security';
 
@@ -57,13 +58,14 @@ export class PrintJobs {
     // Si se cierra la ventana del documento, se descarta su trabajo.
     owner.once('destroyed', () => this.dispose(id));
 
+    let timer: NodeJS.Timeout | undefined;
     try {
-      const timeout = new Promise<{ error: string }>((resolve) =>
-        setTimeout(
+      const timeout = new Promise<{ error: string }>((resolve) => {
+        timer = setTimeout(
           () => resolve({ error: 'La preparación de la impresión tardó demasiado.' }),
           RENDER_TIMEOUT_MS,
-        ),
-      );
+        );
+      });
       await win.loadURL(this.devServerUrl ? `${this.devServerUrl}/print.html` : `${APP_ORIGIN}/print.html`);
       const info = await Promise.race([rendered, timeout]);
       if ('error' in info) throw new Error(info.error);
@@ -79,6 +81,8 @@ export class PrintJobs {
     } catch (error) {
       this.dispose(id);
       throw error;
+    } finally {
+      clearTimeout(timer);
     }
   }
 
@@ -115,7 +119,7 @@ export class PrintJobs {
       await writeFile(target, job.pdf);
       return { status: 'saved', displayName: basename(target) };
     } catch (error) {
-      return { status: 'error', message: (error as Error).message };
+      return { status: 'error', message: errorMessage(error) };
     }
   }
 

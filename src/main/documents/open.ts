@@ -1,6 +1,7 @@
 // Lectura de un documento del disco y decisión de cómo abrirlo.
 import CFB from 'cfb';
 import { readFile, stat } from 'node:fs/promises';
+import { errnoCode, errorMessage } from '@shared/errors';
 import { sniffFileKind, type FileKind } from '@shared/file-kinds';
 
 const MAX_DOCUMENT_BYTES = 512 * 1024 * 1024;
@@ -27,9 +28,9 @@ export async function readDocumentFile(path: string): Promise<ReadResult> {
     const bytes = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     return { ok: true, kind: sniffFileKind(bytes, listCfbStreams), bytes };
   } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
+    const code = errnoCode(error);
     if (code === 'ENOENT')
       return { ok: false, reason: 'not-found', message: 'El archivo no existe o fue movido.' };
-    return { ok: false, reason: 'unreadable', message: (error as Error).message };
+    return { ok: false, reason: 'unreadable', message: errorMessage(error) };
   }
 }

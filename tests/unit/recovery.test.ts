@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -43,5 +43,19 @@ describe('RecoveryStore', () => {
     await rm(join(dir, `${ID1}.docx`));
     expect(await store.list()).toEqual([]);
     expect(await readdir(dir)).toEqual([]);
+  });
+
+  it('recupera el documento aunque sus metadatos estén dañados o falten', async () => {
+    const store = new RecoveryStore(dir);
+    await store.write(ID1, new Uint8Array([7]), { displayName: 'Carta.docx', filePath: '/docs/Carta.docx' });
+    await store.write(ID2, new Uint8Array([8]), { displayName: 'Otro', filePath: null });
+    await writeFile(join(dir, `${ID1}.json`), '{"displayName": 42, "filePath": 5'); // escritura cortada
+    await rm(join(dir, `${ID2}.json`));
+    const list = await store.list();
+    expect(list.map((d) => [d.id, d.displayName, d.filePath]).sort()).toEqual([
+      [ID1, 'Documento recuperado', null],
+      [ID2, 'Documento recuperado', null],
+    ]);
+    expect(Array.from(list.find((d) => d.id === ID1)!.bytes)).toEqual([7]);
   });
 });

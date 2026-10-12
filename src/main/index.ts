@@ -1,6 +1,7 @@
-import { app, BrowserWindow, session } from 'electron';
+import { app, BrowserWindow, dialog, session } from 'electron';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { errorMessage } from '@shared/errors';
 import { pickUiLanguage } from '@shared/locale';
 import { extractDocumentPaths } from './cli-args';
 import { RecentFiles } from './documents/recent';
@@ -10,6 +11,7 @@ import { conversionWorkRoot, convertToDocx } from './libreoffice/convert';
 import { findSoffice } from './libreoffice/detect';
 import { FontIndex } from './fonts/font-index';
 import { registerIpcHandlers } from './ipc';
+import { configureLog, logError, logTo } from './log';
 import { installApplicationMenu } from './menu';
 import { handleAppProtocol, registerAppSchemePrivileges } from './protocol';
 import { hardenSession } from './security';
@@ -31,6 +33,10 @@ const devServerUrl = !app.isPackaged ? process.env['ELECTRON_RENDERER_URL'] : un
 // instancia única, que depende de ella.
 if (process.env['OPENWORD_USER_DATA']) app.setPath('userData', process.env['OPENWORD_USER_DATA']);
 
+configureLog(join(app.getPath('userData'), 'openword.log'));
+process.on('unhandledRejection', logTo('unhandledRejection'));
+process.on('uncaughtException', logTo('uncaughtException'));
+
 registerAppSchemePrivileges();
 
 if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) {
@@ -42,7 +48,7 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
   const pendingPaths: string[] = [];
 
   const openOrQueue = (paths: string[]) => {
-    if (windows) void windows.openPaths(paths);
+    if (windows) void windows.openPaths(paths).catch(logTo('open'));
     else pendingPaths.push(...paths);
   };
 
@@ -59,7 +65,7 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
     else if (windows) windows.newDocument();
   });
 
-  void app.whenReady().then(async () => {
+  const start = async () => {
     handleAppProtocol(join(__dirname, '../renderer'));
     hardenSession(devServerUrl);
     installApplicationMenu();
@@ -93,10 +99,10 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
       printJobs: new PrintJobs(devServerUrl),
       settings,
     });
-    void fonts.all(); // indexar en segundo plano mientras abre la primera ventana
+    void fonts.all().catch(logTo('fonts')); // indexar en segundo plano mientras abre la primera ventana
 
-    // Documentos que quedaron sin guardar por un cierre inesperado.
-    await windows.restoreRecovered();
+    // Documentos que quedaron sin guardar por un cierre inesperado. Si falla, la app arranca igual.
+    await windows.restoreRecovered().catch(logTo('recovery'));
     const initial = [...pendingPaths.splice(0), ...extractDocumentPaths(process.argv, process.cwd())];
     if (initial.length > 0) await windows.openPaths(initial);
     if (BrowserWindow.getAllWindows().length === 0) windows.newDocument();
@@ -104,19 +110,32 @@ if (!app.requestSingleInstanceLock({ argv: process.argv, cwd: process.cwd() })) 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) windows?.newDocument();
     });
-  });
+  };
+
+  void app
+    .whenReady()
+    .then(start)
+    .catch((error: unknown) => {
+      // Sin ventana ni mensaje la app parecería colgada: se informa y se sale.
+      logError('startup', error);
+      dialog.showErrorBox('OpenWord no pudo iniciarse', errorMessage(error));
+      app.exit(1);
+    });
 
   // Salir: preguntar por cada documento con cambios antes de cerrar nada.
   let quitConfirmed = false;
   app.on('before-quit', (event) => {
     if (quitConfirmed || !windows) return;
     event.preventDefault();
-    void windows.confirmQuit().then((ok) => {
-      if (ok) {
-        quitConfirmed = true;
-        app.quit();
-      }
-    });
+    void windows
+      .confirmQuit()
+      .then((ok) => {
+        if (ok) {
+          quitConfirmed = true;
+          app.quit();
+        }
+      })
+      .catch(logTo('quit'));
   });
 
   app.on('window-all-closed', () => {

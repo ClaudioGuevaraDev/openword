@@ -8,11 +8,13 @@ import type { DocumentNotice, LoadedDocument, SaveResult } from '@shared/ipc-con
 import { IpcChannel } from '@shared/ipc-contract';
 import { pickUiLanguage } from '@shared/locale';
 import { ensureBuiltInStyles } from '@shared/builtin-styles';
+import { errorMessage } from '@shared/errors';
 import { setMainContentType } from '@shared/package-patch';
 import { readDocumentFile } from '../documents/open';
 import type { RecentFiles } from '../documents/recent';
 import type { RecoveryStore } from '../documents/recovery';
 import { writeDocxAtomic } from '../documents/save-atomic';
+import { logTo } from '../log';
 import { createDocumentWindow } from '../window';
 
 type SaveKind = 'docx' | 'docm';
@@ -218,7 +220,7 @@ export class DocumentWindows {
       bytes = await this.converter.convert(soffice, path);
     } catch (error) {
       if (!record.win.isDestroyed()) record.win.setProgressBar(-1);
-      await this.warn(parent, `No se pudo convertir «${name}».`, (error as Error).message);
+      await this.warn(parent, `No se pudo convertir «${name}».`, errorMessage(error));
       if (record.win.isDestroyed()) return;
       if (created) record.win.destroy();
       else
@@ -295,19 +297,23 @@ export class DocumentWindows {
     win.on('close', (event) => {
       if (record.closeConfirmed || !record.dirty) return;
       event.preventDefault();
-      void this.confirmClose(record).then((ok) => {
-        if (ok) {
-          record.closeConfirmed = true;
-          win.close();
-        }
-      });
+      void this.confirmClose(record)
+        .then((ok) => {
+          if (ok) {
+            record.closeConfirmed = true;
+            win.close();
+          }
+        })
+        .catch(logTo('confirm-close'));
     });
     win.on('closed', () => {
       this.records.delete(contentsId);
       // Cierre normal (guardado, "No guardar" o sin cambios): la copia de recuperación sobra.
-      void this.recovery.discard(record.id);
-      for (const [id, resolve] of this.saveAnswers) if (id.startsWith(record.id)) resolve(false);
+      void this.recovery.discard(record.id).catch(logTo('recovery'));
+      this.cancelSaveRequests(record);
     });
+    // Si el renderer se cae, nadie contestará a "¿guardar?": se da por no guardado.
+    win.webContents.on('render-process-gone', () => this.cancelSaveRequests(record));
     return win;
   }
 
@@ -379,14 +385,15 @@ export class DocumentWindows {
             : [{ name: 'Documento de Word', extensions: ['docx'] }],
       });
       if (result.canceled || !result.filePath) return { status: 'canceled' };
-      target = extname(result.filePath).toLowerCase() === ext ? result.filePath : result.filePath + ext;
-      const other = this.all().find((r) => r !== record && r.filePath && samePath(r.filePath, target!));
+      const chosen = extname(result.filePath).toLowerCase() === ext ? result.filePath : result.filePath + ext;
+      const other = this.all().find((r) => r !== record && r.filePath && samePath(r.filePath, chosen));
       if (other) {
         return {
           status: 'error',
-          message: `«${basename(target)}» está abierto en otra ventana. Ciérralo o elige otro nombre.`,
+          message: `«${basename(chosen)}» está abierto en otra ventana. Ciérralo o elige otro nombre.`,
         };
       }
+      target = chosen;
     }
 
     try {
@@ -395,7 +402,7 @@ export class DocumentWindows {
       const data = ensureBuiltInStyles(packaged);
       await writeDocxAtomic(target, data);
     } catch (error) {
-      return { status: 'error', message: (error as Error).message };
+      return { status: 'error', message: errorMessage(error) };
     }
 
     record.filePath = target;
@@ -445,6 +452,10 @@ export class DocumentWindows {
       this.saveAnswers.set(requestId, resolve);
       record.win.webContents.send(IpcChannel.docSaveRequest, requestId);
     }).finally(() => this.saveAnswers.delete(requestId));
+  }
+
+  private cancelSaveRequests(record: DocRecord): void {
+    for (const [id, resolve] of this.saveAnswers) if (id.startsWith(`${record.id}:`)) resolve(false);
   }
 
   answerSaveRequest(record: DocRecord, requestId: string, saved: boolean): void {
