@@ -1,5 +1,5 @@
 import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
-import { mkdtempSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -16,6 +16,10 @@ export async function launchApp(
   options: { args?: string[]; userData?: string; env?: Record<string, string> } = {},
 ): Promise<ElectronApplication & { userData: string }> {
   const userData = options.userData ?? mkdtempSync(join(tmpdir(), 'ow-e2e-'));
+  // Interfaz en español en cualquier SO (los runners de Windows y macOS están en inglés),
+  // salvo que la prueba ya haya guardado sus propias opciones en esa carpeta.
+  const settings = join(userData, 'settings.json');
+  if (!existsSync(settings)) writeFileSync(settings, JSON.stringify({ uiLanguage: 'es' }));
   const app = await electron.launch({
     args: [MAIN_ENTRY, ...(options.args ?? []), ...sandboxArgs()],
     // Sin LibreOffice salvo que la prueba lo pida (resultado igual en cualquier máquina).

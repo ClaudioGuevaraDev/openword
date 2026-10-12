@@ -42,13 +42,22 @@ test.describe('corpus: abrir y guardar sin editar en la app', () => {
   for (const { file } of manifest.documents) {
     test(file, async () => {
       const target = join(out, file.replace('/', '__'));
-      // Cada documento en su propia ventana; se guarda con Ctrl+Mayús+S y se cierra.
-      const opened = app.waitForEvent('window');
+      // Cada documento en su propia ventana (o en la del Documento1 sin tocar, que se reutiliza);
+      // se busca la que muestra ese archivo. Se guarda con Ctrl+Mayús+S y se cierra.
       await mockDialogs(app, { open: [join(CORPUS, file)], save: target });
       const first = app.windows()[0]!;
       await first.evaluate(() => window.openword.file.openDialog());
-      const win =
-        (await Promise.race([opened, new Promise<null>((r) => setTimeout(() => r(null), 3000))])) ?? first;
+      const findWindow = async () => {
+        for (const page of app.windows()) {
+          const name = await page
+            .evaluate(() => window.openword.doc.current().then((d) => d.displayName))
+            .catch(() => null);
+          if (name === basename(file)) return page;
+        }
+        return null;
+      };
+      await expect.poll(async () => (await findWindow()) !== null, { timeout: 30_000 }).toBe(true);
+      const win = (await findWindow())!;
       await waitForDocument(win);
       await win.keyboard.press(`${mod}+Shift+s`);
       await expect.poll(() => existsSync(target), { timeout: 30_000 }).toBe(true);
