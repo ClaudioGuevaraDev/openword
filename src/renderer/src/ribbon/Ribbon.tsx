@@ -170,7 +170,7 @@ export function Ribbon() {
           id="ribbon-panel"
           role="tabpanel"
           aria-labelledby={`ribbon-tab-${shownTab}`}
-          className="ow-panel-in tw:flex tw:items-stretch tw:overflow-x-auto tw:overflow-y-hidden tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1.5 tw:pt-2 tw:shadow-card"
+          className="ow-panel-in tw:flex tw:items-stretch tw:overflow-x-auto tw:overflow-y-hidden tw:rounded-xl tw:border tw:border-line tw:bg-ribbon tw:px-1.5 tw:py-1 tw:shadow-card"
         >
           {panel()}
         </div>

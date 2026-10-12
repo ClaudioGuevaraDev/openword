@@ -14,15 +14,18 @@ export function RibbonGroup({
   readonly launcherLabel?: string;
 }) {
   return (
-    // Divisor corto entre grupos (no de lado a lado), como la cinta de Word 365. Es un grupo y
-    // no una <section>: cada pestaña tiene varios y no deben contar como regiones de la página.
+    // Divisor entre grupos, del borde superior del contenido al pie de la etiqueta, con el mismo
+    // margen arriba y abajo para que se vea centrado en el panel. Es un grupo y no una <section>:
+    // cada pestaña tiene varios y no deben contar como regiones de la página.
     <div
       role="group"
-      className="tw:relative tw:flex tw:flex-col tw:px-1 tw:after:absolute tw:after:top-[12%] tw:after:right-0 tw:after:h-[76%] tw:after:w-px tw:after:bg-line tw:last:after:hidden"
+      className="tw:relative tw:flex tw:flex-col tw:px-1 tw:after:absolute tw:after:top-1 tw:after:right-0 tw:after:bottom-1 tw:after:w-px tw:after:bg-line tw:last:after:hidden"
       aria-label={label}
     >
       {/* Altura común (la de un botón grande): las pilas de 2 o 3 filas se reparten en ella. */}
-      <div className="tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1">{children}</div>
+      <div className="tw:box-content tw:flex tw:min-h-21 tw:flex-1 tw:items-center tw:gap-1 tw:pt-1">
+        {children}
+      </div>
       <div className="tw:relative tw:px-3.5 tw:pt-1 tw:pb-1 tw:text-center tw:text-[11px] tw:whitespace-nowrap tw:text-muted">
         {label}
         {onLauncher && (
