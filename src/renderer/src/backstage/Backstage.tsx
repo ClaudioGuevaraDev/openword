@@ -13,7 +13,11 @@ import { useDocumentStore } from '@renderer/state/document-store';
 import { useUiStore, type BackstageSection } from '@renderer/state/ui-store';
 import { OptionsSection } from './OptionsSection';
 import { PdfPreview } from './PdfPreview';
-import styles from './Backstage.module.css';
+import { cx } from '@renderer/ui/cx';
+import * as bs from './backstage-classes';
+
+const navButton =
+  'tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-6 tw:py-2.5 tw:text-left tw:text-on-tabbar tw:font-[family-name:inherit] tw:hover:bg-white/15 tw:text-[14px]';
 
 type JobState =
   | { readonly kind: 'preparing' }
@@ -62,13 +66,13 @@ function PrintSection() {
   const [status, setStatus] = useState('');
 
   return (
-    <section className={styles.content}>
-      <h1 className={styles.title}>{t('backstage.print')}</h1>
-      <div className={styles.printLayout}>
-        <div className={styles.printControls}>
+    <section className={bs.content}>
+      <h1 className={bs.title}>{t('backstage.print')}</h1>
+      <div className="tw:flex tw:h-[calc(100vh-120px)] tw:gap-8">
+        <div className="tw:w-60 tw:flex-none">
           <button
             type="button"
-            className={styles.primary}
+            className={bs.primary}
             disabled={state.kind !== 'ready'}
             data-testid="print-button"
             onClick={async () => {
@@ -85,16 +89,16 @@ function PrintSection() {
           >
             {t('backstage.printButton')}
           </button>
-          <p className={styles.hint}>{t('backstage.printHint')}</p>
+          <p className={bs.hint}>{t('backstage.printHint')}</p>
           {state.kind === 'ready' && (
             <p data-testid="print-pages">{t('backstage.pages', { count: state.job.pages })}</p>
           )}
           {status && <p role="status">{status}</p>}
         </div>
-        <div className={styles.previewArea}>
-          {state.kind === 'preparing' && <p className={styles.hint}>{t('backstage.preparing')}</p>}
+        <div className="tw:min-w-0 tw:flex-1 tw:overflow-auto tw:rounded tw:bg-canvas tw:p-4">
+          {state.kind === 'preparing' && <p className={bs.hint}>{t('backstage.preparing')}</p>}
           {state.kind === 'error' && (
-            <p className={styles.error} role="alert">
+            <p className={bs.error} role="alert">
               {state.message}
             </p>
           )}
@@ -136,13 +140,13 @@ function ExportSection() {
   };
 
   return (
-    <section className={styles.content}>
-      <h1 className={styles.title}>{t('backstage.export')}</h1>
+    <section className={bs.content}>
+      <h1 className={bs.title}>{t('backstage.export')}</h1>
       <h2>{t('backstage.exportPdfTitle')}</h2>
-      <p className={styles.hint}>{t('backstage.exportPdfHint')}</p>
+      <p className={bs.hint}>{t('backstage.exportPdfHint')}</p>
       <button
         type="button"
-        className={styles.primary}
+        className={bs.primary}
         onClick={() => void exportPdf()}
         disabled={busy}
         data-testid="export-pdf"
@@ -169,25 +173,26 @@ function HomeSection() {
   }, []);
 
   return (
-    <section className={styles.content}>
-      <h1 className={styles.title}>{displayName}</h1>
+    <section className={bs.content}>
+      <h1 className={bs.title}>{displayName}</h1>
       <h2>{t('backstage.recent')}</h2>
       {recent.length === 0 ? (
-        <p className={styles.empty}>{t('backstage.noRecent')}</p>
+        <p className={bs.hint}>{t('backstage.noRecent')}</p>
       ) : (
-        <ul className={styles.recent} data-testid="recent-list">
+        <ul className="tw:m-0 tw:list-none tw:p-0" data-testid="recent-list">
           {recent.map((file) => (
             <li key={file.path}>
               <button
                 type="button"
+                className="tw:flex tw:w-full tw:max-w-[720px] tw:cursor-pointer tw:flex-col tw:rounded tw:border-0 tw:bg-transparent tw:px-3 tw:py-2 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:hover:bg-line"
                 onClick={() => {
                   setActiveTab('home');
                   void window.openword.file.openRecent(file.path);
                 }}
                 title={file.path}
               >
-                <span className={styles.recentName}>{file.name}</span>
-                <span className={styles.recentFolder}>{file.folder}</span>
+                <span className="tw:text-[14px]">{file.name}</span>
+                <span className="tw:text-[12px] tw:text-muted">{file.folder}</span>
               </button>
             </li>
           ))}
@@ -212,7 +217,7 @@ export function Backstage() {
     <button
       type="button"
       aria-current={section === id ? 'page' : undefined}
-      className={section === id ? styles.current : undefined}
+      className={cx(navButton, section === id && 'tw:bg-white/20! tw:font-semibold')}
       onClick={() => setSection(id)}
       data-testid={`backstage-${id}`}
     >
@@ -221,28 +226,38 @@ export function Backstage() {
   );
 
   return (
-    <div className={styles.backstage} role="dialog" aria-label={t('tabs.file')} data-testid="backstage">
-      <nav className={styles.nav}>
-        <button type="button" className={styles.back} onClick={back} aria-label={t('backstage.back')}>
+    <div
+      className="tw:fixed tw:inset-0 tw:z-[1000] tw:flex tw:bg-app"
+      role="dialog"
+      aria-label={t('tabs.file')}
+      data-testid="backstage"
+    >
+      <nav className="tw:flex tw:w-[200px] tw:flex-col tw:bg-tabbar tw:py-3">
+        <button
+          type="button"
+          className="tw:mb-3 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-6 tw:py-2.5 tw:text-left tw:font-[family-name:inherit] tw:text-[20px] tw:text-on-tabbar tw:hover:bg-white/15"
+          onClick={back}
+          aria-label={t('backstage.back')}
+        >
           ←
         </button>
         {tab('home', t('backstage.info'))}
-        <button type="button" onClick={run(newDocument)}>
+        <button type="button" className={navButton} onClick={run(newDocument)}>
           {t('backstage.new')}
         </button>
-        <button type="button" onClick={run(openDocument)}>
+        <button type="button" className={navButton} onClick={run(openDocument)}>
           {t('backstage.open')}
         </button>
-        <button type="button" onClick={run(() => saveDocument('save'))}>
+        <button type="button" className={navButton} onClick={run(() => saveDocument('save'))}>
           {t('backstage.save')}
         </button>
-        <button type="button" onClick={run(() => saveDocument('saveAs'))}>
+        <button type="button" className={navButton} onClick={run(() => saveDocument('saveAs'))}>
           {t('backstage.saveAs')}
         </button>
         {tab('print', t('backstage.print'))}
         {tab('export', t('backstage.export'))}
-        <span className={styles.spacer} />
-        <button type="button" onClick={run(closeWindow)}>
+        <span className="tw:flex-1" />
+        <button type="button" className={navButton} onClick={run(closeWindow)}>
           {t('backstage.close')}
         </button>
         {tab('options', t('backstage.options'))}

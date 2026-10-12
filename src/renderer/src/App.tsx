@@ -10,7 +10,6 @@ import { Ribbon } from './ribbon/Ribbon';
 import { useDocumentStore } from './state/document-store';
 import { useUiStore } from './state/ui-store';
 import { StatusBar } from './statusbar/StatusBar';
-import styles from './App.module.css';
 
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const subscribeDark = (notify: () => void) => {
@@ -57,7 +56,7 @@ export function App({ info }: { readonly info: AppInfo }) {
   return (
     // La clase "dark" activa también el modo oscuro del motor (invierte la vista de la página,
     // sin cambiar los colores guardados).
-    <div className={`docx-editor ${dark ? 'dark' : ''} ${styles.app}`} data-testid="app">
+    <div className={`docx-editor ${dark ? 'dark' : ''} tw:flex tw:h-screen tw:flex-col`} data-testid="app">
       {doc && source && (
         <EditorHost
           key={`${doc.docId}:${loadSeq}`}

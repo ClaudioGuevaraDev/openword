@@ -1,10 +1,12 @@
 // Color de fuente y resaltado: botón dividido (aplica el último color) + paleta.
-import * as Popover from '@radix-ui/react-popover';
 import { useState, type ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { focusEditor } from '@renderer/editor/document-actions';
-import styles from '../Ribbon.module.css';
+import { Popover } from '@renderer/ui/Popover';
+import * as rc from '../ribbon-classes';
+
+const paletteGrid = 'tw:grid tw:grid-cols-10 tw:gap-[3px]';
 
 // Colores del tema Office y colores estándar de Word.
 const THEME_COLORS = [
@@ -68,45 +70,44 @@ function SplitButton({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <span className={styles.split}>
+    <span className="tw:inline-flex tw:items-stretch">
       <button
         type="button"
-        className={styles.button}
+        className={`${rc.button} tw:rounded-r-none`}
         aria-label={label}
         title={label}
         disabled={disabled}
         onMouseDown={(e) => e.preventDefault()}
         onClick={onApply}
       >
-        <span className={styles.icon}>
+        <span className={rc.icon}>
           {icon}
-          <span className={styles.swatchBar} style={{ background: swatch }} />
+          <span
+            className="tw:-mt-0.5 tw:block tw:h-1 tw:w-[18px] tw:border tw:border-black/15"
+            style={{ background: swatch }}
+          />
         </span>
       </button>
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
+      <Popover
+        open={open}
+        onOpenChange={setOpen}
+        className={rc.palette}
+        anchor={({ anchorStyle, triggerProps }) => (
           <button
             type="button"
-            className={styles.splitArrow}
+            {...triggerProps}
+            className="tw:cursor-pointer tw:rounded-r-[3px] tw:border tw:border-transparent tw:bg-transparent tw:px-0.5 tw:text-[9px] tw:text-muted tw:hover:enabled:border-line tw:hover:enabled:bg-hover"
+            style={anchorStyle}
             aria-label={`${label}: más colores`}
             disabled={disabled}
             onMouseDown={(e) => e.preventDefault()}
           >
             ▾
           </button>
-        </Popover.Trigger>
-        <Popover.Portal>
-          <Popover.Content
-            className={styles.palette}
-            align="start"
-            sideOffset={2}
-            onOpenAutoFocus={(e) => e.preventDefault()}
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            {children(() => setOpen(false))}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
+        )}
+      >
+        {children(() => setOpen(false))}
+      </Popover>
     </span>
   );
 }
@@ -123,7 +124,7 @@ function Swatch({
   return (
     <button
       type="button"
-      className={styles.swatch}
+      className="tw:aspect-square tw:w-full tw:cursor-pointer tw:border tw:border-black/20 tw:p-0 tw:hover:outline-2 tw:hover:outline-accent"
       style={{ background: `#${hex}` }}
       title={title}
       aria-label={title}
@@ -154,20 +155,20 @@ export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
         <>
           <button
             type="button"
-            className={styles.paletteWide}
+            className={rc.paletteWide}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => (apply('auto'), close())}
           >
             {t('home.font.automatic')}
           </button>
-          <div className={styles.paletteTitle}>{t('home.font.themeColors')}</div>
-          <div className={styles.paletteGrid}>
+          <div className={rc.paletteTitle}>{t('home.font.themeColors')}</div>
+          <div className={paletteGrid}>
             {THEME_COLORS.map((hex) => (
               <Swatch key={hex} hex={hex} title={`#${hex}`} onPick={() => (apply(hex), close())} />
             ))}
           </div>
-          <div className={styles.paletteTitle}>{t('home.font.standardColors')}</div>
-          <div className={styles.paletteGrid}>
+          <div className={rc.paletteTitle}>{t('home.font.standardColors')}</div>
+          <div className={paletteGrid}>
             {STANDARD_COLORS.map((hex) => (
               <Swatch key={hex} hex={hex} title={`#${hex}`} onPick={() => (apply(hex), close())} />
             ))}
@@ -196,7 +197,7 @@ export function HighlightButton({ icon }: { readonly icon: ReactNode }) {
     >
       {(close) => (
         <>
-          <div className={styles.paletteGrid5}>
+          <div className="tw:mb-1.5 tw:grid tw:grid-cols-5 tw:gap-[3px]">
             {HIGHLIGHT_COLORS.map((entry) => (
               <Swatch
                 key={entry[0]}
@@ -212,7 +213,7 @@ export function HighlightButton({ icon }: { readonly icon: ReactNode }) {
           </div>
           <button
             type="button"
-            className={styles.paletteWide}
+            className={rc.paletteWide}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => (apply('none'), close())}
           >

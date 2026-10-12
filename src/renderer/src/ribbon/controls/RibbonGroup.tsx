@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import styles from '../Ribbon.module.css';
 
 export function RibbonGroup({
   label,
@@ -14,14 +13,14 @@ export function RibbonGroup({
   readonly launcherLabel?: string;
 }) {
   return (
-    <section className={styles.group} aria-label={label}>
-      <div className={styles.groupBody}>{children}</div>
-      <div className={styles.groupLabel}>
+    <section className="tw:flex tw:flex-col tw:border-r tw:border-line tw:px-1.5" aria-label={label}>
+      <div className="tw:flex tw:flex-1 tw:items-start tw:gap-0.5">{children}</div>
+      <div className="tw:relative tw:px-3.5 tw:pt-0.5 tw:pb-[3px] tw:text-center tw:text-[11px] tw:whitespace-nowrap tw:text-muted">
         {label}
         {onLauncher && (
           <button
             type="button"
-            className={styles.launcher}
+            className="tw:absolute tw:right-0 tw:bottom-0.5 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-0.5 tw:text-[10px] tw:leading-none tw:text-muted tw:hover:text-fg"
             aria-label={launcherLabel ?? label}
             title={launcherLabel ?? label}
             onMouseDown={(e) => e.preventDefault()}
@@ -37,9 +36,9 @@ export function RibbonGroup({
 
 /** Fila de botones pequeños dentro de un grupo. */
 export function RibbonRow({ children }: { readonly children: ReactNode }) {
-  return <div className={styles.row}>{children}</div>;
+  return <div className="tw:flex tw:items-center tw:gap-px">{children}</div>;
 }
 
 export function RibbonStack({ children }: { readonly children: ReactNode }) {
-  return <div className={styles.stack}>{children}</div>;
+  return <div className="tw:flex tw:flex-col tw:gap-0.5">{children}</div>;
 }

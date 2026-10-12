@@ -14,7 +14,7 @@ import { CommandButton } from '../controls/CommandButton';
 import { MenuButton } from '../controls/MenuButton';
 import { RibbonButton } from '../controls/RibbonButton';
 import { RibbonGroup, RibbonStack } from '../controls/RibbonGroup';
-import styles from '../Ribbon.module.css';
+import * as rc from '../ribbon-classes';
 
 const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
@@ -55,7 +55,7 @@ export function ViewTab() {
 
       <RibbonGroup label={t('view.show.label')}>
         <RibbonStack>
-          <label className={styles.check}>
+          <label className={rc.check}>
             <input
               type="checkbox"
               data-testid="show-ruler"
@@ -64,7 +64,7 @@ export function ViewTab() {
             />
             {t('view.show.ruler')}
           </label>
-          <label className={styles.check}>
+          <label className={rc.check}>
             <input
               type="checkbox"
               data-testid="show-navigation"
@@ -97,7 +97,7 @@ export function ViewTab() {
         />
         <RibbonButton
           size="large"
-          icon={<span className={styles.bigText}>100</span>}
+          icon={<span className="tw:text-[18px] tw:leading-8 tw:font-semibold">100</span>}
           label="100 %"
           onClick={() => zoom.setZoom(1)}
           testId="zoom-100"

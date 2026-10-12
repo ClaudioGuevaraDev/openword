@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDocxEditor, useEditorEvent, useEditorState, useZoom } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { countWordsInParagraphs } from '@shared/word-count';
-import styles from './StatusBar.module.css';
+
+const zoomButton =
+  'tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-1 tw:text-inherit tw:font-[family-name:inherit] tw:text-[length:inherit] tw:disabled:opacity-40';
 
 /** Palabras del cuerpo del documento (como la barra de estado de Word), recalculadas al editar. */
 function useWordCount(): number | null {
@@ -36,10 +38,10 @@ function ZoomControl() {
   const zoom = useZoom();
   const percent = Math.round(zoom.zoom * 100);
   return (
-    <div className={styles.zoom}>
+    <div className="tw:flex tw:items-center tw:gap-1">
       <button
         type="button"
-        className={styles.zoomButton}
+        className={zoomButton}
         onClick={zoom.zoomOut}
         disabled={!zoom.canZoomOut}
         aria-label={t('status.zoomOut')}
@@ -49,7 +51,7 @@ function ZoomControl() {
       </button>
       <input
         type="range"
-        className={styles.slider}
+        className="tw:w-[110px] tw:accent-white"
         min={10}
         max={500}
         step={10}
@@ -59,7 +61,7 @@ function ZoomControl() {
       />
       <button
         type="button"
-        className={styles.zoomButton}
+        className={zoomButton}
         onClick={zoom.zoomIn}
         disabled={!zoom.canZoomIn}
         aria-label={t('status.zoomIn')}
@@ -69,7 +71,7 @@ function ZoomControl() {
       </button>
       <button
         type="button"
-        className={styles.zoomPercent}
+        className="tw:min-w-11 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:px-1 tw:text-right tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-inherit"
         onClick={zoom.reset}
         title={t('status.zoomReset')}
         data-testid="zoom-percent"
@@ -86,13 +88,16 @@ export function StatusBar() {
   const words = useWordCount();
 
   return (
-    <footer className={styles.statusbar} data-testid="status-bar">
+    <footer
+      className="tw:flex tw:h-6 tw:flex-none tw:items-center tw:gap-4 tw:bg-statusbar tw:px-3 tw:text-[12px] tw:text-on-statusbar"
+      data-testid="status-bar"
+    >
       <span data-testid="status-page">
         {t('status.page', { current: page?.current ?? 1, total: page?.total ?? 1 })}
       </span>
       <span data-testid="status-words">{words === null ? '' : t('status.words', { count: words })}</span>
       <span>{t('status.language')}</span>
-      <span className={styles.spacer} />
+      <span className="tw:flex-1" />
       <ZoomControl />
     </footer>
   );

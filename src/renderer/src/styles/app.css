@@ -1,0 +1,109 @@
+/*
+ * Tailwind sin preflight: el CSS del motor (@docx-editor.dev) trae su propio Tailwind con ámbito
+ * .docx-editor, y un reset global alteraría el renderizado de las páginas del documento.
+ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme) prefix(tw);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* El tema lo decide <html data-theme>, no prefers-color-scheme. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Los colores apuntan a las variables --ow-*: cambian solos con el tema, sin `dark:` en cada clase. */
+@theme inline {
+  --font-ui: var(--ow-font-ui);
+  --color-app: var(--ow-bg-app);
+  --color-ribbon: var(--ow-bg-ribbon);
+  --color-tabbar: var(--ow-bg-tabbar);
+  --color-on-tabbar: var(--ow-fg-tabbar);
+  --color-canvas: var(--ow-bg-canvas);
+  --color-statusbar: var(--ow-bg-statusbar);
+  --color-on-statusbar: var(--ow-fg-statusbar);
+  --color-fg: var(--ow-fg);
+  --color-muted: var(--ow-fg-muted);
+  --color-line: var(--ow-border);
+  --color-accent: var(--ow-accent);
+  --color-tab-active: var(--ow-tab-active-bg);
+  --color-on-tab-active: var(--ow-tab-active-fg);
+  --color-hover: var(--ow-hover);
+  --color-pressed: var(--ow-pressed);
+  --color-pressed-line: var(--ow-pressed-border);
+  --color-input: var(--ow-bg-input);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --ow-font-ui: 'Segoe UI', system-ui, -apple-system, 'Ubuntu', 'Cantarell', sans-serif;
+    --ow-bg-app: #f3f3f3;
+    --ow-bg-ribbon: #f9f9f9;
+    --ow-bg-tabbar: #2b579a;
+    --ow-fg-tabbar: #ffffff;
+    --ow-bg-canvas: #e8e8e8;
+    --ow-bg-statusbar: #2b579a;
+    --ow-fg-statusbar: #ffffff;
+    --ow-fg: #1f1f1f;
+    --ow-fg-muted: #616161;
+    --ow-border: #d1d1d1;
+    --ow-accent: #2b579a;
+    --ow-tab-active-bg: #f9f9f9;
+    --ow-tab-active-fg: #2b579a;
+    --ow-hover: #e1e1e1;
+    --ow-pressed: #c8d7ee;
+    --ow-pressed-border: #8fb0dd;
+    --ow-bg-input: #ffffff;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --ow-bg-app: #1f1f1f;
+    --ow-bg-ribbon: #292929;
+    --ow-bg-tabbar: #1b3a66;
+    --ow-bg-canvas: #141414;
+    --ow-bg-statusbar: #1b3a66;
+    --ow-fg: #f0f0f0;
+    --ow-fg-muted: #b3b3b3;
+    --ow-border: #3d3d3d;
+    --ow-tab-active-bg: #292929;
+    --ow-tab-active-fg: #a9c4ef;
+    --ow-hover: #3a3a3a;
+    --ow-pressed: #2c4466;
+    --ow-pressed-border: #4a6fa5;
+    --ow-bg-input: #1f1f1f;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font-family: var(--ow-font-ui);
+    font-size: 13px;
+    color: var(--ow-fg);
+    background: var(--ow-bg-app);
+    overflow: hidden;
+  }
+}
+
+/* Subrayado del corrector ortográfico (capa de resaltado del motor, fuera de JSX). */
+.ow-misspelled {
+  background: none !important;
+  border-bottom: 2px dotted #e81123;
+}
+
+/* Popovers nativos (ui/Popover.tsx): sin el estilo del agente de usuario, anclados a su disparador. */
+@layer base {
+  :where([popover].ow-popover) {
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    overflow: visible;
+    position-try-fallbacks: flip-block, flip-inline;
+  }
+}

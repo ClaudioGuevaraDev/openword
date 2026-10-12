@@ -189,7 +189,9 @@ export function LayoutTab({
 
       <RibbonGroup label={t('layout.paragraph.label')}>
         <RibbonStack>
-          <span className="ow-subhead">{t('layout.paragraph.indent')}</span>
+          <span className="tw:text-[11px] tw:font-semibold tw:text-muted">
+            {t('layout.paragraph.indent')}
+          </span>
           <MeasureField
             label={t('layout.paragraph.left')}
             testId="indent-left"
@@ -211,7 +213,9 @@ export function LayoutTab({
           />
         </RibbonStack>
         <RibbonStack>
-          <span className="ow-subhead">{t('layout.paragraph.spacing')}</span>
+          <span className="tw:text-[11px] tw:font-semibold tw:text-muted">
+            {t('layout.paragraph.spacing')}
+          </span>
           <MeasureField
             label={t('layout.paragraph.before')}
             testId="space-before"

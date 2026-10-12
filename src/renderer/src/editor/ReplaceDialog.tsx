@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useDocxEditor, useDocumentSearch } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { replaceAllMatches, replaceOneMatch } from './replace-text';
-import styles from './ReplaceDialog.module.css';
+
+const field = 'tw:grid tw:grid-cols-[100px_1fr] tw:items-center tw:gap-2';
+const input =
+  'tw:h-6 tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:px-1.5 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:focus:border-accent tw:focus:outline-none';
+const option = 'tw:flex tw:items-center tw:gap-1';
+const action =
+  'tw:cursor-pointer tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:px-2.5 tw:py-1 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:hover:enabled:bg-hover tw:disabled:cursor-default tw:disabled:opacity-50';
 
 export function ReplaceDialog({ open, onClose }: { readonly open: boolean; readonly onClose: () => void }) {
   if (!open) return null;
@@ -80,7 +86,7 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
 
   return (
     <div
-      className={styles.panel}
+      className="tw:absolute tw:top-3 tw:right-6 tw:z-50 tw:flex tw:w-[360px] tw:flex-col tw:gap-2 tw:rounded-md tw:border tw:border-line tw:bg-ribbon tw:p-3 tw:text-[12px] tw:text-fg tw:shadow-[0_8px_24px_rgb(0_0_0/20%)]"
       role="dialog"
       aria-label={t('replace.title')}
       data-testid="replace-dialog"
@@ -91,16 +97,22 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
         }
       }}
     >
-      <div className={styles.header}>
+      <div className="tw:flex tw:items-center tw:justify-between tw:text-[13px]">
         <strong>{t('replace.title')}</strong>
-        <button type="button" className={styles.close} onClick={close} aria-label={t('replace.close')}>
+        <button
+          type="button"
+          className="tw:cursor-pointer tw:border-0 tw:bg-transparent tw:text-[18px] tw:leading-none tw:text-inherit"
+          onClick={close}
+          aria-label={t('replace.close')}
+        >
           ×
         </button>
       </div>
-      <label className={styles.field}>
+      <label className={field}>
         <span>{t('replace.find')}</span>
         <input
           ref={findInput}
+          className={input}
           data-testid="replace-find"
           value={query}
           onChange={(e) => {
@@ -110,17 +122,18 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
           onKeyDown={(e) => e.key === 'Enter' && findNext()}
         />
       </label>
-      <label className={styles.field}>
+      <label className={field}>
         <span>{t('replace.with')}</span>
         <input
           data-testid="replace-with"
+          className={input}
           value={replacement}
           onChange={(e) => setReplacement(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && replaceOne()}
         />
       </label>
-      <div className={styles.options}>
-        <label>
+      <div className="tw:flex tw:gap-4">
+        <label className={option}>
           <input
             type="checkbox"
             checked={search.matchCase}
@@ -128,7 +141,7 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
           />
           {t('replace.matchCase')}
         </label>
-        <label>
+        <label className={option}>
           <input
             type="checkbox"
             checked={search.wholeWord}
@@ -137,18 +150,24 @@ function ReplacePanel({ onClose }: { readonly onClose: () => void }) {
           {t('replace.wholeWord')}
         </label>
       </div>
-      <div className={styles.buttons}>
-        <button type="button" onClick={replaceOne} disabled={!query}>
+      <div className="tw:flex tw:justify-end tw:gap-1.5">
+        <button type="button" className={action} onClick={replaceOne} disabled={!query}>
           {t('replace.replace')}
         </button>
-        <button type="button" onClick={replaceAll} disabled={!query} data-testid="replace-all">
+        <button
+          type="button"
+          className={action}
+          onClick={replaceAll}
+          disabled={!query}
+          data-testid="replace-all"
+        >
           {t('replace.replaceAll')}
         </button>
-        <button type="button" onClick={findNext} disabled={!query} data-testid="find-next">
+        <button type="button" className={action} onClick={findNext} disabled={!query} data-testid="find-next">
           {t('replace.findNext')}
         </button>
       </div>
-      <div className={styles.status} role="status" data-testid="replace-status">
+      <div className="tw:min-h-4 tw:text-muted" role="status" data-testid="replace-status">
         {status}
       </div>
     </div>

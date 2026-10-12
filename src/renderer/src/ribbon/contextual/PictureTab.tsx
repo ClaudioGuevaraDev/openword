@@ -14,13 +14,13 @@ import {
   useEditorState,
   useEditorValueCommand,
 } from '@docx-editor.dev/react';
-import * as Popover from '@radix-ui/react-popover';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CommandButton } from '../controls/CommandButton';
 import { MenuButton } from '../controls/MenuButton';
 import { RibbonGroup, RibbonStack } from '../controls/RibbonGroup';
-import styles from '../Ribbon.module.css';
+import { Popover } from '@renderer/ui/Popover';
+import * as rc from '../ribbon-classes';
 
 const WRAPS = ['inline', 'square', 'tight', 'through', 'topAndBottom', 'behind', 'inFront'] as const;
 
@@ -37,48 +37,48 @@ function AltTextButton() {
     editor?.focus();
   };
   return (
-    <Popover.Root
+    <Popover
       open={open}
       onOpenChange={(next) => {
         if (next) setDraft(altText.value ?? '');
         setOpen(next);
       }}
-    >
-      <Popover.Trigger asChild>
+      className={rc.palette}
+      anchor={({ anchorStyle, triggerProps }) => (
         <button
           type="button"
-          className={styles.button}
+          {...triggerProps}
+          className={rc.button}
+          style={anchorStyle}
           disabled={!altText.isEnabled}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <span className={styles.icon}>
+          <span className={rc.icon}>
             <ImageAltText20Regular />
           </span>
-          <span className={styles.label}>{t('picture.size.altText')}</span>
+          <span className={rc.label}>{t('picture.size.altText')}</span>
         </button>
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content className={styles.palette} align="start" sideOffset={2}>
-          <div className={styles.paletteTitle}>{t('picture.size.altTextPrompt')}</div>
-          <textarea
-            className={styles.altText}
-            value={draft}
-            rows={4}
-            aria-label={t('picture.size.altText')}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                apply();
-              }
-            }}
-          />
-          <button type="button" className={styles.paletteWide} onClick={apply}>
-            {t('picture.size.apply')}
-          </button>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+      )}
+    >
+      <div className={rc.paletteTitle}>{t('picture.size.altTextPrompt')}</div>
+      <textarea
+        className="tw:mb-1.5 tw:box-border tw:w-full tw:resize-y tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:p-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg"
+        value={draft}
+        rows={4}
+        autoFocus
+        aria-label={t('picture.size.altText')}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            apply();
+          }
+        }}
+      />
+      <button type="button" className={rc.paletteWide} onClick={apply}>
+        {t('picture.size.apply')}
+      </button>
+    </Popover>
   );
 }
 
@@ -136,11 +136,11 @@ export function PictureTab() {
       <RibbonGroup label={t('picture.size.label')}>
         <RibbonStack>
           <ImagePropertiesTrigger asChild>
-            <button type="button" className={styles.button} onMouseDown={(e) => e.preventDefault()}>
-              <span className={styles.icon}>
+            <button type="button" className={rc.button} onMouseDown={(e) => e.preventDefault()}>
+              <span className={rc.icon}>
                 <Settings20Regular />
               </span>
-              <span className={styles.label}>{t('picture.size.properties')}</span>
+              <span className={rc.label}>{t('picture.size.properties')}</span>
             </button>
           </ImagePropertiesTrigger>
           <AltTextButton />

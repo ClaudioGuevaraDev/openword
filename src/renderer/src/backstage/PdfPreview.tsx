@@ -2,7 +2,7 @@
 // páginas visibles (documentos de cientos de páginas no se dibujan de golpe).
 import { useEffect, useRef, useState } from 'react';
 import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
-import styles from './Backstage.module.css';
+import * as bs from './backstage-classes';
 
 const PREVIEW_WIDTH = 420;
 
@@ -50,7 +50,7 @@ function PreviewPage({ pdf, pageNumber }: { readonly pdf: PDFDocumentProxy; read
   return (
     <canvas
       ref={canvas}
-      className={styles.previewPage}
+      className="tw:block tw:bg-white tw:shadow-[0_1px_4px_rgb(0_0_0/25%)]"
       style={{ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH * ratio }}
       aria-label={`Página ${pageNumber}`}
       data-testid="preview-page"
@@ -78,10 +78,10 @@ export function PdfPreview({ data }: { readonly data: Uint8Array }) {
     };
   }, [data]);
 
-  if (error) return <p className={styles.error}>{error}</p>;
+  if (error) return <p className={bs.error}>{error}</p>;
   if (!pdf) return null;
   return (
-    <div className={styles.preview} data-testid="print-preview">
+    <div className="tw:flex tw:flex-col tw:items-center tw:gap-4" data-testid="print-preview">
       {Array.from({ length: pdf.numPages }, (_, i) => (
         <PreviewPage key={i} pdf={pdf} pageNumber={i + 1} />
       ))}

@@ -1,7 +1,8 @@
 // Cuadro combinado de la cinta (fuente, tamaño): se puede escribir o elegir de la lista.
-import * as Popover from '@radix-ui/react-popover';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import styles from '../Ribbon.module.css';
+import { cx } from '@renderer/ui/cx';
+import { Popover } from '@renderer/ui/Popover';
+import * as rc from '../ribbon-classes';
 
 export interface ComboOption {
   readonly value: string;
@@ -64,12 +65,19 @@ export function ComboBox({
   };
 
   return (
-    <Popover.Root open={open && !disabled} onOpenChange={setOpen}>
-      <Popover.Anchor asChild>
-        <div className={styles.combo} style={{ width }}>
+    <Popover
+      open={open && !disabled}
+      onOpenChange={setOpen}
+      className={rc.comboList}
+      style={{ minWidth: width }}
+      anchor={({ anchorStyle, triggerProps }) => (
+        <div
+          className="tw:inline-flex tw:h-6 tw:rounded-[3px] tw:border tw:border-line tw:bg-input tw:focus-within:border-accent"
+          style={{ ...anchorStyle, width }}
+        >
           <input
             ref={input}
-            className={styles.comboInput}
+            className="tw:min-w-0 tw:flex-1 tw:border-0 tw:bg-transparent tw:px-1 tw:font-[family-name:inherit] tw:text-[12px] tw:text-fg tw:outline-none"
             aria-label={label}
             title={label}
             role="combobox"
@@ -114,57 +122,52 @@ export function ComboBox({
           />
           <button
             type="button"
-            className={styles.comboArrow}
+            {...triggerProps}
+            className="tw:w-4 tw:cursor-pointer tw:border-0 tw:bg-transparent tw:p-0 tw:text-[9px] tw:text-muted"
             aria-label={label}
             tabIndex={-1}
             disabled={disabled}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => {
-              setTyped(false);
-              setOpen((o) => !o);
-            }}
+            // Abre y cierra la lista como invocador del popover (no cuenta como clic fuera).
+            onClick={() => setTyped(false)}
           >
             ▾
           </button>
         </div>
-      </Popover.Anchor>
-      <Popover.Portal>
-        <Popover.Content
-          className={styles.comboList}
-          align="start"
-          sideOffset={2}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          onCloseAutoFocus={(e) => e.preventDefault()}
-          style={{ minWidth: width }}
-        >
-          <div ref={list} role="listbox" aria-label={label}>
-            {visible.map((option, index) =>
-              option.heading ? (
-                <div key={`h-${option.label}`} className={styles.comboHeading}>
-                  {option.label}
-                </div>
-              ) : (
-                <div
-                  key={`${option.value}-${index}`}
-                  role="option"
-                  data-index={index}
-                  aria-selected={option.value === value}
-                  className={
-                    index === active
-                      ? `${styles.comboOption} ${styles.comboOptionActive}`
-                      : styles.comboOption
-                  }
-                  style={option.style}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => commit(option.value)}
-                >
-                  {option.label}
-                </div>
-              ),
-            )}
-          </div>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+      )}
+    >
+      <div ref={list} role="listbox" aria-label={label}>
+        {visible.map((option, index) =>
+          option.heading ? (
+            <div
+              key={`h-${option.label}`}
+              className="tw:px-2.5 tw:pt-1.5 tw:pb-0.5 tw:text-[11px] tw:font-semibold tw:text-muted"
+            >
+              {option.label}
+            </div>
+          ) : (
+            <div
+              key={`${option.value}-${index}`}
+              role="option"
+              data-index={index}
+              aria-selected={option.value === value}
+              className={cx(
+                'tw:cursor-pointer tw:px-2.5 tw:py-1 tw:text-[14px] tw:whitespace-nowrap',
+                option.value === value
+                  ? 'tw:bg-pressed'
+                  : index === active
+                    ? 'tw:bg-hover'
+                    : 'tw:hover:bg-hover',
+              )}
+              style={option.style}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => commit(option.value)}
+            >
+              {option.label}
+            </div>
+          ),
+        )}
+      </div>
+    </Popover>
   );
 }

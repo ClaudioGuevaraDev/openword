@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import styles from '../Ribbon.module.css';
+import * as rc from '../ribbon-classes';
 
 export interface RibbonButtonProps {
   readonly icon: ReactNode;
@@ -33,7 +33,7 @@ export function RibbonButton({
   return (
     <button
       type="button"
-      className={size === 'large' ? styles.buttonLarge : styles.button}
+      className={size === 'large' ? rc.buttonLarge : rc.button}
       aria-label={label}
       aria-pressed={pressed === undefined ? undefined : pressed}
       title={title}
@@ -42,8 +42,8 @@ export function RibbonButton({
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
     >
-      <span className={styles.icon}>{icon}</span>
-      {(size === 'large' || showLabel) && <span className={styles.label}>{label}</span>}
+      <span className={rc.icon}>{icon}</span>
+      {(size === 'large' || showLabel) && <span className={rc.label}>{label}</span>}
     </button>
   );
 }

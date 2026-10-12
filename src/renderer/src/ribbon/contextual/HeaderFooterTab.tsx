@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { MenuButton } from '../controls/MenuButton';
 import { RibbonButton } from '../controls/RibbonButton';
 import { RibbonGroup, RibbonStack } from '../controls/RibbonGroup';
-import styles from '../Ribbon.module.css';
+import * as rc from '../ribbon-classes';
 
 export function HeaderFooterTab() {
   const { t } = useTranslation();
@@ -13,7 +13,7 @@ export function HeaderFooterTab() {
   const state = useHeaderFooterState();
 
   const option = (key: 'titlePage' | 'evenAndOddHeaders', label: string, testId: string) => (
-    <label className={styles.check}>
+    <label className={rc.check}>
       <input
         type="checkbox"
         data-testid={testId}

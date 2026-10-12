@@ -1,8 +1,8 @@
 // Botón de la cinta que abre un menú (Márgenes, Orientación, Saltos, Número de página…).
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { focusEditor } from '@renderer/editor/document-actions';
-import styles from '../Ribbon.module.css';
+import { Menu, MenuItem, MenuSeparator } from '@renderer/ui/Menu';
+import * as rc from '../ribbon-classes';
 
 export interface MenuEntry {
   readonly id: string;
@@ -34,52 +34,46 @@ export function MenuButton({
   readonly testId?: string;
 }) {
   return (
-    <DropdownMenu.Root modal={false}>
-      <DropdownMenu.Trigger asChild>
+    <Menu
+      label={label}
+      trigger={({ anchorStyle, triggerProps }) => (
         <button
           type="button"
-          className={size === 'large' ? styles.buttonLarge : styles.button}
+          {...triggerProps}
+          className={size === 'large' ? rc.buttonLarge : rc.button}
+          style={anchorStyle}
           aria-label={label}
           title={disabled && disabledReason ? `${label}: ${disabledReason}` : label}
           disabled={disabled}
           data-testid={testId}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <span className={styles.icon}>{icon}</span>
-          <span className={styles.label}>
-            {label} <span className={styles.miniArrow}>▾</span>
+          <span className={rc.icon}>{icon}</span>
+          <span className={rc.label}>
+            {label} <span className={rc.miniArrow}>▾</span>
           </span>
         </button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          className={styles.menu}
-          align="start"
-          sideOffset={2}
-          onCloseAutoFocus={(e) => e.preventDefault()}
-        >
-          {entries.map((entry) => (
-            <div key={entry.id}>
-              {entry.separatorBefore && <DropdownMenu.Separator className={styles.menuSeparator} />}
-              <DropdownMenu.Item
-                className={styles.menuItem}
-                disabled={entry.disabled}
-                onSelect={() => {
-                  entry.onSelect();
-                  // El foco vuelve al documento para seguir escribiendo.
-                  setTimeout(focusEditor, 0);
-                }}
-              >
-                <span className={styles.menuCheck}>{entry.checked ? '✓' : ''}</span>
-                <span className={styles.menuText}>
-                  {entry.label}
-                  {entry.detail && <span className={styles.menuDetail}>{entry.detail}</span>}
-                </span>
-              </DropdownMenu.Item>
-            </div>
-          ))}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+      )}
+    >
+      {entries.map((entry) => (
+        <Fragment key={entry.id}>
+          {entry.separatorBefore && <MenuSeparator />}
+          <MenuItem
+            disabled={entry.disabled}
+            onSelect={() => {
+              entry.onSelect();
+              // El foco vuelve al documento para seguir escribiendo.
+              setTimeout(focusEditor, 0);
+            }}
+          >
+            <span className={rc.menuCheck}>{entry.checked ? '✓' : ''}</span>
+            <span className="tw:flex tw:flex-col">
+              {entry.label}
+              {entry.detail && <span className="tw:text-[11px] tw:text-muted">{entry.detail}</span>}
+            </span>
+          </MenuItem>
+        </Fragment>
+      ))}
+    </Menu>
   );
 }

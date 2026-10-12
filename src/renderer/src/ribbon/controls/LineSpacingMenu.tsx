@@ -1,9 +1,9 @@
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import type { ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { focusEditor } from '@renderer/editor/document-actions';
-import styles from '../Ribbon.module.css';
+import { Menu, MenuCheckboxItem, MenuItem, MenuSeparator } from '@renderer/ui/Menu';
+import * as rc from '../ribbon-classes';
 
 const SPACINGS = [1, 1.15, 1.5, 2, 2.5, 3];
 
@@ -20,51 +20,44 @@ export function LineSpacingMenu({
   const spacing = useEditorValueCommand('list.lineSpacing');
   const fmt = (n: number) =>
     language === 'es' ? n.toFixed(n === 1.15 ? 2 : 1).replace('.', ',') : n.toFixed(n === 1.15 ? 2 : 1);
+  const isCurrent = (value: number) => spacing.value !== null && Math.abs(spacing.value - value) < 0.01;
   return (
-    <DropdownMenu.Root modal={false}>
-      <DropdownMenu.Trigger asChild>
+    <Menu
+      label={t('home.paragraph.lineSpacing')}
+      trigger={({ anchorStyle, triggerProps }) => (
         <button
           type="button"
-          className={styles.button}
+          {...triggerProps}
+          className={rc.button}
+          style={anchorStyle}
           aria-label={t('home.paragraph.lineSpacing')}
           title={t('home.paragraph.lineSpacing')}
           disabled={!spacing.isEnabled}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <span className={styles.icon}>{icon}</span>
-          <span className={styles.miniArrow}>▾</span>
+          <span className={rc.icon}>{icon}</span>
+          <span className={rc.miniArrow}>▾</span>
         </button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          className={styles.menu}
-          align="start"
-          sideOffset={2}
-          onCloseAutoFocus={(e) => e.preventDefault()}
+      )}
+    >
+      {SPACINGS.map((value) => (
+        <MenuCheckboxItem
+          key={value}
+          checked={isCurrent(value)}
+          onSelect={() => {
+            spacing.execute(value);
+            setTimeout(focusEditor, 0);
+          }}
         >
-          {SPACINGS.map((value) => (
-            <DropdownMenu.CheckboxItem
-              key={value}
-              className={styles.menuItem}
-              checked={spacing.value !== null && Math.abs(spacing.value - value) < 0.01}
-              onSelect={() => {
-                spacing.execute(value);
-                setTimeout(focusEditor, 0);
-              }}
-            >
-              <span className={styles.menuCheck}>
-                {spacing.value !== null && Math.abs(spacing.value - value) < 0.01 ? '✓' : ''}
-              </span>
-              {fmt(value)}
-            </DropdownMenu.CheckboxItem>
-          ))}
-          <DropdownMenu.Separator className={styles.menuSeparator} />
-          <DropdownMenu.Item className={styles.menuItem} onSelect={onMoreOptions}>
-            <span className={styles.menuCheck} />
-            {t('home.paragraph.lineSpacingOptions')}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+          <span className={rc.menuCheck}>{isCurrent(value) ? '✓' : ''}</span>
+          {fmt(value)}
+        </MenuCheckboxItem>
+      ))}
+      <MenuSeparator />
+      <MenuItem onSelect={onMoreOptions}>
+        <span className={rc.menuCheck} />
+        {t('home.paragraph.lineSpacingOptions')}
+      </MenuItem>
+    </Menu>
   );
 }

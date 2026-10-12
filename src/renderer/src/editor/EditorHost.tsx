@@ -13,7 +13,6 @@ import { bundledFonts, systemFonts } from './fonts';
 import { ReplaceDialog } from './ReplaceDialog';
 import { SpellChecker } from './spelling/SpellChecker';
 import { SpellingMenu } from './spelling/SpellingMenu';
-import styles from './EditorHost.module.css';
 
 interface EditorHostProps {
   readonly document: DocumentSource;
@@ -92,11 +91,14 @@ export function EditorHost({
         {ribbon}
         {notices}
         {ui.showRulers && (
-          <div className={styles.rulerRow} data-testid="ruler">
+          <div
+            className="tw:flex tw:min-h-6 tw:flex-none tw:justify-center-safe tw:overflow-hidden tw:border-b tw:border-line tw:bg-canvas tw:py-0.5"
+            data-testid="ruler"
+          >
             <DocxEditor.HorizontalRuler unit={rulerUnit} />
           </div>
         )}
-        <div className={styles.workspace}>
+        <div className="tw:relative tw:flex tw:min-h-0 tw:flex-1 tw:items-stretch tw:bg-canvas">
           <DocxEditor.Navigation
             open={ui.navigationOpen}
             onOpenChange={(open) => ui.setNavigation(open)}
@@ -104,9 +106,9 @@ export function EditorHost({
             onTabChange={ui.setNavigationTab}
             paneWidth={280}
           />
-          <DocxEditor.Viewport className={styles.viewport}>
+          <DocxEditor.Viewport className="tw:min-h-0 tw:flex-1 tw:overflow-auto">
             {ui.showRulers && (
-              <div className={styles.verticalRuler}>
+              <div className="tw:pointer-events-none tw:absolute tw:top-6 tw:left-0 tw:z-10">
                 <DocxEditor.VerticalRuler unit={rulerUnit} />
               </div>
             )}
