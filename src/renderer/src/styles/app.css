@@ -218,6 +218,130 @@ html .docx-editor .docx-contextmenu .docx-toolbar__menu-item {
   border-radius: 6px;
 }
 
+/* Selects: botón y lista desplegable propios (appearance: base-select) en vez de los nativos del
+   sistema. Valen para los diálogos del motor y para los de OpenWord con la clase .ow-select. */
+html :is(.docx-editor select, select.ow-select),
+html :is(.docx-editor select, select.ow-select)::picker(select) {
+  appearance: base-select;
+}
+html :is(.docx-editor select, select.ow-select) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  font: inherit;
+  color: var(--ow-fg);
+  background: var(--ow-bg-input);
+  border: 1px solid var(--ow-border);
+  border-radius: 6px;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
+}
+html :is(.docx-editor select, select.ow-select):hover:not(:disabled) {
+  border-color: var(--ow-pressed-border);
+}
+html :is(.docx-editor select, select.ow-select):is(:focus-visible, :open) {
+  border-color: var(--ow-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ow-accent) 22%, transparent);
+}
+html :is(.docx-editor select, select.ow-select):disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+/* Chevron fino que gira al abrir, en lugar de la flecha del sistema. */
+html :is(.docx-editor select, select.ow-select)::picker-icon {
+  content: '';
+  width: 12px;
+  height: 12px;
+  margin-inline-start: auto;
+  background: var(--ow-fg-muted);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  transition: rotate 0.15s ease;
+}
+html :is(.docx-editor select, select.ow-select):open::picker-icon {
+  rotate: 180deg;
+}
+/* La lista: una tarjeta flotante como los menús de la cinta. Se abre siempre hacia abajo y solo
+   sube si no cabe (Chromium, por defecto, elige el lado con más espacio). */
+html :is(.docx-editor select, select.ow-select)::picker(select) {
+  position-area: block-end span-inline-end;
+  position-try-order: normal;
+  position-try-fallbacks: flip-block;
+  box-sizing: border-box;
+  min-width: anchor-size(width);
+  max-height: min(320px, 60vh);
+  margin-block: 4px;
+  padding: 4px;
+  color: var(--ow-fg);
+  background: var(--ow-bg-ribbon);
+  border: 1px solid var(--ow-border);
+  border-radius: 10px;
+  box-shadow: var(--ow-shadow-float);
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 0.12s ease,
+    translate 0.12s ease,
+    display 0.12s allow-discrete,
+    overlay 0.12s allow-discrete;
+}
+@starting-style {
+  html :is(.docx-editor select, select.ow-select):open::picker(select) {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+}
+html :is(.docx-editor select, select.ow-select) option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+html :is(.docx-editor select, select.ow-select) option:is(:hover, :focus-visible) {
+  background: var(--ow-hover);
+  outline: none;
+}
+html :is(.docx-editor select, select.ow-select) option:checked {
+  color: var(--ow-accent);
+  font-weight: 600;
+  background: var(--ow-pressed);
+}
+html :is(.docx-editor select, select.ow-select) option::checkmark {
+  order: 1;
+  margin-inline-start: auto;
+  color: var(--ow-accent);
+}
+
+/* Diálogo Párrafo: la columna de unidades ("pto") mide siempre lo mismo y las filas sin unidad
+   (Interlineado, Especial, Alineación…) reservan ese hueco, así todos los campos tienen el mismo
+   ancho. 10px es el gap de .docx-dialog__row. */
+html :is(.docx-editor .docx-dialog, .docx-editor.docx-dialog):has([data-docx-field='lineRule']) {
+  --ow-dialog-unit: 28px;
+}
+html
+  :is(.docx-editor .docx-dialog, .docx-editor.docx-dialog):has([data-docx-field='lineRule'])
+  .docx-dialog__unit {
+  flex: 0 0 var(--ow-dialog-unit);
+  min-width: 0;
+}
+html
+  :is(.docx-editor .docx-dialog, .docx-editor.docx-dialog):has([data-docx-field='lineRule'])
+  .docx-dialog__row:not(:has(.docx-dialog__unit))
+  > :is(.docx-dialog__input, .docx-dialog__select) {
+  margin-inline-end: calc(var(--ow-dialog-unit) + 10px);
+}
+
 /* Panel de navegación: tarjeta flotante separada de la regla y del borde inferior. El ancho sale
    de la reserva del motor (la franja que deja libre al desplazar la hoja) menos el hueco hasta
    la regla, para que nunca pise la hoja. */

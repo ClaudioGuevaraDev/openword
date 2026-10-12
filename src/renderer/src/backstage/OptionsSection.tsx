@@ -64,7 +64,7 @@ export function OptionsSection() {
       <label className={bs.optionRow}>
         <span>{t('options.uiLanguage')}</span>
         <select
-          className={bs.optionField}
+          className={bs.optionSelect}
           data-testid="option-language"
           value={settings.uiLanguage}
           onChange={(e) => void changeLanguage(e.target.value as 'auto' | 'es' | 'en')}

@@ -18,3 +18,6 @@ export const optionCheck = 'tw:my-1.5 tw:flex tw:items-center tw:gap-2';
 
 export const optionField =
   'tw:h-[26px] tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1.5 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit]';
+
+// El aspecto (botón, chevron y lista desplegable) lo da .ow-select en app.css.
+export const optionSelect = 'ow-select tw:min-w-[180px]';
