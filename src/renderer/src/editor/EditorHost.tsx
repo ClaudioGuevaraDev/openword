@@ -1,6 +1,6 @@
 // Monta el motor docx-editor con nuestra propia interfaz alrededor (sin su barra empaquetada).
 // Referencia: examples/vite/src/ComposedEditorDemo.tsx de eigenpal/docx-editor v2.27.0.
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { DocxEditor, LocaleProvider, useChromeTranslate, useFonts } from '@docx-editor.dev/react';
 import { es } from '@docx-editor.dev/i18n/es';
 import { en } from '@docx-editor.dev/i18n/en';
@@ -122,10 +122,12 @@ export function EditorHost({
             onOpenChange={(open) => ui.setNavigation(open)}
             tab={ui.navigationTab}
             onTabChange={ui.setNavigationTab}
-            paneWidth={280}
-            // La regla vertical mide 20 px y el botón va a 32 px: lo apartamos para que no quede
-            // pegado. No se usa --docx-nav-inset porque también movería el panel abierto.
-            toggle={ui.showRulers ? { style: { insetInlineStart: 48 } } : true}
+            // Reserva del motor: 32 + 292 + 16 = 340 px. app.css ajusta el ancho del panel a esa
+            // franja, así que con reglas mide 340 - 44 - 16 = 280 px.
+            paneWidth={292}
+            // La regla vertical mide 20 px y el motor pone botón y panel a 32 px: los apartamos
+            // para que no queden pegados.
+            style={ui.showRulers ? ({ '--docx-nav-inset': '44px' } as CSSProperties) : undefined}
           />
           <DocxEditor.Viewport className="tw:min-h-0 tw:flex-1 tw:overflow-auto">
             {ui.showRulers && (

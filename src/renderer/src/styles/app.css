@@ -183,6 +183,74 @@
   box-shadow: var(--ow-shadow-page);
 }
 
+/*
+ * Piezas del motor (navegación, diálogos, menú contextual, hipervínculos) con los colores y la
+ * fuente de OpenWord. El motor redefine sus tokens en .docx-editor.dark .docx-editor, de ahí el
+ * !important. No se tocan los de la página ni los de revisiones.
+ */
+.docx-editor {
+  --doc-font-ui: var(--ow-font-ui) !important;
+  --doc-surface: var(--ow-bg-ribbon) !important;
+  --doc-bg: var(--ow-bg-ribbon) !important;
+  --doc-bg-hover: var(--ow-hover) !important;
+  --doc-bg-input: var(--ow-bg-input) !important;
+  --doc-text: var(--ow-fg) !important;
+  --doc-text-muted: var(--ow-fg-muted) !important;
+  --doc-border: var(--ow-border) !important;
+  --doc-border-light: var(--ow-border) !important;
+  --doc-border-input: var(--ow-border) !important;
+  --doc-primary: var(--ow-accent) !important;
+  --doc-primary-hover: var(--ow-accent-hover) !important;
+  --doc-primary-light: var(--ow-pressed) !important;
+  --doc-dialog-radius: 12px;
+  --doc-dialog-control-radius: 6px;
+}
+
+/* Superficies flotantes con el acabado del cuadro Reemplazar. `html` gana al CSS del motor sin
+   depender del orden de carga. */
+html :is(.docx-editor .docx-dialog, .docx-editor.docx-dialog),
+html .docx-editor .docx-contextmenu,
+html .docx-editor .docx-hyperlink-popup {
+  border-radius: 12px;
+  box-shadow: var(--ow-shadow-float);
+}
+html .docx-editor .docx-contextmenu .docx-toolbar__menu-item {
+  border-radius: 6px;
+}
+
+/* Panel de navegación: tarjeta flotante separada de la regla y del borde inferior. El ancho sale
+   de la reserva del motor (la franja que deja libre al desplazar la hoja) menos el hueco hasta
+   la regla, para que nunca pise la hoja. */
+html .docx-editor .docx-nav__panel-shell {
+  box-sizing: border-box;
+  width: calc(var(--docx-nav-reservation) - var(--docx-nav-inset) - 16px);
+  inset-block: 12px;
+  padding: 0 12px 12px;
+  border: 1px solid var(--ow-border);
+  border-radius: 12px;
+  box-shadow: var(--ow-shadow-float);
+  overflow: hidden;
+}
+/* Flecha, pestañas, buscador y checkboxes alineados a 16 px, el borde del contenido del panel. */
+html .docx-editor .docx-nav__header {
+  gap: 4px;
+  padding: 12px 4px 8px 0;
+}
+html .docx-editor .docx-nav__close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+html .docx-editor .docx-nav__tabs {
+  gap: 16px;
+}
+html .docx-editor .docx-nav__tab {
+  padding-inline: 0;
+}
+html .docx-editor :is(.docx-nav__searchbox, .docx-nav__stepper, .docx-nav__result, .docx-nav__heading) {
+  border-radius: 6px;
+}
+
 /* Barras de desplazamiento finas y redondeadas. */
 .docx-editor ::-webkit-scrollbar {
   width: 12px;
