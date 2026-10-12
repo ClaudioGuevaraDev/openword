@@ -146,14 +146,14 @@ test('documento creado desde cero con las funciones de la v1 (se valida con el O
     };
 
     await type('Informe de prueba');
-    await win.getByTestId('style-gallery').getByRole('option', { name: 'Título 1' }).click();
+    await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
     await win.keyboard.press('End');
     await win.keyboard.press('Enter');
     await type('Texto en negrita y con color ');
     await win.keyboard.press('Shift+Home');
     await win.getByTestId('bold').click();
     await win.getByLabel('Color de fuente: más colores').click();
-    await win.getByRole('button', { name: '#C00000' }).click();
+    await win.getByRole('button', { name: 'Rojo oscuro' }).click();
     await win.keyboard.press('End');
     await win.keyboard.press('Enter');
     await win.getByRole('button', { name: 'Viñetas' }).click();
@@ -165,7 +165,7 @@ test('documento creado desde cero con las funciones de la v1 (se valida con el O
 
     await tab('insert').click();
     await win.getByTestId('insert-table').click();
-    await win.getByRole('button', { name: 'Tabla de 3 × 2' }).click();
+    await win.getByRole('gridcell', { name: 'Tabla de 3 × 2' }).click();
     await type('Celda');
     await win.keyboard.press(`${mod}+End`);
     await tab('insert').click();
@@ -189,7 +189,7 @@ test('documento creado desde cero con las funciones de la v1 (se valida con el O
     await win.getByTestId('insert-toc').click();
     await tab('layout').click();
     await win.getByTestId('layout-margins').click();
-    await win.getByRole('menuitem', { name: /Moderado/ }).click();
+    await win.getByRole('menuitemradio', { name: /Moderado/ }).click();
 
     const target = join(out, 'created__todas-las-funciones.docx');
     await mockDialogs(app, { save: target });

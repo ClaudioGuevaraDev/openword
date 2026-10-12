@@ -33,12 +33,12 @@ export function installAppShortcuts(platform: Platform): () => void {
       focusEditor();
       return;
     }
-    const action = matchShortcut(e, platform, useUiStore.getState().activeTab === 'file');
+    const { backstageOpen, closeBackstage } = useUiStore.getState();
+    const action = matchShortcut(e, platform, backstageOpen);
     if (!action) return;
     e.preventDefault();
     e.stopPropagation();
-    if (useUiStore.getState().activeTab === 'file' && action !== 'print')
-      useUiStore.getState().setActiveTab('home');
+    if (backstageOpen && action !== 'print') closeBackstage();
     switch (action) {
       case 'new':
         newDocument();

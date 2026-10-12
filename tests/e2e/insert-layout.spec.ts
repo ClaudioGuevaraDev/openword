@@ -101,7 +101,7 @@ function tinyBmp(): Buffer {
 test('insertar tabla 3×2 con la cuadrícula; la pestaña Tabla agrega y elimina filas', async () => {
   await tab('insert').click();
   await win.getByTestId('insert-table').click();
-  await win.getByRole('button', { name: 'Tabla de 3 × 2' }).click();
+  await win.getByRole('gridcell', { name: 'Tabla de 3 × 2' }).click();
   await expect(tab('table')).toBeVisible();
   await tab('table').click();
   await win.getByTestId('row-below').click();
@@ -116,7 +116,7 @@ test('insertar tabla 3×2 con la cuadrícula; la pestaña Tabla agrega y elimina
 test('eliminar tabla quita la pestaña contextual', async () => {
   await tab('insert').click();
   await win.getByTestId('insert-table').click();
-  await win.getByRole('button', { name: 'Tabla de 2 × 2' }).click();
+  await win.getByRole('gridcell', { name: 'Tabla de 2 × 2' }).click();
   await tab('table').click();
   await win.getByTestId('delete-table').click();
   await expect(tab('table')).toHaveCount(0);
@@ -187,11 +187,11 @@ test('número de página al final de la página crea un pie con el campo PAGE', 
 test('Disposición: márgenes Estrecho, orientación horizontal y tamaño A4', async () => {
   await tab('layout').click();
   await win.getByTestId('layout-margins').click();
-  await win.getByRole('menuitem', { name: /Estrecho/ }).click();
+  await win.getByRole('menuitemradio', { name: /Estrecho/ }).click();
   await win.getByTestId('layout-size').click();
-  await win.getByRole('menuitem', { name: /\bA4\b/ }).click();
+  await win.getByRole('menuitemradio', { name: /\bA4\b/ }).click();
   await win.getByTestId('layout-orientation').click();
-  await win.getByRole('menuitem', { name: 'Horizontal' }).click();
+  await win.getByRole('menuitemradio', { name: 'Horizontal' }).click();
   const xml = (await savedPackage())['word/document.xml']!;
   const pgMar = /<w:pgMar [^>]*>/.exec(xml)?.[0] ?? '';
   const pgSz = /<w:pgSz [^>]*>/.exec(xml)?.[0] ?? '';
@@ -220,7 +220,7 @@ test('Disposición: sangría izquierda y espaciado antes', async () => {
 
 test('Referencias: tabla de contenido y nota al pie', async () => {
   await win.keyboard.type('Introducción');
-  await win.getByTestId('style-gallery').getByRole('option', { name: 'Título 1' }).click();
+  await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
   await win.keyboard.press('End');
   await win.keyboard.press('Enter');
   await win.keyboard.type('Texto con nota');
@@ -299,7 +299,7 @@ test('pestaña Imagen: cambiar el ajuste de una imagen flotante', async () => {
     await expect(w.getByTestId('tab-picture')).toHaveAttribute('aria-selected', 'true');
     await expect(w.getByTestId('image-wrap')).toBeEnabled();
     await w.getByTestId('image-wrap').click();
-    await w.getByRole('menuitem', { name: /Arriba y abajo/ }).click();
+    await w.getByRole('menuitemradio', { name: /Arriba y abajo/ }).click();
     await w.keyboard.press(`${mod}+s`);
     await expect
       .poll(() => floating.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]!.getTitle()))
@@ -314,7 +314,7 @@ test('pestaña Imagen: cambiar el ajuste de una imagen flotante', async () => {
 test('pestaña Tabla: bordes y sombreado de celda', async () => {
   await tab('insert').click();
   await win.getByTestId('insert-table').click();
-  await win.getByRole('button', { name: 'Tabla de 2 × 2' }).click();
+  await win.getByRole('gridcell', { name: 'Tabla de 2 × 2' }).click();
   await tab('table').click();
   await win.getByTestId('table-borders').click();
   await win.getByRole('menuitem', { name: 'Bordes externos' }).click();

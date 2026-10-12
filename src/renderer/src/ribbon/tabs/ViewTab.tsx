@@ -49,6 +49,7 @@ export function ViewTab() {
           size="large"
           icon={<DocumentText24Regular />}
           label={t('view.views.printLayout')}
+          // Única vista disponible: siempre activa, como en Word al pulsarla estando ya en ella.
           pressed
         />
       </RibbonGroup>

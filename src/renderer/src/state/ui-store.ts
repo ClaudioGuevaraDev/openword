@@ -27,7 +27,7 @@ function writePref(key: string, value: string): void {
 }
 
 export type RibbonTab =
-  'file' | 'home' | 'insert' | 'layout' | 'references' | 'view' | 'table' | 'picture' | 'headerFooter';
+  'home' | 'insert' | 'layout' | 'references' | 'view' | 'table' | 'picture' | 'headerFooter';
 
 interface UiState {
   readonly activeTab: RibbonTab;
@@ -41,8 +41,12 @@ interface UiState {
   readonly replaceDialogOpen: boolean;
   readonly showRulers: boolean;
   readonly theme: ThemePreference;
+  /** Vista Archivo (Backstage) abierta sobre la ventana; la cinta conserva su pestaña. */
+  readonly backstageOpen: boolean;
   readonly backstageSection: BackstageSection;
   setActiveTab(tab: RibbonTab): void;
+  openBackstage(section?: BackstageSection): void;
+  closeBackstage(): void;
   setBackstageSection(section: BackstageSection): void;
   setNavigation(open: boolean, tab?: NavigationTab): void;
   setNavigationTab(tab: NavigationTab): void;
@@ -68,10 +72,13 @@ export const useUiStore = create<UiState>((set) => ({
   replaceDialogOpen: false,
   showRulers: readPref(RULER_KEY, ['on', 'off'], 'on') === 'on',
   theme: readPref(THEME_KEY, ['system', 'light', 'dark'], 'system'),
+  backstageOpen: false,
   backstageSection: 'home',
+  setActiveTab: (activeTab) => set({ activeTab }),
+  openBackstage: (section) =>
+    set((s) => ({ backstageOpen: true, backstageSection: section ?? s.backstageSection })),
   // Al salir de la vista Archivo se vuelve a su sección inicial.
-  setActiveTab: (activeTab) =>
-    set((s) => ({ activeTab, backstageSection: activeTab === 'file' ? s.backstageSection : 'home' })),
+  closeBackstage: () => set({ backstageOpen: false, backstageSection: 'home' }),
   setBackstageSection: (backstageSection) => set({ backstageSection }),
   setNavigation: (navigationOpen, tab) =>
     set((s) => ({ navigationOpen, navigationTab: tab ?? s.navigationTab })),

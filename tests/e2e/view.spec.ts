@@ -106,10 +106,10 @@ test('modo oscuro: Vista › Modo › Oscuro activa el tema de la app y del moto
   await open();
   await win.getByTestId('tab-view').click();
   await win.getByTestId('view-theme').click();
-  await win.getByRole('menuitem', { name: 'Oscuro' }).click();
+  await win.getByRole('menuitemradio', { name: 'Oscuro' }).click();
   await expect(win.getByTestId('app')).toHaveClass(/\bdark\b/);
   expect(await win.evaluate(() => document.documentElement.dataset['theme'])).toBe('dark');
   await win.getByTestId('view-theme').click();
-  await win.getByRole('menuitem', { name: 'Claro' }).click();
+  await win.getByRole('menuitemradio', { name: 'Claro' }).click();
   await expect(win.getByTestId('app')).not.toHaveClass(/\bdark\b/);
 });

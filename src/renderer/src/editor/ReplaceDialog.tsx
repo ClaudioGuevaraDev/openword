@@ -7,7 +7,7 @@ import { replaceAllMatches, replaceOneMatch } from './replace-text';
 
 const field = 'tw:grid tw:grid-cols-[100px_1fr] tw:items-center tw:gap-2';
 const input =
-  'tw:h-7 tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1.5 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:focus:border-accent tw:focus:outline-none';
+  'tw:h-7 tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1.5 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:outline-none tw:focus:border-accent tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-accent';
 const option = 'tw:flex tw:items-center tw:gap-1';
 const action =
   'tw:cursor-pointer tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-2.5 tw:py-1 tw:text-fg tw:font-[family-name:inherit] tw:text-[length:inherit] tw:hover:enabled:bg-hover tw:disabled:cursor-default tw:disabled:opacity-50';

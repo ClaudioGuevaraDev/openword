@@ -88,7 +88,7 @@ test('Agrandar fuente con Ctrl+Mayús+> sigue los pasos de Word', async () => {
 test('color de fuente y resaltado desde las paletas', async () => {
   await typeAndSelectAll('Colores');
   await win.getByLabel('Color de fuente: más colores').click();
-  await win.getByRole('button', { name: '#C00000' }).click();
+  await win.getByRole('button', { name: 'Rojo oscuro' }).click();
   await win.getByLabel('Color de resaltado del texto: más colores').click();
   await win.getByRole('button', { name: 'Amarillo', exact: true }).click();
   const xml = await savedXml();
@@ -98,11 +98,10 @@ test('color de fuente y resaltado desde las paletas', async () => {
 
 test('galería de estilos aplica Título 1 (Heading1)', async () => {
   await win.keyboard.type('Capítulo uno');
-  await win.getByTestId('style-gallery').getByRole('option', { name: 'Título 1' }).click();
-  await expect(win.getByTestId('style-gallery').getByRole('option', { name: 'Título 1' })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  );
+  await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
+  await expect(
+    win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true, pressed: true }),
+  ).toBeVisible();
   const xml = await savedXml();
   expect(xml).toMatch(/<w:pStyle w:val="Heading1"\/>/);
 });
@@ -127,7 +126,7 @@ test('barra de estado: palabras y zoom', async () => {
 test('interlineado 1,5 desde el menú y diálogo Párrafo desde el iniciador del grupo', async () => {
   await win.keyboard.type('Interlineado');
   await win.getByLabel('Espaciado entre líneas y párrafos').click();
-  await win.getByRole('menuitemcheckbox', { name: '1,5' }).click();
+  await win.getByRole('menuitemradio', { name: '1,5' }).click();
   await win.getByLabel('Configuración de párrafo').click();
   await expect(win.getByRole('dialog')).toBeVisible();
   await win.keyboard.press('Escape');
@@ -139,9 +138,40 @@ test('interlineado 1,5 desde el menú y diálogo Párrafo desde el iniciador del
 test('color Automático quita el color directo', async () => {
   await typeAndSelectAll('Auto');
   await win.getByLabel('Color de fuente: más colores').click();
-  await win.getByRole('button', { name: '#C00000' }).click();
+  await win.getByRole('button', { name: 'Rojo oscuro' }).click();
   await win.getByLabel('Color de fuente: más colores').click();
   await win.getByRole('button', { name: 'Automático' }).click();
   const xml = await savedXml();
   expect(xml).not.toContain('w:val="C00000"');
+});
+
+test('teclado: las flechas recorren las pestañas; Archivo es modal y Esc devuelve el foco', async () => {
+  await win.getByRole('tab', { name: 'Inicio' }).focus();
+  await win.keyboard.press('ArrowRight');
+  await expect(win.getByRole('tab', { name: 'Insertar' })).toBeFocused();
+  await expect(win.getByRole('tab', { name: 'Insertar' })).toHaveAttribute('aria-selected', 'true');
+  await win.keyboard.press('End');
+  await expect(win.getByRole('tab', { name: 'Vista' })).toBeFocused();
+
+  const file = win.getByRole('button', { name: 'Archivo' });
+  await file.click();
+  await expect(file).toHaveAttribute('aria-expanded', 'true');
+  await expect(win.getByRole('button', { name: 'Volver al documento' })).toBeFocused();
+  // La cinta queda inerte (sin foco ni lector de pantalla) detrás del Backstage.
+  await expect(win.locator('[inert] #ribbon-tab-view')).toHaveCount(1);
+  await win.keyboard.press('Escape');
+  await expect(win.getByTestId('backstage')).toBeHidden();
+  await expect(file).toBeFocused();
+  await expect(win.getByRole('tab', { name: 'Vista' })).toHaveAttribute('aria-selected', 'true');
+});
+
+test('tabla desde la cuadrícula solo con el teclado', async () => {
+  await win.getByTestId('tab-insert').click();
+  await win.getByTestId('insert-table').click();
+  await expect(win.getByRole('gridcell', { name: 'Tabla de 1 × 1' })).toBeFocused();
+  await win.keyboard.press('ArrowRight');
+  await win.keyboard.press('ArrowDown');
+  await expect(win.getByRole('gridcell', { name: 'Tabla de 2 × 2' })).toBeFocused();
+  await win.keyboard.press('Enter');
+  await expect(win.getByRole('tab', { name: 'Tabla' })).toBeVisible();
 });

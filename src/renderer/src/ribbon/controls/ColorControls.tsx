@@ -9,30 +9,30 @@ import * as rc from '../ribbon-classes';
 
 const paletteGrid = 'tw:grid tw:grid-cols-10 tw:gap-[3px]';
 
-// Colores del tema Office y colores estándar de Word.
-const THEME_COLORS = [
-  'FFFFFF',
-  '000000',
-  'E7E6E6',
-  '44546A',
-  '4472C4',
-  'ED7D31',
-  'A5A5A5',
-  'FFC000',
-  '5B9BD5',
-  '70AD47',
+// Colores del tema Office y colores estándar de Word, con su nombre (para el lector de pantalla).
+const THEME_COLORS: readonly (readonly [string, string])[] = [
+  ['white', 'FFFFFF'],
+  ['black', '000000'],
+  ['lightGray', 'E7E6E6'],
+  ['blueGray', '44546A'],
+  ['blue', '4472C4'],
+  ['orange', 'ED7D31'],
+  ['gray', 'A5A5A5'],
+  ['gold', 'FFC000'],
+  ['lightBlue', '5B9BD5'],
+  ['green', '70AD47'],
 ];
-const STANDARD_COLORS = [
-  'C00000',
-  'FF0000',
-  'FFC000',
-  'FFFF00',
-  '92D050',
-  '00B050',
-  '00B0F0',
-  '0070C0',
-  '002060',
-  '7030A0',
+const STANDARD_COLORS: readonly (readonly [string, string])[] = [
+  ['darkRed', 'C00000'],
+  ['red', 'FF0000'],
+  ['orange', 'FFC000'],
+  ['yellow', 'FFFF00'],
+  ['lightGreen', '92D050'],
+  ['green', '00B050'],
+  ['lightBlue', '00B0F0'],
+  ['blue', '0070C0'],
+  ['darkBlue', '002060'],
+  ['purple', '7030A0'],
 ];
 
 // Los 15 colores de resaltado de Word (w:highlight) y cómo se ven.
@@ -94,11 +94,13 @@ function SplitButton({
         open={open}
         onOpenChange={setOpen}
         className={rc.palette}
+        role="dialog"
+        aria-label={label}
         anchor={({ anchorStyle, triggerProps }) => (
           <button
             type="button"
             {...triggerProps}
-            className="tw:cursor-pointer tw:rounded-r-[3px] tw:border tw:border-transparent tw:bg-transparent tw:px-0.5 tw:text-[9px] tw:text-muted tw:hover:enabled:border-line tw:hover:enabled:bg-hover"
+            className="tw:inline-flex tw:min-w-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-r-[3px] tw:border tw:border-transparent tw:bg-transparent tw:px-0.5 tw:text-[9px] tw:text-muted tw:hover:enabled:border-line tw:hover:enabled:bg-hover"
             style={anchorStyle}
             aria-label={t('home.font.moreColors', { label })}
             disabled={disabled}
@@ -165,14 +167,24 @@ export function FontColorButton({ icon }: { readonly icon: ReactNode }) {
           </button>
           <div className={rc.paletteTitle}>{t('home.font.themeColors')}</div>
           <div className={paletteGrid}>
-            {THEME_COLORS.map((hex) => (
-              <Swatch key={hex} hex={hex} title={`#${hex}`} onPick={() => (apply(hex), close())} />
+            {THEME_COLORS.map(([name, hex]) => (
+              <Swatch
+                key={hex}
+                hex={hex}
+                title={t(`home.colors.${name}`)}
+                onPick={() => (apply(hex), close())}
+              />
             ))}
           </div>
           <div className={rc.paletteTitle}>{t('home.font.standardColors')}</div>
           <div className={paletteGrid}>
-            {STANDARD_COLORS.map((hex) => (
-              <Swatch key={hex} hex={hex} title={`#${hex}`} onPick={() => (apply(hex), close())} />
+            {STANDARD_COLORS.map(([name, hex]) => (
+              <Swatch
+                key={hex}
+                hex={hex}
+                title={t(`home.colors.${name}`)}
+                onPick={() => (apply(hex), close())}
+              />
             ))}
           </div>
         </>

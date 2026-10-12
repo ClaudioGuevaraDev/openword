@@ -2,7 +2,7 @@ import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Botón de la cinta que abre un menú (Márgenes, Orientación, Saltos, Número de página…).
 import { Fragment, type ReactNode } from 'react';
 import { focusEditor } from '@renderer/editor/document-actions';
-import { Menu, MenuItem, MenuSeparator } from '@renderer/ui/Menu';
+import { Menu, MenuItem, MenuRadioItem, MenuSeparator } from '@renderer/ui/Menu';
 import * as rc from '../ribbon-classes';
 
 export interface MenuEntry {
@@ -36,6 +36,17 @@ export function MenuButton({
   readonly disabledReason?: string | null;
   readonly testId?: string;
 }) {
+  const select = (entry: MenuEntry) => {
+    entry.onSelect();
+    // El foco vuelve al documento para seguir escribiendo.
+    if (!entry.opensDialog) setTimeout(focusEditor, 0);
+  };
+  const content = (entry: MenuEntry) => (
+    <span className="tw:flex tw:flex-col">
+      {entry.label}
+      {entry.detail && <span className="tw:text-[11px] tw:text-muted">{entry.detail}</span>}
+    </span>
+  );
   return (
     <Menu
       label={label}
@@ -61,20 +72,16 @@ export function MenuButton({
       {entries.map((entry) => (
         <Fragment key={entry.id}>
           {entry.separatorBefore && <MenuSeparator />}
-          <MenuItem
-            disabled={entry.disabled}
-            onSelect={() => {
-              entry.onSelect();
-              // El foco vuelve al documento para seguir escribiendo.
-              if (!entry.opensDialog) setTimeout(focusEditor, 0);
-            }}
-          >
-            <span className={rc.menuCheck}>{entry.checked ? '✓' : ''}</span>
-            <span className="tw:flex tw:flex-col">
-              {entry.label}
-              {entry.detail && <span className="tw:text-[11px] tw:text-muted">{entry.detail}</span>}
-            </span>
-          </MenuItem>
+          {entry.checked === undefined ? (
+            <MenuItem disabled={entry.disabled} onSelect={() => select(entry)}>
+              <span className={rc.menuCheck} />
+              {content(entry)}
+            </MenuItem>
+          ) : (
+            <MenuRadioItem checked={entry.checked} disabled={entry.disabled} onSelect={() => select(entry)}>
+              {content(entry)}
+            </MenuRadioItem>
+          )}
         </Fragment>
       ))}
     </Menu>

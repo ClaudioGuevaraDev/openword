@@ -40,8 +40,8 @@ export function StyleGallery() {
     <button
       key={option.styleId}
       type="button"
-      role="option"
-      aria-selected={style.value === option.styleId}
+      aria-pressed={style.value === option.styleId}
+      aria-label={nameOf(option)}
       className={cx(
         'tw:flex tw:w-[70px] tw:cursor-pointer tw:flex-col tw:justify-between tw:overflow-hidden tw:rounded-md tw:border tw:px-[5px] tw:py-1 tw:text-left tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:transition-colors tw:hover:enabled:bg-hover',
         style.value === option.styleId
@@ -63,7 +63,7 @@ export function StyleGallery() {
   return (
     <div
       className="tw:flex tw:h-[66px] tw:items-stretch tw:gap-0.5 tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-0.5"
-      role="listbox"
+      role="group"
       aria-label={t('home.styles.label')}
       data-testid="style-gallery"
     >
@@ -72,12 +72,14 @@ export function StyleGallery() {
         open={open}
         onOpenChange={setOpen}
         align="end"
+        role="dialog"
+        aria-label={t('home.styles.label')}
         className="tw:max-h-[320px] tw:grid-cols-[repeat(5,70px)] tw:gap-0.5 tw:overflow-y-auto tw:rounded-lg tw:border tw:border-line tw:bg-input tw:p-1 tw:shadow-float tw:open:grid tw:[&>button]:h-[60px]"
         anchor={({ anchorStyle, triggerProps }) => (
           <button
             type="button"
             {...triggerProps}
-            className="tw:inline-flex tw:w-4 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:hover:bg-hover tw:hover:text-accent"
+            className="tw:inline-flex tw:w-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-md tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:hover:bg-hover tw:hover:text-accent"
             style={anchorStyle}
             aria-label={t('home.styles.more')}
             title={t('home.styles.more')}

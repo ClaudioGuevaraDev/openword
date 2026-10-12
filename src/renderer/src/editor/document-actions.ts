@@ -83,8 +83,7 @@ export async function currentDocumentBytes(): Promise<Uint8Array | null> {
 
 /** Ctrl+P: vista Archivo › Imprimir, como en Word. */
 export function openPrint(): void {
-  useUiStore.getState().setBackstageSection('print');
-  useUiStore.getState().setActiveTab('file');
+  useUiStore.getState().openBackstage('print');
 }
 
 /** Devuelve el foco al documento (tras elegir algo en un menú o paleta de la cinta). */

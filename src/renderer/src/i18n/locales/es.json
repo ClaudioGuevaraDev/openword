@@ -35,7 +35,8 @@
     "language": "Español",
     "zoomIn": "Acercar",
     "zoomOut": "Alejar",
-    "zoomReset": "Restablecer al 100 %"
+    "zoomReset": "Restablecer al 100 %",
+    "zoomLevel": "Nivel de zoom: {{percent}} %. Restablecer al 100 %"
   },
   "backstage": {
     "back": "Volver al documento",
@@ -80,7 +81,8 @@
       "cut": "Cortar",
       "copy": "Copiar",
       "formatPainter": "Copiar formato",
-      "pasteKeep": "Mantener formato de origen"
+      "pasteKeep": "Mantener formato de origen",
+      "pasteOptions": "Opciones de pegado"
     },
     "font": {
       "label": "Fuente",
@@ -146,6 +148,24 @@
       "selectAll": "Seleccionar todo",
       "find": "Buscar",
       "replace": "Reemplazar"
+    },
+    "colors": {
+      "white": "Blanco",
+      "black": "Negro",
+      "lightGray": "Gris claro",
+      "blueGray": "Azul grisáceo",
+      "blue": "Azul",
+      "orange": "Naranja",
+      "gray": "Gris",
+      "gold": "Oro",
+      "lightBlue": "Azul claro",
+      "green": "Verde",
+      "darkRed": "Rojo oscuro",
+      "red": "Rojo",
+      "yellow": "Amarillo",
+      "lightGreen": "Verde claro",
+      "darkBlue": "Azul oscuro",
+      "purple": "Púrpura"
     }
   },
   "styles": {

@@ -13,8 +13,10 @@ export function RibbonGroup({
   readonly launcherLabel?: string;
 }) {
   return (
-    // Divisor corto entre grupos (no de lado a lado), como la cinta de Word 365.
-    <section
+    // Divisor corto entre grupos (no de lado a lado), como la cinta de Word 365. Es un grupo y
+    // no una <section>: cada pestaña tiene varios y no deben contar como regiones de la página.
+    <div
+      role="group"
       className="tw:relative tw:flex tw:flex-col tw:px-1.5 tw:after:absolute tw:after:top-[12%] tw:after:right-0 tw:after:h-[76%] tw:after:w-px tw:after:bg-line tw:last:after:hidden"
       aria-label={label}
     >
@@ -24,8 +26,9 @@ export function RibbonGroup({
         {onLauncher && (
           <button
             type="button"
-            className="tw:absolute tw:right-0 tw:bottom-0.5 tw:inline-flex tw:size-4 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:hover:bg-hover tw:hover:text-accent"
+            className="tw:absolute tw:-right-1 tw:-bottom-1 tw:inline-flex tw:size-6 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded tw:border-0 tw:bg-transparent tw:p-0 tw:text-muted tw:transition-colors tw:hover:bg-hover tw:hover:text-accent"
             aria-label={launcherLabel ?? label}
+            aria-haspopup="dialog"
             title={launcherLabel ?? label}
             onMouseDown={(e) => e.preventDefault()}
             onClick={onLauncher}
@@ -42,7 +45,7 @@ export function RibbonGroup({
           </button>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 

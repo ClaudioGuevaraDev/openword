@@ -30,13 +30,15 @@ export function PasteButton({
         <ClipboardPaste24Regular />
       </button>
       <Menu
-        label={t('home.clipboard.paste')}
+        label={t('home.clipboard.pasteOptions')}
         trigger={({ anchorStyle, triggerProps }) => (
           <button
             type="button"
             {...triggerProps}
             className={`${half} tw:py-0.5 tw:whitespace-nowrap`}
             style={anchorStyle}
+            aria-label={t('home.clipboard.pasteOptions')}
+            title={t('home.clipboard.pasteOptions')}
             onMouseDown={(e) => e.preventDefault()}
           >
             {t('home.clipboard.paste')} <ChevronDown12Regular className={rc.miniArrow} />

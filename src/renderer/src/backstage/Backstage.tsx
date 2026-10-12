@@ -8,11 +8,13 @@ import type { PrintJob, RecentFile } from '@shared/ipc-contract';
 import {
   closeWindow,
   currentDocumentBytes,
+  focusEditor,
   newDocument,
   openDocument,
   saveDocument,
 } from '@renderer/editor/document-actions';
 import { useDocumentStore } from '@renderer/state/document-store';
+import { FILE_BUTTON_ID } from '@renderer/ribbon/Ribbon';
 import { useUiStore, type BackstageSection } from '@renderer/state/ui-store';
 import { OptionsSection } from './OptionsSection';
 import { PdfPreview } from './PdfPreview';
@@ -209,13 +211,28 @@ function HomeSection() {
 
 export function Backstage() {
   const { t } = useTranslation();
-  const setActiveTab = useUiStore((s) => s.setActiveTab);
+  const closeBackstage = useUiStore((s) => s.closeBackstage);
   const section = useUiStore((s) => s.backstageSection);
   const setSection = useUiStore((s) => s.setBackstageSection);
 
-  const back = () => setActiveTab('home');
+  const backButton = useRef<HTMLButtonElement>(null);
+  /** A dónde vuelve el foco al cerrar: al botón Archivo (Volver, Esc) o al documento (tras una acción). */
+  const returnFocusTo = useRef<'trigger' | 'editor'>('trigger');
+
+  // Modal: el foco entra al abrir y, al cerrar, vuelve a quien corresponde.
+  useEffect(() => {
+    backButton.current?.focus();
+    const target = returnFocusTo;
+    return () => {
+      if (target.current === 'editor') focusEditor();
+      else document.getElementById(FILE_BUTTON_ID)?.focus();
+    };
+  }, []);
+
+  const back = () => closeBackstage();
   const run = (action: () => unknown) => () => {
-    back();
+    returnFocusTo.current = 'editor';
+    closeBackstage();
     void action();
   };
   const tab = (id: BackstageSection, label: string) => (
@@ -238,6 +255,7 @@ export function Backstage() {
       // Debajo de la barra de título, que sigue visible (y arrastrable) como en Word.
       className="tw:fixed tw:inset-x-0 tw:top-10 tw:bottom-0 tw:z-[1000] tw:flex tw:bg-app"
       role="dialog"
+      aria-modal="true"
       aria-label={t('tabs.file')}
       data-testid="backstage"
     >
@@ -246,6 +264,7 @@ export function Backstage() {
           type="button"
           className="tw:mx-2 tw:mb-3 tw:inline-flex tw:size-9 tw:cursor-pointer tw:items-center tw:justify-center tw:rounded-full tw:border tw:border-white/30 tw:bg-transparent tw:text-on-tabbar tw:transition-colors tw:hover:bg-white/15"
           onClick={back}
+          ref={backButton}
           aria-label={t('backstage.back')}
           title={t('backstage.back')}
         >

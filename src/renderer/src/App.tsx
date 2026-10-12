@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore, type ReactNode } from 'react';
 import { blankDocumentBytes } from '@docx-editor.dev/core/editor';
 import type { AppInfo } from '@shared/ipc-contract';
 import { setBlankPaper } from '@shared/package-patch';
@@ -30,11 +30,27 @@ function useDarkMode(): boolean {
   return dark;
 }
 
+/**
+ * La vista Archivo cubre la ventana como un diálogo modal: lo de debajo queda inerte (sin foco
+ * ni lector de pantalla). Solo esta capa se suscribe a si está abierta, así abrirla no vuelve
+ * a dibujar el editor.
+ */
+function BackstageLayer({ children }: { readonly children: ReactNode }) {
+  const open = useUiStore((s) => s.backstageOpen);
+  return (
+    <>
+      <div inert={open} className="tw:contents">
+        {children}
+      </div>
+      {open && <Backstage />}
+    </>
+  );
+}
+
 export function App({ info }: { readonly info: AppInfo }) {
   const dark = useDarkMode();
   const doc = useDocumentStore((s) => s.doc);
   const loadSeq = useDocumentStore((s) => s.loadSeq);
-  const backstageOpen = useUiStore((s) => s.activeTab === 'file');
 
   useEffect(() => {
     const load = useDocumentStore.getState().load;
@@ -60,19 +76,20 @@ export function App({ info }: { readonly info: AppInfo }) {
     // sin cambiar los colores guardados).
     <div className={`docx-editor ${dark ? 'dark' : ''} tw:flex tw:h-screen tw:flex-col`} data-testid="app">
       <TitleBar />
-      {doc && source && (
-        <EditorHost
-          key={`${doc.docId}:${loadSeq}`}
-          document={source}
-          language={info.uiLanguage}
-          isNew={doc.bytes === null}
-          startDirty={doc.notices.includes('recovered')}
-          ribbon={<Ribbon />}
-          notices={<NoticeBar notices={doc.notices} />}
-          statusBar={<StatusBar />}
-        />
-      )}
-      {backstageOpen && <Backstage />}
+      <BackstageLayer>
+        {doc && source && (
+          <EditorHost
+            key={`${doc.docId}:${loadSeq}`}
+            document={source}
+            language={info.uiLanguage}
+            isNew={doc.bytes === null}
+            startDirty={doc.notices.includes('recovered')}
+            ribbon={<Ribbon />}
+            notices={<NoticeBar notices={doc.notices} />}
+            statusBar={<StatusBar />}
+          />
+        )}
+      </BackstageLayer>
     </div>
   );
 }

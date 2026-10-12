@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useEditorValueCommand } from '@docx-editor.dev/react';
 import { useTranslation } from 'react-i18next';
 import { focusEditor } from '@renderer/editor/document-actions';
-import { Menu, MenuCheckboxItem, MenuItem, MenuSeparator } from '@renderer/ui/Menu';
+import { Menu, MenuItem, MenuRadioItem, MenuSeparator } from '@renderer/ui/Menu';
 import * as rc from '../ribbon-classes';
 
 const SPACINGS = [1, 1.15, 1.5, 2, 2.5, 3];
@@ -42,7 +42,7 @@ export function LineSpacingMenu({
       )}
     >
       {SPACINGS.map((value) => (
-        <MenuCheckboxItem
+        <MenuRadioItem
           key={value}
           checked={isCurrent(value)}
           onSelect={() => {
@@ -50,9 +50,8 @@ export function LineSpacingMenu({
             setTimeout(focusEditor, 0);
           }}
         >
-          <span className={rc.menuCheck}>{isCurrent(value) ? '✓' : ''}</span>
           {fmt(value)}
-        </MenuCheckboxItem>
+        </MenuRadioItem>
       ))}
       <MenuSeparator />
       <MenuItem onSelect={onMoreOptions}>

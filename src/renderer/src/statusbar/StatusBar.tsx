@@ -76,6 +76,7 @@ function ZoomControl() {
         type="button"
         className="tw:min-w-12 tw:cursor-pointer tw:rounded tw:border-0 tw:bg-transparent tw:px-1 tw:text-right tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-inherit tw:tabular-nums tw:hover:bg-hover"
         onClick={zoom.reset}
+        aria-label={t('status.zoomLevel', { percent })}
         title={t('status.zoomReset')}
         data-testid="zoom-percent"
       >

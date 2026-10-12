@@ -144,7 +144,8 @@ export function MenuItem({
   );
 }
 
-export function MenuCheckboxItem({
+/** Una opción entre varias excluyentes (márgenes, orientación, interlineado…), con su ✓. */
+export function MenuRadioItem({
   checked,
   onSelect,
   disabled,
@@ -156,7 +157,11 @@ export function MenuCheckboxItem({
   readonly children: ReactNode;
 }) {
   return (
-    <button role="menuitemcheckbox" aria-checked={checked} {...useItemProps(onSelect, disabled)}>
+    <button role="menuitemradio" aria-checked={checked} {...useItemProps(onSelect, disabled)}>
+      {/* El estado lo anuncia aria-checked; la marca es solo visual. */}
+      <span className={rc.menuCheck} aria-hidden="true">
+        {checked ? '✓' : ''}
+      </span>
       {children}
     </button>
   );

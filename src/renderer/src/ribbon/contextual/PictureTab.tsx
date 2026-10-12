@@ -44,6 +44,8 @@ function AltTextButton() {
         setOpen(next);
       }}
       className={rc.palette}
+      role="dialog"
+      aria-label={t('picture.size.altText')}
       anchor={({ anchorStyle, triggerProps }) => (
         <button
           type="button"

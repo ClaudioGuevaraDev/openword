@@ -1,6 +1,6 @@
 import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Cuadro combinado de la cinta (fuente, tamaño): se puede escribir o elegir de la lista.
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '@renderer/ui/cx';
 import { Popover } from '@renderer/ui/Popover';
 import * as rc from '../ribbon-classes';
@@ -41,6 +41,8 @@ export function ComboBox({
   const [active, setActive] = useState(-1);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null);
+  const listId = `combo-${useId().replace(/[^\w-]/g, '')}`;
+  const optionId = (index: number) => `${listId}-${index}`;
 
   const visible = useMemo(() => {
     if (!filter || !draft) return options;
@@ -72,7 +74,7 @@ export function ComboBox({
       style={{ minWidth: width }}
       anchor={({ anchorStyle, triggerProps }) => (
         <div
-          className="tw:inline-flex tw:h-6 tw:rounded-md tw:border tw:border-line tw:bg-input tw:focus-within:border-accent"
+          className="tw:inline-flex tw:h-6 tw:rounded-md tw:border tw:border-line tw:bg-input tw:focus-within:border-accent tw:has-focus-visible:outline-2 tw:has-focus-visible:-outline-offset-1 tw:has-focus-visible:outline-accent"
           style={{ ...anchorStyle, width }}
         >
           <input
@@ -82,6 +84,10 @@ export function ComboBox({
             title={label}
             role="combobox"
             aria-expanded={open}
+            aria-controls={listId}
+            aria-autocomplete={filter ? 'list' : 'none'}
+            // La opción resaltada con las flechas (el foco real sigue en el cuadro de texto).
+            aria-activedescendant={open && active >= 0 ? optionId(active) : undefined}
             data-testid={testId}
             disabled={disabled}
             value={draft ?? value}
@@ -129,11 +135,12 @@ export function ComboBox({
         </div>
       )}
     >
-      <div ref={list} role="listbox" aria-label={label}>
+      <div ref={list} id={listId} role="listbox" aria-label={label}>
         {visible.map((option, index) =>
           option.heading ? (
             <div
               key={`h-${option.label}`}
+              role="presentation"
               className="tw:px-2.5 tw:pt-1.5 tw:pb-0.5 tw:text-[11px] tw:font-semibold tw:text-muted"
             >
               {option.label}
@@ -142,6 +149,7 @@ export function ComboBox({
             <div
               key={`${option.value}-${index}`}
               role="option"
+              id={optionId(index)}
               data-index={index}
               aria-selected={option.value === value}
               className={cx(
