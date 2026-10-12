@@ -6,9 +6,12 @@ import { hardenWebContents } from './security';
 /** Alto de la barra de título propia (titlebar/TitleBar.tsx usa el mismo valor). */
 export const TITLE_BAR_HEIGHT = 40;
 
-/** Colores de los botones nativos de ventana sobre la cabecera azul, en claro y oscuro. */
-export function titleBarOverlay(dark: boolean): Electron.TitleBarOverlayOptions {
-  return { color: dark ? '#0f2f66' : '#185abd', symbolColor: '#ffffff', height: TITLE_BAR_HEIGHT };
+/**
+ * Botones nativos de ventana con fondo transparente: se ve el degradado de la cabecera
+ * (--ow-header en app.css) detrás, sin bloque ni corte de color. El tema ya no cambia el fondo.
+ */
+export function titleBarOverlay(_dark: boolean): Electron.TitleBarOverlayOptions {
+  return { color: '#00000000', symbolColor: '#ffffff', height: TITLE_BAR_HEIGHT };
 }
 
 /**
