@@ -1,6 +1,6 @@
 # Distribución
 
-`npm run package` genera los instaladores para el SO actual; el CI los genera para los tres al crear un tag `v*`. **Salen sin firmar**: antes de entregarlos a usuarios finales hace falta firmarlos.
+`pnpm run package` genera los instaladores para el SO actual; el CI los genera para los tres al crear un tag `v*`. **Salen sin firmar**: antes de entregarlos a usuarios finales hace falta firmarlos.
 
 | SO      | Formatos                                   | Firma necesaria                                                                                                       |
 | ------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |

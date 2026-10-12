@@ -14,6 +14,6 @@ La versión sigue el formato `A.B.C`. **Solo se puede subir `B` o `C`; `A` nunca
 Lugares donde vive la versión (deben quedar todos iguales):
 
 - `package.json` → `"version"` (es la que muestra la app con `app.getVersion()` y la que usan los instaladores).
-- `package-lock.json` → `"version"` de la raíz y `packages[""].version`.
+- `pnpm-lock.yaml` no guarda la versión del proyecto: no hay que tocarlo.
 
 Si en el futuro la versión aparece en otro archivo (README, documentación, `electron-builder.yml`…), también se actualiza ahí. Antes de confirmar, se busca la versión anterior en el repositorio (sin `node_modules`) para no dejar ninguna desactualizada.

@@ -1,4 +1,4 @@
-// Informe de fidelidad frente a Word: `npm run fidelity:report`.
+// Informe de fidelidad frente a Word: `pnpm run fidelity:report`.
 // Para cada documento del corpus con un PDF de referencia exportado desde Microsoft Word en
 // tests/fidelity/word-reference/<carpeta>__<nombre>.pdf, OpenWord exporta su PDF y se compara
 // la paginación. El resultado queda en tests/fidelity/report/ (Markdown y JSON).

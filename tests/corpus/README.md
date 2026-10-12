@@ -14,6 +14,6 @@ Para agregar un documento:
 
 1. Copia el archivo a la carpeta de su origen. Solo se aceptan licencias que permitan redistribuirlo.
 2. Vuelve a generar `manifest.json` o agrega su entrada a mano.
-3. Ejecuta `npm run fidelity`.
+3. Ejecuta `pnpm run fidelity`.
 
 Cuando un usuario reporta un documento que se ve mal o pierde contenido, conviene agregarlo aquí (con su permiso) como caso de regresión.

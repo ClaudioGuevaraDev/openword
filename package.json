@@ -1,7 +1,7 @@
 {
   "name": "openword",
   "productName": "OpenWord",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "description": "Procesador de textos de escritorio compatible con Word",
   "author": "OpenWord",
@@ -10,6 +10,7 @@
   "engines": {
     "node": ">=22.12"
   },
+  "packageManager": "pnpm@12.8.1",
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "electron-vite build",
@@ -19,12 +20,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:e2e": "npm run build && playwright test",
+    "test:e2e": "pnpm run build && playwright test",
     "check:deps": "node scripts/check-forbidden-deps.mjs",
-    "package": "npm run build && electron-builder",
-    "package:dir": "npm run build && electron-builder --dir",
+    "package": "pnpm run build && electron-builder",
+    "package:dir": "pnpm run build && electron-builder --dir",
     "fidelity": "vitest run --config vitest.fidelity.config.ts",
-    "fidelity:report": "npm run build && playwright test --config playwright.fidelity.config.ts"
+    "fidelity:report": "pnpm run build && playwright test --config playwright.fidelity.config.ts"
   },
   "devDependencies": {
     "@docx-editor.dev/core": "2.27.0",
@@ -63,10 +64,5 @@
     "vitest": "5.0.3",
     "zod": "4.6.5",
     "zustand": "5.0.15"
-  },
-  "allowScripts": {
-    "esbuild@0.25.12": true,
-    "esbuild@0.28.2": true,
-    "electron-winstaller@5.4.0": true
   }
 }

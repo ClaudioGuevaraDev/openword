@@ -2,7 +2,7 @@ out/
 dist/
 node_modules/
 spike/
-package-lock.json
+pnpm-lock.yaml
 .agents/
 .claude/
 skills-lock.json

@@ -21,18 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run check:deps
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm run typecheck
-      - run: npm test
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check:deps
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - run: pnpm run typecheck
+      - run: pnpm test
       - name: Corpus de fidelidad (lectura y escritura sin pérdidas, sin DOM)
-        run: npm run fidelity
+        run: pnpm run fidelity
 
   e2e:
     name: E2E (${{ matrix.os }})
@@ -45,25 +46,26 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: Descargar binario de Electron
         run: node node_modules/electron/install.js
       - name: LibreOffice (para las pruebas de conversión real)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer
-      - run: npm run build
+      - run: pnpm run build
       - name: Playwright (Linux, con pantalla virtual)
         if: runner.os == 'Linux'
-        run: xvfb-run --auto-servernum npx playwright test
+        run: xvfb-run --auto-servernum pnpm exec playwright test
         env:
           OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
       - name: Playwright
         if: runner.os != 'Linux'
-        run: npx playwright test
+        run: pnpm exec playwright test
         env:
           OPENWORD_CORPUS_OUT: ${{ github.workspace }}/corpus-out
       - name: Documentos guardados por OpenWord (para la validación OOXML)
@@ -109,13 +111,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - run: node node_modules/electron/install.js
-      - run: xvfb-run --auto-servernum npm run fidelity:report
+      - run: xvfb-run --auto-servernum pnpm run fidelity:report
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -133,14 +136,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
       # Sin firma por ahora: la firma y notarización necesitan certificados (ver docs/DISTRIBUCION.md).
-      - run: npx electron-builder --publish never
+      - run: pnpm exec electron-builder --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v7

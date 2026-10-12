@@ -3,7 +3,7 @@
 // tenía (muchos documentos reales ya traen errores que Word tolera).
 //
 // Uso: node scripts/validate-ooxml.mjs <carpeta-de-guardados>
-//   (los guardados los genera `OPENWORD_CORPUS_OUT=<carpeta> npx playwright test corpus`)
+//   (los guardados los genera `OPENWORD_CORPUS_OUT=<carpeta> pnpm exec playwright test corpus`)
 // Requiere el validador compilado: dotnet build tools/ooxml-validator -c Release -o <dir>
 // y la variable OOXML_VALIDATOR=<dir>/OoxmlValidator.dll (DOTNET=ruta a dotnet, opcional).
 import { execFileSync } from 'node:child_process';

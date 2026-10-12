@@ -3,7 +3,7 @@
 Procesador de textos de escritorio compatible con Microsoft Word, para Windows, macOS y Linux.
 
 - **Shell:** Electron 44 (mismo Chromium en los 3 SO: medición de texto y paginación idénticas).
-- **Motor del documento:** [docx-editor](https://github.com/eigenpal/docx-editor) 2.27.0 (Apache-2.0). Trabaja directamente sobre OOXML y conserva al guardar todo lo que no edita. Los paquetes Pro (`pro`, `editor-api`, `docx-to-pdf`) están prohibidos; ESLint y `npm run check:deps` lo verifican.
+- **Motor del documento:** [docx-editor](https://github.com/eigenpal/docx-editor) 2.27.0 (Apache-2.0). Trabaja directamente sobre OOXML y conserva al guardar todo lo que no edita. Los paquetes Pro (`pro`, `editor-api`, `docx-to-pdf`) están prohibidos; ESLint y `pnpm run check:deps` lo verifican.
 - **UI:** React 19 + TypeScript estricto, cinta de opciones propia, español e inglés.
 
 El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE.md).
@@ -61,28 +61,27 @@ El resultado del spike técnico (hito 0) está en [`spike/SPIKE.md`](spike/SPIKE
 
 ## Desarrollo
 
-Requisitos: Node 22.12 o superior (se recomienda Node 24).
+Requisitos: Node 22.12 o superior (se recomienda Node 24) y pnpm (la versión está fijada en `packageManager`; con `corepack enable` se usa la correcta).
 
 ```bash
-npm install
-node node_modules/electron/install.js   # si npm bloqueó la descarga del binario de Electron
-npm run dev                              # app con recarga en caliente
+pnpm install
+pnpm dev       # app con recarga en caliente (descarga el binario de Electron la primera vez)
 ```
 
-En Linux, `npm run dev` agrega `--noSandbox` automáticamente: Ubuntu 24.04 o superior no permite el sandbox SUID de Chromium fuera de un paquete instalado. Los paquetes `.deb` lo resuelven al instalar.
+En Linux, `pnpm dev` agrega `--noSandbox` automáticamente: Ubuntu 24.04 o superior no permite el sandbox SUID de Chromium fuera de un paquete instalado. Los paquetes `.deb` lo resuelven al instalar.
 
-| Comando                           | Qué hace                                              |
-| --------------------------------- | ----------------------------------------------------- |
-| `npm run build`                   | Compila main, preload y renderer en `out/`            |
-| `npm run typecheck`               | TypeScript (main/preload, renderer y E2E)             |
-| `npm run lint` / `npm run format` | ESLint / Prettier                                     |
-| `npm test`                        | Pruebas unitarias (Vitest)                            |
-| `npm run test:e2e`                | Compila y ejecuta las E2E (Playwright sobre Electron) |
-| `npm run check:deps`              | Falla si aparece algún paquete Pro de docx-editor     |
-| `npm run fidelity`                | Corpus de fidelidad: lectura y escritura sin pérdidas |
-| `npm run fidelity:report`         | Informe de paginación frente a PDF de Word            |
-| `npm run package:dir`             | Empaqueta sin instalador (`dist/<so>-unpacked`)       |
-| `npm run package`                 | Instaladores para el SO actual (`dist/`)              |
+| Comando                             | Qué hace                                              |
+| ----------------------------------- | ----------------------------------------------------- |
+| `pnpm run build`                    | Compila main, preload y renderer en `out/`            |
+| `pnpm run typecheck`                | TypeScript (main/preload, renderer y E2E)             |
+| `pnpm run lint` / `pnpm run format` | ESLint / Prettier                                     |
+| `pnpm test`                         | Pruebas unitarias (Vitest)                            |
+| `pnpm run test:e2e`                 | Compila y ejecuta las E2E (Playwright sobre Electron) |
+| `pnpm run check:deps`               | Falla si aparece algún paquete Pro de docx-editor     |
+| `pnpm run fidelity`                 | Corpus de fidelidad: lectura y escritura sin pérdidas |
+| `pnpm run fidelity:report`          | Informe de paginación frente a PDF de Word            |
+| `pnpm run package:dir`              | Empaqueta sin instalador (`dist/<so>-unpacked`)       |
+| `pnpm run package`                  | Instaladores para el SO actual (`dist/`)              |
 
 ## Estructura
 

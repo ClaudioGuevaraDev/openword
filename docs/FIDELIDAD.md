@@ -4,10 +4,10 @@ OpenWord verifica la compatibilidad con Word en cuatro niveles. Los tres primero
 
 | Nivel                       | Qué comprueba                                                                                                                                                                       | Cómo se ejecuta                                   |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| 1. Corpus sin DOM           | Los 39 documentos de `tests/corpus` se leen y se escriben con el motor sin perder partes, con binarios idénticos y XML equivalente.                                                 | `npm run fidelity`                                |
-| 2. Corpus en la app         | Lo mismo, pero abriendo cada documento en OpenWord y usando "Guardar como" (el camino real del usuario). Incluye un documento creado desde cero con todas las funciones de la v1.   | `npm run test:e2e` (`tests/e2e/corpus.spec.ts`)   |
+| 1. Corpus sin DOM           | Los 39 documentos de `tests/corpus` se leen y se escriben con el motor sin perder partes, con binarios idénticos y XML equivalente.                                                 | `pnpm run fidelity`                               |
+| 2. Corpus en la app         | Lo mismo, pero abriendo cada documento en OpenWord y usando "Guardar como" (el camino real del usuario). Incluye un documento creado desde cero con todas las funciones de la v1.   | `pnpm run test:e2e` (`tests/e2e/corpus.spec.ts`)  |
 | 3. Validación OOXML         | Los documentos guardados por OpenWord no tienen errores de esquema nuevos según el Open XML SDK de Microsoft (las reglas de Word). El documento creado desde cero no tiene ninguno. | Job `ooxml-validation` del CI (o en local, abajo) |
-| 4. Paginación frente a Word | El PDF de OpenWord tiene las mismas páginas y los mismos saltos de página que el de Word.                                                                                           | `npm run fidelity:report`                         |
+| 4. Paginación frente a Word | El PDF de OpenWord tiene las mismas páginas y los mismos saltos de página que el de Word.                                                                                           | `pnpm run fidelity:report`                        |
 
 Si LibreOffice está instalado, las E2E también comprueban que abre y exporta a PDF los documentos guardados por OpenWord.
 
@@ -31,7 +31,7 @@ Los estilos integrados de Word que el contenido usa y la plantilla no define (po
 
 1. En un equipo con Microsoft Word, abre cada documento de `tests/corpus/<carpeta>/<nombre>.docx` y elige **Archivo › Guardar como › PDF**.
 2. Guarda el PDF como `tests/fidelity/word-reference/<carpeta>__<nombre>.pdf`, por ejemplo `libreoffice__footnote.pdf`.
-3. Ejecuta `npm run fidelity:report`.
+3. Ejecuta `pnpm run fidelity:report`.
 4. El informe queda en `tests/fidelity/report/report.md` y muestra, por documento:
    - páginas en OpenWord frente a Word;
    - cuántos saltos de página coinciden (misma primera y última palabra por página);
@@ -43,7 +43,7 @@ Conviene generar las referencias con las fuentes de Office instaladas (Calibri, 
 
 ```bash
 dotnet build tools/ooxml-validator -c Release -o /tmp/validator
-OPENWORD_CORPUS_OUT=/tmp/corpus-out npx playwright test corpus
+OPENWORD_CORPUS_OUT=/tmp/corpus-out pnpm exec playwright test corpus
 OOXML_VALIDATOR=/tmp/validator/OoxmlValidator.dll node scripts/validate-ooxml.mjs /tmp/corpus-out
 ```
 
