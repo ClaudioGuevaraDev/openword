@@ -5,7 +5,15 @@ import { useDocxEditor, useEditorEvent } from '@docx-editor.dev/react';
 import type { DocumentChange } from '@docx-editor.dev/core';
 import { useDocumentStore } from '@renderer/state/document-store';
 import { useSettingsStore } from '@renderer/state/settings-store';
-import { redo, registerEditor, registerSave, undo, type SaveMode } from './document-actions';
+import {
+  isRedoBlocked,
+  redo,
+  registerEditor,
+  registerRedoBlock,
+  registerSave,
+  undo,
+  type SaveMode,
+} from './document-actions';
 import { remoteErrorMessage } from '@shared/errors';
 
 /** Parte de encabezado o pie que el motor crea al entrar en una sección que no la tiene. */
@@ -40,7 +48,9 @@ export function DocumentSession({
   const setDirty = useDocumentStore((s) => s.setDirty);
   const lastRevision = useRef<number | null>(null);
   const createdOnEntry = useRef<CreatedOnEntry | null>(null);
-  const restoring = useRef<Pick<CreatedOnEntry, 'wasClean' | 'everChanged'> | null>(null);
+  const restoring = useRef<CreatedOnEntry | null>(null);
+  /** El último encabezado o pie vacío que se quitó, mientras no haya otro cambio. */
+  const removedEmpty = useRef<CreatedOnEntry | null>(null);
   const editingFurniture = useRef<'header' | 'footer' | null>(null);
 
   const report = useCallback(
@@ -65,6 +75,9 @@ export function DocumentSession({
   useEffect(() => {
     if (!editor) return;
     savedRevision.current = startDirty ? -1 : editor.getDocumentHandle().revision;
+    // Punto de partida para detectar un encabezado o pie creado al entrar (puede ser el primer
+    // cambio del documento).
+    lastRevision.current = editor.getDocumentHandle().revision;
     report(startDirty);
   }, [editor, report, startDirty]);
 
@@ -89,6 +102,20 @@ export function DocumentSession({
     return () => clearInterval(id);
   }, [editor, autoRecoverMinutes]);
 
+  /** Deshace la creación de un encabezado o pie vacío si nada cambió desde entonces. */
+  const undoCreation = (created: CreatedOnEntry) => {
+    // Fuera del aviso del motor: deshacer mientras sale del ámbito o confirma un cambio lo
+    // dejaría a medias.
+    queueMicrotask(() => {
+      if (!editor || editor.getDocumentHandle().revision !== created.revision) return;
+      restoring.current = created;
+      editor.exec({ type: 'undo' });
+      // El aviso de cambio del undo llega dentro de exec: si no llegó (undo rechazado), el
+      // siguiente cambio real no debe tomarse por esta restauración.
+      restoring.current = null;
+    });
+  };
+
   useEditorEvent('change', (change: DocumentChange) => {
     if (change.source === 'load' || savedRevision.current === null) {
       savedRevision.current = change.revision;
@@ -98,12 +125,14 @@ export function DocumentSession({
     }
     const restored = restoring.current;
     restoring.current = null;
+    removedEmpty.current = null;
+    const part = change.created?.find((name) => HEADER_FOOTER_PART.test(name));
     if (restored) {
       // Se deshizo un encabezado o pie vacío: el documento vuelve a estar como antes de entrar.
       if (restored.wasClean) savedRevision.current = change.revision;
       everChanged.current = restored.everChanged;
+      removedEmpty.current = { ...restored, revision: change.revision };
     } else {
-      const part = change.created?.find((name) => HEADER_FOOTER_PART.test(name));
       createdOnEntry.current =
         part && lastRevision.current !== null
           ? {
@@ -135,17 +164,32 @@ export function DocumentSession({
     }
     if (!previous || editing) return;
     createdOnEntry.current = null;
-    if (!created || editor.getDocumentHandle().revision !== created.revision) return;
-    // Fuera del aviso del motor: deshacer mientras sale del ámbito lo dejaría a medias.
-    queueMicrotask(() => {
-      if (editor.getDocumentHandle().revision !== created.revision) return;
-      restoring.current = { wasClean: created.wasClean, everChanged: created.everChanged };
-      editor.exec({ type: 'undo' });
-      // El aviso de cambio del undo llega dentro de exec: si no llegó (undo rechazado), el
-      // siguiente cambio real no debe tomarse por esta restauración.
-      restoring.current = null;
-    });
+    if (created && editor.getDocumentHandle().revision === created.revision) undoCreation(created);
   });
+
+  // Tras quitar un pie vacío, lo siguiente por rehacer es crearlo otra vez: mientras no haya
+  // otro cambio, Rehacer (atajo, botón o menú) no hace nada, como si la creación no hubiera
+  // existido. Cualquier cambio nuevo vacía la pila de rehacer del motor.
+  useEffect(() => {
+    if (!editor) return;
+    const blocked = () =>
+      removedEmpty.current !== null && editor.getDocumentHandle().revision === removedEmpty.current.revision;
+    registerRedoBlock(blocked);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+      const key = e.key.toLowerCase();
+      const isRedo = (key === 'y' && !e.shiftKey) || (key === 'z' && e.shiftKey);
+      if (isRedo && isRedoBlocked()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      registerRedoBlock(null);
+      window.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [editor]);
 
   useEditorEvent('error', (error: { message?: string }) => {
     useDocumentStore.getState().setError(error.message ?? String(error));

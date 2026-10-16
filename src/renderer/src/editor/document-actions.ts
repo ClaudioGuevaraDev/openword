@@ -45,7 +45,19 @@ export function undo(): void {
   currentEditor?.exec({ type: 'undo' });
 }
 
+let redoBlocked: (() => boolean) | null = null;
+
+/** Rehacer que no debe aplicarse ahora (DocumentSession: volvería a crear un pie vacío quitado). */
+export function registerRedoBlock(blocked: (() => boolean) | null): void {
+  redoBlocked = blocked;
+}
+
+export function isRedoBlocked(): boolean {
+  return redoBlocked?.() ?? false;
+}
+
 export function redo(): void {
+  if (isRedoBlocked()) return;
   currentEditor?.exec({ type: 'redo' });
 }
 

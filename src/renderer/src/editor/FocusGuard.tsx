@@ -1,5 +1,5 @@
-// Al cerrar una superficie del motor (popup de vínculo, menú, nota…) con Esc, un clic o porque
-// desaparece el elemento enfocado, el foco puede quedarse en <body>: se devuelve al documento
+// Al cerrar una superficie del motor (popup de vínculo, menú, nota…) con Esc o un clic (en
+// Cancelar, por ejemplo), el foco puede quedarse en <body>: se devuelve al documento
 // para seguir escribiendo, como en Word. No actúa si hay otro sitio legítimo para el foco
 // (un diálogo o popover abierto, la vista Archivo) o si la ventana no está activa. Esc en el
 // panel de navegación (Buscar, Títulos) también vuelve al documento y deja el panel abierto.
@@ -28,12 +28,10 @@ export function FocusGuard() {
       check(e.target instanceof Element && e.target.closest('.docx-nav__panel-shell') !== null);
     };
     const onLostFocus = () => check();
-    document.addEventListener('focusout', onLostFocus);
     document.addEventListener('click', onLostFocus);
     document.addEventListener('keydown', onKeyDown, true);
     return () => {
       cancelAnimationFrame(frame);
-      document.removeEventListener('focusout', onLostFocus);
       document.removeEventListener('click', onLostFocus);
       document.removeEventListener('keydown', onKeyDown, true);
     };

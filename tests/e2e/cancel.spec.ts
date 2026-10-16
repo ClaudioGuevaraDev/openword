@@ -30,6 +30,30 @@ async function savedDocument(app: Parameters<typeof mockDialogs>[0], win: Page, 
   await expectNothingChanged(win, 'documento guardado');
 }
 
+test('documento nuevo sin escribir nada: Pie de página y Esc, y Rehacer después', async ({ win }) => {
+  await expectNothingChanged(win, 'documento nuevo');
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await win.getByTestId('insert-footer').click();
+  await expect(win.getByTestId('docx-hf-chrome')).toBeVisible();
+  await win.keyboard.press('Escape');
+  await expect(win.getByTestId('docx-hf-chrome')).toHaveCount(0);
+  await expectNothingChanged(win, 'salir del pie sin escribir');
+
+  // Rehacer justo después no vuelve a crear el pie vacío (atajo y botón de la barra de título).
+  await win.keyboard.press(process.platform === 'darwin' ? 'Meta+Shift+z' : `${mod}+y`);
+  await expectNothingChanged(win, 'rehacer con el teclado');
+  await win.getByRole('button', { name: /^Rehacer/ }).click();
+  await expectNothingChanged(win, 'rehacer con el botón');
+
+  // Y escribir en el pie lo conserva.
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await win.getByTestId('insert-footer').click();
+  await win.keyboard.type('Pie escrito');
+  await win.keyboard.press('Escape');
+  await expect(win.getByTestId('title-bar')).toContainText('Sin guardar');
+  await expect(win.locator('.docx-page').first()).toContainText('Pie escrito');
+});
+
 test('Insertar: encabezado y pie vacíos, vínculo, tabla, imagen y número de página', async ({
   app,
   win,
