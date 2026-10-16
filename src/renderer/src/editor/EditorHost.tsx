@@ -1,6 +1,6 @@
 // Monta el motor docx-editor con nuestra propia interfaz alrededor (sin su barra empaquetada).
 // Referencia: examples/vite/src/ComposedEditorDemo.tsx de eigenpal/docx-editor v2.27.0.
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { DocxEditor, LocaleProvider, useChromeTranslate, useFonts } from '@docx-editor.dev/react';
 import { es } from '@docx-editor.dev/i18n/es';
 import { en } from '@docx-editor.dev/i18n/en';
@@ -9,6 +9,9 @@ import '@docx-editor.dev/core/styles/editor.css';
 import type { UiLanguage } from '@shared/ipc-contract';
 import { useShallow } from 'zustand/react/shallow';
 import { useUiStore } from '@renderer/state/ui-store';
+import { ParagraphDialog } from './dialogs/ParagraphDialog';
+import { PageSetupDialog } from './dialogs/PageSetupDialog';
+import { withPageSizes } from './dialogs/page-sizes';
 import { DocumentSession } from './DocumentSession';
 import { bundledFonts, systemFonts } from './fonts';
 import { ReplaceDialog } from './ReplaceDialog';
@@ -111,9 +114,14 @@ export function EditorHost({
     })),
   );
   const rulerUnit = ui.unit === 'in' ? 'inch' : 'cm';
+  // Los tamaños de papel de Configurar página, en la unidad de la app (el motor los da en pulgadas).
+  const i18n = useMemo(
+    () => withPageSizes(language === 'es' ? es : en, ui.unit, language),
+    [language, ui.unit],
+  );
 
   return (
-    <LocaleProvider i18n={language === 'es' ? es : en}>
+    <LocaleProvider i18n={i18n}>
       <DocxEditor.Root
         document={document}
         // Siempre "edit": si se omite, un documento con w:trackRevisions abre en modo
@@ -163,8 +171,8 @@ export function EditorHost({
             <DocxEditor.HyperLink />
           </DocxEditor.Viewport>
           <DocxEditor.Loading overlay />
-          <DocxEditor.ParagraphDialog open={ui.paragraphDialogOpen} onClose={ui.closeParagraphDialog} />
-          <DocxEditor.PageSetupDialog open={ui.pageSetupDialogOpen} onClose={ui.closePageSetupDialog} />
+          <ParagraphDialog open={ui.paragraphDialogOpen} onClose={ui.closeParagraphDialog} />
+          <PageSetupDialog open={ui.pageSetupDialogOpen} onClose={ui.closePageSetupDialog} />
           <ImagePropertiesDialog
             open={ui.imagePropertiesDialogOpen}
             onClose={ui.closeImagePropertiesDialog}

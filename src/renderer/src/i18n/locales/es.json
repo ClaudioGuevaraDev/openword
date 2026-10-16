@@ -421,6 +421,11 @@
     "addToDictionary": "Agregar al diccionario"
   },
   "units": {
-    "pt": "pto"
+    "pt": "pto",
+    "cm": "cm",
+    "in": "pulg."
+  },
+  "dialogs": {
+    "tabRemoveAt": "Eliminar la tabulación en {{position}}"
   }
 }

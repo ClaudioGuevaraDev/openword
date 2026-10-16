@@ -421,6 +421,11 @@
     "addToDictionary": "Add to Dictionary"
   },
   "units": {
-    "pt": "pt"
+    "pt": "pt",
+    "cm": "cm",
+    "in": "in"
+  },
+  "dialogs": {
+    "tabRemoveAt": "Remove the tab stop at {{position}}"
   }
 }
