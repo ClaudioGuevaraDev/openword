@@ -292,6 +292,48 @@ test('pestaña Imagen: cambiar el ajuste de una imagen flotante', async ({ launc
   expect(pkg['word/document.xml']).toContain('<wp:wrapTopAndBottom');
 });
 
+test('imagen: al estirarla se ve una vista previa que sigue al marco; Esc la cancela', async ({
+  launch,
+  workDir,
+}) => {
+  const path = join(workDir, 'flotante.docx');
+  writeFileSync(path, readFileSync(join(FIXTURES, 'float-wrap-comprehensive-test.docx')));
+  const floating = await launch({ args: [path] });
+  const w = await floating.firstWindow();
+  await waitForDocument(w);
+  const image = w.locator('.docx-page img').first();
+  await image.click();
+  const frame = w.getByRole('group', { name: 'Imagen seleccionada' });
+  const preview = w.locator('.ow-image-drag-preview');
+  const before = (await image.boundingBox())!;
+
+  const drag = async (finish: () => Promise<void>) => {
+    const handle = (await w
+      .getByRole('button', { name: 'Cambiar tamaño de la esquina inferior derecha' })
+      .boundingBox())!;
+    await w.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+    await w.mouse.down();
+    await w.mouse.move(handle.x + handle.width / 2 + 60, handle.y + handle.height / 2 + 40, { steps: 5 });
+    // A mitad del arrastre, la copia ocupa exactamente el marco del motor.
+    await expect(preview).toBeVisible();
+    const [p, f] = [(await preview.boundingBox())!, (await frame.boundingBox())!];
+    for (const key of ['x', 'y', 'width', 'height'] as const)
+      expect(Math.abs(p[key] - f[key])).toBeLessThan(2);
+    expect(f.width).toBeGreaterThan(before.width + 30);
+    await finish();
+    await expect(preview).toHaveCount(0);
+  };
+
+  // Esc cancela: la imagen no cambia.
+  await drag(() => w.keyboard.press('Escape'));
+  await w.mouse.up();
+  expect((await image.boundingBox())!.width).toBeCloseTo(before.width, 0);
+
+  // Al soltar, el motor aplica el tamaño nuevo.
+  await drag(() => w.mouse.up());
+  await expect.poll(async () => (await image.boundingBox())!.width).toBeGreaterThan(before.width + 30);
+});
+
 test('pestaña Tabla: bordes y sombreado de celda', async ({ app, win, out }) => {
   await win.getByRole('tab', { name: 'Insertar' }).click();
   await win.getByTestId('insert-table').click();

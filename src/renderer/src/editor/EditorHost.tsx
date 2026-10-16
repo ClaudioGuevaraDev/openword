@@ -19,6 +19,7 @@ import { ParagraphDialog } from './dialogs/ParagraphDialog';
 import { PageSetupDialog } from './dialogs/PageSetupDialog';
 import { withPageSizes } from './dialogs/page-sizes';
 import { DocumentSession } from './DocumentSession';
+import { ImageDragPreview } from './ImageDragPreview';
 import { bundledFonts, systemFonts } from './fonts';
 import { ReplaceDialog } from './ReplaceDialog';
 import { SpellChecker } from './spelling/SpellChecker';
@@ -145,6 +146,7 @@ export function EditorHost({
       >
         <DocumentSession isNew={isNew} startDirty={startDirty} />
         <SpellChecker />
+        <ImageDragPreview />
         {ribbon}
         {notices}
         {ui.showRulers && (

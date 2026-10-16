@@ -232,6 +232,13 @@ html .docx-editor .docx-hf-chrome__menu-separator:has(+ .docx-hf-chrome__menu-ro
   display: none;
 }
 
+/* Vista previa al estirar o mover una imagen (ImageDragPreview): como en Word, una copia
+   semitransparente; la imagen real cambia al soltar. */
+html .docx-editor .ow-image-drag-preview {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* Popup de vínculo en edición: campos y botones con las medidas de los diálogos del motor. */
 html .docx-editor .docx-hyperlink-popup[data-mode='editing'] {
   gap: 8px;
