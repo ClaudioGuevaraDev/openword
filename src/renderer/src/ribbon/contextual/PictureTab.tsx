@@ -9,8 +9,8 @@ import {
   TextWrap20Regular,
 } from '@fluentui/react-icons';
 import {
-  ImagePropertiesTrigger,
   useDocxEditor,
+  useEditorCommand,
   useEditorState,
   useEditorValueCommand,
 } from '@docx-editor.dev/react';
@@ -20,6 +20,7 @@ import { CommandButton } from '../controls/CommandButton';
 import { MenuButton } from '../controls/MenuButton';
 import { RibbonGroup, RibbonStack } from '../controls/RibbonGroup';
 import { Popover } from '@renderer/ui/Popover';
+import { useUiStore } from '@renderer/state/ui-store';
 import * as rc from '../ribbon-classes';
 
 const WRAPS = ['inline', 'square', 'tight', 'through', 'topAndBottom', 'behind', 'inFront'] as const;
@@ -89,6 +90,8 @@ export function PictureTab() {
   const wrap = useEditorValueCommand('image.wrap');
   // El motor solo cambia el ajuste de imágenes flotantes; las que están en línea no se convierten.
   const inline = useEditorState((s) => s.image?.kind === 'inline');
+  const properties = useEditorCommand('image.properties');
+  const openImageProperties = useUiStore((s) => s.openImagePropertiesDialog);
 
   return (
     <>
@@ -138,14 +141,21 @@ export function PictureTab() {
       </RibbonGroup>
       <RibbonGroup label={t('picture.size.label')}>
         <RibbonStack>
-          <ImagePropertiesTrigger asChild>
-            <button type="button" className={rc.button} onMouseDown={(e) => e.preventDefault()}>
-              <span className={rc.icon}>
-                <Settings20Regular />
-              </span>
-              <span className={rc.label}>{t('picture.size.properties')}</span>
-            </button>
-          </ImagePropertiesTrigger>
+          {/* El diálogo se monta en EditorHost: el trigger de la librería lo pinta junto al
+              botón, dentro de la cinta, y queda recortado. */}
+          <button
+            type="button"
+            className={rc.button}
+            disabled={!properties.isEnabled}
+            title={properties.isEnabled ? undefined : (properties.disabledReason ?? undefined)}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={openImageProperties}
+          >
+            <span className={rc.icon}>
+              <Settings20Regular />
+            </span>
+            <span className={rc.label}>{t('picture.size.properties')}</span>
+          </button>
           <AltTextButton />
         </RibbonStack>
       </RibbonGroup>

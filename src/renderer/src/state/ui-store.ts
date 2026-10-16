@@ -36,6 +36,7 @@ interface UiState {
   readonly unit: MeasureUnit;
   readonly paragraphDialogOpen: boolean;
   readonly pageSetupDialogOpen: boolean;
+  readonly imagePropertiesDialogOpen: boolean;
   readonly navigationOpen: boolean;
   readonly navigationTab: NavigationTab;
   readonly replaceDialogOpen: boolean;
@@ -58,6 +59,8 @@ interface UiState {
   closePageSetupDialog(): void;
   openParagraphDialog(): void;
   closeParagraphDialog(): void;
+  openImagePropertiesDialog(): void;
+  closeImagePropertiesDialog(): void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -67,6 +70,7 @@ export const useUiStore = create<UiState>((set) => ({
   unit: 'cm',
   paragraphDialogOpen: false,
   pageSetupDialogOpen: false,
+  imagePropertiesDialogOpen: false,
   navigationOpen: false,
   navigationTab: 'headings',
   replaceDialogOpen: false,
@@ -97,4 +101,6 @@ export const useUiStore = create<UiState>((set) => ({
   closePageSetupDialog: () => set({ pageSetupDialogOpen: false }),
   openParagraphDialog: () => set({ paragraphDialogOpen: true }),
   closeParagraphDialog: () => set({ paragraphDialogOpen: false }),
+  openImagePropertiesDialog: () => set({ imagePropertiesDialogOpen: true }),
+  closeImagePropertiesDialog: () => set({ imagePropertiesDialogOpen: false }),
 }));

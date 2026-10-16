@@ -87,6 +87,8 @@ export function EditorHost({
       closeParagraphDialog: s.closeParagraphDialog,
       pageSetupDialogOpen: s.pageSetupDialogOpen,
       closePageSetupDialog: s.closePageSetupDialog,
+      imagePropertiesDialogOpen: s.imagePropertiesDialogOpen,
+      closeImagePropertiesDialog: s.closeImagePropertiesDialog,
       replaceDialogOpen: s.replaceDialogOpen,
       setReplaceDialogOpen: s.setReplaceDialogOpen,
     })),
@@ -146,6 +148,10 @@ export function EditorHost({
           <DocxEditor.Loading overlay />
           <DocxEditor.ParagraphDialog open={ui.paragraphDialogOpen} onClose={ui.closeParagraphDialog} />
           <DocxEditor.PageSetupDialog open={ui.pageSetupDialogOpen} onClose={ui.closePageSetupDialog} />
+          <DocxEditor.ImagePropertiesDialog
+            open={ui.imagePropertiesDialogOpen}
+            onClose={ui.closeImagePropertiesDialog}
+          />
           <ReplaceDialog open={ui.replaceDialogOpen} onClose={() => ui.setReplaceDialogOpen(false)} />
         </div>
         {statusBar}

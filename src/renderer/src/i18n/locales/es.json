@@ -334,7 +334,7 @@
     },
     "size": {
       "label": "Tamaño y accesibilidad",
-      "properties": "Tamaño y posición…",
+      "properties": "Tamaño y posición",
       "altText": "Texto alternativo",
       "altTextPrompt": "Describe la imagen para personas con discapacidad visual:",
       "apply": "Aplicar"

@@ -413,12 +413,6 @@ html .docx-editor :is(.docx-nav__searchbox, .docx-nav__stepper, .docx-nav__resul
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ow-spark) 40%, transparent);
 }
 
-/* Disparadores del motor (p. ej. Tamaño y posición…) dentro de la cinta: su clase
-   .docx-toolbar__button los fija a 28 px de ancho; se vuelve a las clases de Tailwind del botón. */
-#ribbon-panel .docx-toolbar__button {
-  all: revert-layer;
-}
-
 /* Cinta de una pestaña contextual (Tabla, Imagen…): una línea de acento arriba la liga con su
    pestaña de la cápsula. */
 #ribbon-panel[data-contextual] {
