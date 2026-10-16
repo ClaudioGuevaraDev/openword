@@ -68,3 +68,27 @@ test('Configurar página: márgenes y tamaños de papel en la unidad de la app',
   const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
   expect(xml).toContain(`w:top="${Math.round(3 * perUnit)}"`);
 });
+
+test('Encabezado y pie: distancias al borde en la cinta, en la unidad de la app', async ({
+  app,
+  win,
+  out,
+}) => {
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await win.getByTestId('insert-footer').click();
+  const footer = win.getByTestId('hf-footer-distance');
+  // El campo muestra la medida con su unidad: "1,25 cm" o "0,49"".
+  const perUnit = (await footer.inputValue()).endsWith('cm') ? 1440 / 2.54 : 1440;
+  await footer.fill('2');
+  await footer.press('Enter');
+  await expect(footer).toHaveValue(perUnit === 1440 ? '2"' : '2 cm');
+
+  // El menú Opciones del motor ya no ofrece sus distancias en pulgadas.
+  const chrome = win.getByTestId('docx-hf-chrome');
+  await chrome.getByRole('button', { name: 'Opciones' }).click();
+  await expect(chrome.getByRole('menuitem').first()).toBeVisible();
+  await expect(chrome.getByRole('spinbutton')).toHaveCount(0);
+
+  const xml = (await saveAndRead(app, win, out))['word/document.xml']!;
+  expect(xml).toMatch(new RegExp(`<w:pgMar [^>]*w:footer="${Math.round(2 * perUnit)}"`));
+});

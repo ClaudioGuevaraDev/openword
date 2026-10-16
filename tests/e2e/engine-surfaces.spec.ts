@@ -127,3 +127,32 @@ test('tema oscuro: popup de vínculo y diálogo de Párrafo', async ({ win }) =>
   await win.getByRole('button', { name: 'Configuración de párrafo' }).click();
   await expectSurfaceFits(win, win.locator('.docx-dialog'), 'parrafo-oscuro');
 });
+
+/** Abre "Opciones" de la barra `bar` y devuelve si el menú queda encima (true) o debajo. */
+async function optionsOpenUpward(win: Page, bar: Locator, name: string): Promise<boolean> {
+  await bar.getByRole('button', { name: 'Opciones' }).click();
+  const menu = bar.locator('.docx-hf-chrome__options-menu');
+  await expectSurfaceFits(win, menu, name);
+  const [barBox, menuBox] = await Promise.all([bar.boundingBox(), menu.boundingBox()]);
+  return menuBox!.y + menuBox!.height <= barBox!.y + 1;
+}
+
+test('Opciones de pie y nota al pie se abren hacia arriba; las del encabezado, hacia abajo', async ({
+  win,
+}) => {
+  const chrome = win.getByTestId('docx-hf-chrome');
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await win.getByTestId('insert-footer').click();
+  expect(await optionsOpenUpward(win, chrome, 'opciones-pie')).toBe(true);
+  await win.getByTestId('hf-close').click();
+
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await win.getByTestId('insert-header').click();
+  expect(await optionsOpenUpward(win, chrome, 'opciones-encabezado')).toBe(false);
+  await win.getByTestId('hf-close').click();
+
+  await clickDocument(win);
+  await win.getByRole('tab', { name: 'Referencias' }).click();
+  await win.getByTestId('insert-footnote').click();
+  expect(await optionsOpenUpward(win, win.getByTestId('docx-notes-banner'), 'opciones-nota')).toBe(true);
+});

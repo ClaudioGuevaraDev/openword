@@ -1,7 +1,13 @@
 // Monta el motor docx-editor con nuestra propia interfaz alrededor (sin su barra empaquetada).
 // Referencia: examples/vite/src/ComposedEditorDemo.tsx de eigenpal/docx-editor v2.27.0.
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
-import { DocxEditor, LocaleProvider, useChromeTranslate, useFonts } from '@docx-editor.dev/react';
+import {
+  DocxEditor,
+  LocaleProvider,
+  useChromeTranslate,
+  useFonts,
+  useHeaderFooterState,
+} from '@docx-editor.dev/react';
 import { es } from '@docx-editor.dev/i18n/es';
 import { en } from '@docx-editor.dev/i18n/en';
 import type { DocumentSource } from '@docx-editor.dev/core';
@@ -80,6 +86,12 @@ function ImagePropertiesDialog({ open, onClose }: { readonly open: boolean; read
     return () => cancelAnimationFrame(frame);
   }, [open, onClose]);
   return <DocxEditor.ImagePropertiesDialog open={open} onClose={close} />;
+}
+
+/** Barra del encabezado o pie en edición; la del pie se marca para abrir su menú hacia arriba. */
+function HeaderFooterChrome() {
+  const editing = useHeaderFooterState()?.editing;
+  return <DocxEditor.HeaderFooterChrome className={editing === 'footer' ? 'ow-hf-footer' : undefined} />;
 }
 
 export function EditorHost({
@@ -164,7 +176,7 @@ export function EditorHost({
             )}
             {/* Una composición propia debe montar estas partes por nombre o no habrá UI
                 para editar encabezados, pies y notas. */}
-            <DocxEditor.HeaderFooterChrome />
+            <HeaderFooterChrome />
             <DocxEditor.NotesChrome />
             <DocxEditor.Content />
             <EditorContextMenu />

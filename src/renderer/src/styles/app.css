@@ -219,6 +219,19 @@ html .docx-editor :is(input, textarea, select, button):not(.docx-page *) {
   box-sizing: border-box;
 }
 
+/* Pie de página y notas al pie están al final de la página: su menú Opciones se abre hacia
+   arriba para no salirse de la vista. El encabezado sigue abriéndolo hacia abajo. */
+html .docx-editor :is(.ow-hf-footer, .docx-notes-chrome__banner) .docx-hf-chrome__options-menu {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+/* Distancias del encabezado y del pie: el motor las pide en pulgadas fijas; están en la pestaña
+   Encabezado y pie de página, en la unidad de la app. Con ellas se va su separador. */
+html .docx-editor .docx-hf-chrome__menu-row--distance,
+html .docx-editor .docx-hf-chrome__menu-separator:has(+ .docx-hf-chrome__menu-row--distance) {
+  display: none;
+}
+
 /* Popup de vínculo en edición: campos y botones con las medidas de los diálogos del motor. */
 html .docx-editor .docx-hyperlink-popup[data-mode='editing'] {
   gap: 8px;

@@ -351,6 +351,11 @@
       "firstPage": "Different First Page",
       "evenOdd": "Different Odd & Even Pages"
     },
+    "position": {
+      "label": "Distance from edge",
+      "header": "Header",
+      "footer": "Footer"
+    },
     "close": {
       "label": "Close",
       "button": "Close Header and Footer"

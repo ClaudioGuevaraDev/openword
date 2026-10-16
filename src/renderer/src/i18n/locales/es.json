@@ -351,6 +351,11 @@
       "firstPage": "Primera página diferente",
       "evenOdd": "Páginas pares e impares diferentes"
     },
+    "position": {
+      "label": "Distancia al borde",
+      "header": "Encabezado",
+      "footer": "Pie de página"
+    },
     "close": {
       "label": "Cerrar",
       "button": "Cerrar encabezado y pie de página"
