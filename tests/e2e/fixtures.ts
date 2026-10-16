@@ -120,6 +120,15 @@ export async function typeInDocument(win: Page, text: string): Promise<void> {
   await win.keyboard.type(text);
 }
 
+/**
+ * Aplica un estilo desde el desplegable «Más estilos», que los lista todos: la fila de la galería
+ * solo muestra los que caben en el ancho de la ventana.
+ */
+export async function applyStyle(win: Page, name: string): Promise<void> {
+  await win.getByTestId('style-gallery').getByRole('button', { name: 'Más estilos' }).click();
+  await win.getByRole('dialog', { name: 'Estilos' }).getByRole('button', { name, exact: true }).click();
+}
+
 /** Espera a que el título de alguna ventana sea `title` (el nombre se actualiza en main). */
 export async function expectWindowTitle(app: ElectronApplication, title: string): Promise<void> {
   await expect.poll(() => windowTitles(app)).toContain(title);

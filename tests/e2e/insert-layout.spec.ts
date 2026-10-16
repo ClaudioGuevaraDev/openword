@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { deflateSync } from 'node:zlib';
 import { FIXTURES, mockDialogs, waitForDocument } from './launch';
-import { clickDocument, expect, mod, saveAndRead, test as base } from './fixtures';
+import { applyStyle, clickDocument, expect, mod, saveAndRead, test as base } from './fixtures';
 
 const test = base.extend<{ out: string }>({
   // Cada prueba empieza con el cursor en la página y "Guardar como" simulado hacia `out`.
@@ -202,7 +202,7 @@ test('Disposición: sangría izquierda y espaciado antes', async ({ app, win, ou
 
 test('Referencias: tabla de contenido y nota al pie', async ({ app, win, out }) => {
   await win.keyboard.type('Introducción');
-  await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
+  await applyStyle(win, 'Título 1');
   await win.keyboard.press('End');
   await win.keyboard.press('Enter');
   await win.keyboard.type('Texto con nota');

@@ -65,7 +65,7 @@ function AltTextButton() {
     >
       <div className={rc.paletteTitle}>{t('picture.size.altTextPrompt')}</div>
       <textarea
-        className="tw:mb-1.5 tw:box-border tw:w-full tw:resize-y tw:rounded-md tw:border tw:border-line tw:bg-input tw:p-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg"
+        className="tw:mb-2 tw:box-border tw:block tw:w-full tw:resize-y tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-1.5 tw:py-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:outline-none tw:focus:border-accent tw:focus-visible:outline-2 tw:focus-visible:-outline-offset-1 tw:focus-visible:outline-accent"
         value={draft}
         rows={4}
         autoFocus
@@ -78,9 +78,15 @@ function AltTextButton() {
           }
         }}
       />
-      <button type="button" className={rc.paletteWide} onClick={apply}>
-        {t('picture.size.apply')}
-      </button>
+      <div className="tw:flex tw:justify-end">
+        <button
+          type="button"
+          className="tw:cursor-pointer tw:rounded-md tw:border tw:border-line tw:bg-input tw:px-2.5 tw:py-1 tw:font-[family-name:inherit] tw:text-[length:inherit] tw:text-fg tw:hover:bg-hover tw:focus-visible:outline-2 tw:focus-visible:outline-offset-1 tw:focus-visible:outline-accent"
+          onClick={apply}
+        >
+          {t('picture.size.apply')}
+        </button>
+      </div>
     </Popover>
   );
 }

@@ -8,7 +8,7 @@ import { comparePackages } from '../fidelity/compare';
 import { conversionWorkRoot } from '../../src/main/libreoffice/convert';
 import { findSoffice } from '../../src/main/libreoffice/detect';
 import { closeAll, launchApp, mockDialogs, waitForDocument } from './launch';
-import { clickDocument, expect, mod, test } from './fixtures';
+import { applyStyle, clickDocument, expect, mod, test } from './fixtures';
 
 const CORPUS = join(__dirname, '../corpus');
 const manifest = JSON.parse(readFileSync(join(CORPUS, 'manifest.json'), 'utf8')) as {
@@ -157,7 +157,7 @@ test(
     };
 
     await type('Informe de prueba');
-    await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
+    await applyStyle(win, 'Título 1');
     await win.keyboard.press('End');
     await win.keyboard.press('Enter');
     await type('Texto en negrita y con color ');

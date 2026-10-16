@@ -1,6 +1,6 @@
 // Monta el motor docx-editor con nuestra propia interfaz alrededor (sin su barra empaquetada).
 // Referencia: examples/vite/src/ComposedEditorDemo.tsx de eigenpal/docx-editor v2.27.0.
-import type { CSSProperties, ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { DocxEditor, LocaleProvider, useChromeTranslate, useFonts } from '@docx-editor.dev/react';
 import { es } from '@docx-editor.dev/i18n/es';
 import { en } from '@docx-editor.dev/i18n/en';
@@ -60,6 +60,23 @@ function EditorContextMenu() {
       <M.SelectAll />
     </M>
   );
+}
+
+/**
+ * Diálogo de propiedades de imagen del motor. Registra Esc, el ciclo de Tab y el foco inicial en
+ * un efecto que depende de `onClose` y que corre antes de pintar el formulario (lo pinta cuando
+ * ya leyó la imagen): con un `onClose` estable no vuelve a correr y el diálogo queda sin teclado.
+ * Un `onClose` nuevo tras abrir lo hace correr de nuevo.
+ */
+function ImagePropertiesDialog({ open, onClose }: { readonly open: boolean; readonly onClose: () => void }) {
+  const [close, setClose] = useState(() => onClose);
+  useEffect(() => {
+    if (!open) return;
+    // En el cuadro siguiente: el formulario ya está montado.
+    const frame = requestAnimationFrame(() => setClose(() => () => onClose()));
+    return () => cancelAnimationFrame(frame);
+  }, [open, onClose]);
+  return <DocxEditor.ImagePropertiesDialog open={open} onClose={close} />;
 }
 
 export function EditorHost({
@@ -148,7 +165,7 @@ export function EditorHost({
           <DocxEditor.Loading overlay />
           <DocxEditor.ParagraphDialog open={ui.paragraphDialogOpen} onClose={ui.closeParagraphDialog} />
           <DocxEditor.PageSetupDialog open={ui.pageSetupDialogOpen} onClose={ui.closePageSetupDialog} />
-          <DocxEditor.ImagePropertiesDialog
+          <ImagePropertiesDialog
             open={ui.imagePropertiesDialogOpen}
             onClose={ui.closeImagePropertiesDialog}
           />

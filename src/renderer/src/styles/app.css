@@ -212,6 +212,68 @@ html .docx-editor .docx-contextmenu .docx-toolbar__menu-item {
   border-radius: 6px;
 }
 
+/* El CSS del motor da por hecho el border-box del preflight, que la app no carga: sin esto sus
+   campos con width: 100% miden 100% + relleno + borde y se salen de los popups. Las páginas
+   quedan fuera para no alterar el documento. */
+html .docx-editor :is(input, textarea, select, button):not(.docx-page *) {
+  box-sizing: border-box;
+}
+
+/* Popup de vínculo en edición: campos y botones con las medidas de los diálogos del motor. */
+html .docx-editor .docx-hyperlink-popup[data-mode='editing'] {
+  gap: 8px;
+  min-width: 320px;
+  padding: 12px;
+}
+html .docx-editor .docx-hyperlink-popup__fields {
+  gap: 8px;
+}
+html .docx-editor .docx-hyperlink-popup__input {
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--doc-dialog-control-radius);
+  transition: border-color 0.12s ease;
+}
+html .docx-editor .docx-hyperlink-popup__input:hover {
+  border-color: var(--doc-border-dark);
+}
+html .docx-editor .docx-hyperlink-popup__input:focus-visible {
+  border-color: var(--doc-primary);
+  outline: none;
+  box-shadow: 0 0 0 1px var(--doc-primary);
+}
+html .docx-editor .docx-hyperlink-popup[data-mode='editing'] .docx-hyperlink-popup__actions {
+  gap: 8px;
+}
+html .docx-editor :is(.docx-hyperlink-popup__apply, .docx-hyperlink-popup__cancel) {
+  height: 32px;
+  min-width: 72px;
+  padding: 0 16px;
+  border-radius: var(--doc-dialog-control-radius);
+  background: var(--doc-surface);
+  font-weight: 500;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+html .docx-editor .docx-hyperlink-popup__cancel:hover {
+  background: var(--doc-bg-hover);
+  border-color: var(--doc-border-dark);
+}
+html .docx-editor .docx-hyperlink-popup__apply {
+  color: var(--doc-on-primary);
+  background: var(--doc-primary);
+  border-color: var(--doc-primary);
+}
+html .docx-editor .docx-hyperlink-popup__apply:hover:not(:disabled) {
+  background: var(--doc-primary-hover);
+  border-color: var(--doc-primary-hover);
+}
+html .docx-editor :is(.docx-hyperlink-popup__apply, .docx-hyperlink-popup__cancel):focus-visible {
+  outline: 2px solid var(--doc-primary);
+  outline-offset: 2px;
+}
+
 /* Selects: botón y lista desplegable propios (appearance: base-select) en vez de los nativos del
    sistema. Valen para los diálogos del motor y para los de OpenWord con la clase .ow-select. */
 html :is(.docx-editor select, select.ow-select),

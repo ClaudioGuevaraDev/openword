@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { join } from 'node:path';
 import { mockDialogs } from './launch';
-import { clickDocument, expect, mod, saveAndRead, test as base, type App } from './fixtures';
+import { applyStyle, clickDocument, expect, mod, saveAndRead, test as base, type App } from './fixtures';
 
 const test = base.extend<{ out: string }>({
   // Cada prueba empieza con el cursor en la página y "Guardar como" simulado hacia `out`.
@@ -87,10 +87,12 @@ test('color de fuente y resaltado desde las paletas', async ({ app, win, out }) 
 
 test('galería de estilos aplica Título 1 (Heading1)', async ({ app, win, out }) => {
   await win.keyboard.type('Capítulo uno');
-  await win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true }).click();
+  await applyStyle(win, 'Título 1');
+  await win.getByTestId('style-gallery').getByRole('button', { name: 'Más estilos' }).click();
   await expect(
-    win.getByTestId('style-gallery').getByRole('button', { name: 'Título 1', exact: true, pressed: true }),
-  ).toBeVisible();
+    win.getByRole('dialog', { name: 'Estilos' }).getByRole('button', { name: 'Título 1', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await win.keyboard.press('Escape');
   const xml = await savedXml(app, win, out);
   expect(xml).toMatch(/<w:pStyle w:val="Heading1"\/>/);
 });
