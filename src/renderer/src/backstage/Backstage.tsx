@@ -216,11 +216,15 @@ export function Backstage() {
   const setSection = useUiStore((s) => s.setBackstageSection);
 
   const backButton = useRef<HTMLButtonElement>(null);
-  /** A dónde vuelve el foco al cerrar: al botón Archivo (Volver, Esc) o al documento (tras una acción). */
+  /**
+   * A dónde vuelve el foco al cerrar: tras una acción, al documento; con Volver o Esc, a donde
+   * estaba al abrir (el documento si se abrió con el ratón, el botón Archivo si con el teclado).
+   */
   const returnFocusTo = useRef<'trigger' | 'editor'>('trigger');
 
   // Modal: el foco entra al abrir y, al cerrar, vuelve a quien corresponde.
   useEffect(() => {
+    if (document.activeElement?.closest('.docx-content-mount')) returnFocusTo.current = 'editor';
     backButton.current?.focus();
     const target = returnFocusTo;
     return () => {

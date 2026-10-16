@@ -1,5 +1,6 @@
 // Campo numérico de la cinta en cm o pulgadas (sangrías, márgenes) o en puntos (espaciado).
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { focusEditor } from '@renderer/editor/document-actions';
 
 export function MeasureField({
   label,
@@ -24,6 +25,8 @@ export function MeasureField({
 }) {
   // Mientras se edita se muestra el borrador; si no, el valor actual del motor.
   const [draft, setDraft] = useState<string | null>(null);
+  // Esc descarta el borrador: el blur que provoca devolver el foco no debe aplicarlo.
+  const discarding = useRef(false);
   const shown = draft ?? (value === null ? '' : format(value));
 
   const commit = (next: number | null) => {
@@ -42,13 +45,21 @@ export function MeasureField({
         disabled={disabled}
         onChange={(e) => setDraft(e.target.value)}
         onFocus={(e) => e.currentTarget.select()}
-        onBlur={() => draft !== null && commit(parse(draft))}
+        onBlur={() => {
+          if (discarding.current) discarding.current = false;
+          else if (draft !== null) commit(parse(draft));
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') commit(parse(shown));
           else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
             e.preventDefault();
             commit((value ?? 0) + (e.key === 'ArrowUp' ? step : -step));
-          } else if (e.key === 'Escape') setDraft(null);
+          } else if (e.key === 'Escape') {
+            // Como en Word: se descarta lo escrito y se sigue en el documento.
+            discarding.current = true;
+            setDraft(null);
+            focusEditor();
+          }
         }}
       />
     </label>

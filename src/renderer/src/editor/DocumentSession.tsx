@@ -8,6 +8,19 @@ import { useSettingsStore } from '@renderer/state/settings-store';
 import { redo, registerEditor, registerSave, undo, type SaveMode } from './document-actions';
 import { remoteErrorMessage } from '@shared/errors';
 
+/** Parte de encabezado o pie que el motor crea al entrar en una sección que no la tiene. */
+const HEADER_FOOTER_PART = /^\/word\/(header|footer)\d*\.xml$/;
+
+/** Encabezado o pie recién creado al entrar, mientras no se haya escrito nada en él. */
+interface CreatedOnEntry {
+  readonly part: string;
+  /** Revisión tras crearlo: si sigue siendo esta al salir, no se tocó. */
+  readonly revision: number;
+  /** El documento estaba guardado justo antes de crearlo. */
+  readonly wasClean: boolean;
+  readonly everChanged: boolean;
+}
+
 let recoverIntervalOverride: number | undefined;
 /** Solo pruebas: acorta el intervalo de recuperación automática. */
 export function setRecoverIntervalOverride(ms: number | undefined): void {
@@ -25,6 +38,10 @@ export function DocumentSession({
   const savedRevision = useRef<number | null>(null);
   const everChanged = useRef(false);
   const setDirty = useDocumentStore((s) => s.setDirty);
+  const lastRevision = useRef<number | null>(null);
+  const createdOnEntry = useRef<CreatedOnEntry | null>(null);
+  const restoring = useRef<Pick<CreatedOnEntry, 'wasClean' | 'everChanged'> | null>(null);
+  const editingFurniture = useRef<'header' | 'footer' | null>(null);
 
   const report = useCallback(
     (dirty: boolean) => {
@@ -75,9 +92,59 @@ export function DocumentSession({
   useEditorEvent('change', (change: DocumentChange) => {
     if (change.source === 'load' || savedRevision.current === null) {
       savedRevision.current = change.revision;
+      lastRevision.current = change.revision;
+      createdOnEntry.current = null;
       return;
     }
+    const restored = restoring.current;
+    restoring.current = null;
+    if (restored) {
+      // Se deshizo un encabezado o pie vacío: el documento vuelve a estar como antes de entrar.
+      if (restored.wasClean) savedRevision.current = change.revision;
+      everChanged.current = restored.everChanged;
+    } else {
+      const part = change.created?.find((name) => HEADER_FOOTER_PART.test(name));
+      createdOnEntry.current =
+        part && lastRevision.current !== null
+          ? {
+              part,
+              revision: change.revision,
+              wasClean: lastRevision.current === savedRevision.current,
+              everChanged: everChanged.current,
+            }
+          : null;
+    }
+    lastRevision.current = change.revision;
     report(change.revision !== savedRevision.current);
+  });
+
+  // Entrar en un encabezado o pie que la sección no tiene lo crea vacío (Insertar › Pie de
+  // página, doble clic en la banda). Si se sale sin escribir nada (Esc, clic en el cuerpo,
+  // Cerrar), se deshace esa creación: cancelar no deja un pie vacío ni el documento con cambios.
+  useEditorEvent('selectionChange', () => {
+    if (!editor) return;
+    const state = editor.getHeaderFooterState();
+    const editing = state?.editing ?? null;
+    const previous = editingFurniture.current;
+    editingFurniture.current = editing;
+    const created = createdOnEntry.current;
+    if (editing && !previous) {
+      // Solo cuenta si se entró justo en la parte recién creada.
+      if (created && state?.partName !== created.part) createdOnEntry.current = null;
+      return;
+    }
+    if (!previous || editing) return;
+    createdOnEntry.current = null;
+    if (!created || editor.getDocumentHandle().revision !== created.revision) return;
+    // Fuera del aviso del motor: deshacer mientras sale del ámbito lo dejaría a medias.
+    queueMicrotask(() => {
+      if (editor.getDocumentHandle().revision !== created.revision) return;
+      restoring.current = { wasClean: created.wasClean, everChanged: created.everChanged };
+      editor.exec({ type: 'undo' });
+      // El aviso de cambio del undo llega dentro de exec: si no llegó (undo rechazado), el
+      // siguiente cambio real no debe tomarse por esta restauración.
+      restoring.current = null;
+    });
   });
 
   useEditorEvent('error', (error: { message?: string }) => {

@@ -38,7 +38,10 @@ export default tseslint.config(
       // Saltar según el SO o si falta LibreOffice es legítimo; un .skip() sin condición, no.
       'playwright/no-skipped-test': ['error', { allowConditional: true }],
       // Ayudantes de las pruebas que hacen sus propias aserciones.
-      'playwright/expect-expect': ['warn', { assertFunctionNames: ['expectSurfaceFits'] }],
+      'playwright/expect-expect': [
+        'warn',
+        { assertFunctionNames: ['expectSurfaceFits', 'expectNothingChanged'] },
+      ],
     },
   },
   {

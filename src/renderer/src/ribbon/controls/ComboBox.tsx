@@ -1,6 +1,7 @@
 import { ChevronDown12Regular } from '@fluentui/react-icons';
 // Cuadro combinado de la cinta (fuente, tamaño): se puede escribir o elegir de la lista.
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { focusEditor } from '@renderer/editor/document-actions';
 import { cx } from '@renderer/ui/cx';
 import { Popover } from '@renderer/ui/Popover';
 import * as rc from '../ribbon-classes';
@@ -105,7 +106,9 @@ export function ComboBox({
                 const chosen = active >= 0 ? visible[active] : undefined;
                 commit(chosen && chosen.kind !== 'heading' ? chosen.value : (draft ?? value));
               } else if (e.key === 'Escape') {
+                // Como en Word: se descarta lo escrito y se sigue en el documento.
                 commit('');
+                focusEditor();
               } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 setOpen(true);
