@@ -276,6 +276,41 @@ test('pestaña Imagen: girar una imagen en línea; el ajuste explica por qué no
   expect(xml).toMatch(/rot="5400000"/);
 });
 
+test('pestaña Imagen: Restablecer tamaño devuelve la imagen a su tamaño original', async ({
+  app,
+  win,
+  out,
+  workDir,
+}) => {
+  writeFileSync(join(workDir, 'roja.png'), tinyPng());
+  await win.getByRole('tab', { name: 'Insertar' }).click();
+  await mockDialogs(app, { save: out, open: [join(workDir, 'roja.png')] });
+  await win.getByTestId('insert-image').click();
+  await win.locator('.docx-page').getByRole('img').first().click();
+  await expect(win.getByRole('tab', { name: 'Formato de imagen' })).toHaveAttribute('aria-selected', 'true');
+  const extent = async () =>
+    /<wp:extent cx="(\d+)" cy="(\d+)"/
+      .exec((await saveAndRead(app, win, out))['word/document.xml']!)
+      ?.slice(1);
+
+  // Otro tamaño desde el diálogo: 100 pt de ancho (1270000 EMU).
+  await win.getByRole('button', { name: 'Tamaño y posición' }).click();
+  await win.locator('#image-prop-width').fill('100');
+  await win.locator('.docx-dialog').getByRole('button', { name: 'Aplicar' }).click();
+  await expect(win.locator('.docx-dialog')).toHaveCount(0);
+  expect((await extent())?.[0]).toBe('1270000');
+
+  // 2 × 2 px a 96 ppp: 19050 × 19050 EMU.
+  // La imagen sigue seleccionada tras aplicar y guardar.
+  await win.getByRole('tab', { name: 'Formato de imagen' }).click();
+  await win.getByTestId('image-reset-size').click();
+  expect(await extent()).toEqual(['19050', '19050']);
+
+  // Deshacer vuelve al tamaño anterior en un solo paso.
+  await win.keyboard.press(`${mod}+z`);
+  expect((await extent())?.[0]).toBe('1270000');
+});
+
 test('pestaña Imagen: cambiar el ajuste de una imagen flotante', async ({ launch, workDir }) => {
   const path = join(workDir, 'flotante.docx');
   writeFileSync(path, readFileSync(join(FIXTURES, 'float-wrap-comprehensive-test.docx')));

@@ -1,8 +1,9 @@
 // Pestaña contextual "Imagen" (aparece con una imagen seleccionada).
 import {
+  ArrowReset20Regular,
   FlipHorizontal20Regular,
   FlipVertical20Regular,
-  ImageAltText20Regular,
+  ImageAltText24Regular,
   RotateLeft20Regular,
   RotateRight20Regular,
   Settings20Regular,
@@ -18,10 +19,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CommandButton } from '../controls/CommandButton';
 import { MenuButton } from '../controls/MenuButton';
+import { RibbonButton } from '../controls/RibbonButton';
 import { RibbonGroup, RibbonStack } from '../controls/RibbonGroup';
 import { Popover } from '@renderer/ui/Popover';
 import { useUiStore } from '@renderer/state/ui-store';
 import * as rc from '../ribbon-classes';
+
+const EMU_PER_INCH = 914400;
 
 const WRAPS = ['inline', 'square', 'tight', 'through', 'topAndBottom', 'behind', 'inFront'] as const;
 
@@ -51,13 +55,13 @@ function AltTextButton() {
         <button
           type="button"
           {...triggerProps}
-          className={rc.button}
+          className={rc.buttonLarge}
           style={anchorStyle}
           disabled={!altText.isEnabled}
           onMouseDown={(e) => e.preventDefault()}
         >
           <span className={rc.icon}>
-            <ImageAltText20Regular />
+            <ImageAltText24Regular />
           </span>
           <span className={rc.label}>{t('picture.size.altText')}</span>
         </button>
@@ -98,6 +102,21 @@ export function PictureTab() {
   const inline = useEditorState((s) => s.image?.kind === 'inline');
   const properties = useEditorCommand('image.properties');
   const openImageProperties = useUiStore((s) => s.openImagePropertiesDialog);
+  const editor = useDocxEditor();
+  const canResize = useEditorState((s) => s.image?.canResize === true);
+  // Tamaño original: el del archivo de imagen a su resolución, como el botón "Restablecer
+  // tamaño original" del diálogo (resetToNaturalSize del motor no siempre lo tiene a mano).
+  const resetSize = () => {
+    const image = editor?.getSelectedImage();
+    const natural = image?.intrinsic;
+    if (!editor || !natural) return;
+    editor.exec({
+      type: 'setImageProperties',
+      widthEmu: Math.round((natural.pixelWidth / natural.dpiX) * EMU_PER_INCH),
+      heightEmu: Math.round((natural.pixelHeight / natural.dpiY) * EMU_PER_INCH),
+    });
+    editor.focus();
+  };
 
   return (
     <>
@@ -146,6 +165,7 @@ export function PictureTab() {
         </RibbonStack>
       </RibbonGroup>
       <RibbonGroup label={t('picture.size.label')}>
+        <AltTextButton />
         <RibbonStack>
           {/* El diálogo se monta en EditorHost: el trigger de la librería lo pinta junto al
               botón, dentro de la cinta, y queda recortado. */}
@@ -162,7 +182,14 @@ export function PictureTab() {
             </span>
             <span className={rc.label}>{t('picture.size.properties')}</span>
           </button>
-          <AltTextButton />
+          <RibbonButton
+            icon={<ArrowReset20Regular />}
+            label={t('picture.size.reset')}
+            testId="image-reset-size"
+            showLabel
+            disabled={!canResize}
+            onClick={resetSize}
+          />
         </RibbonStack>
       </RibbonGroup>
     </>

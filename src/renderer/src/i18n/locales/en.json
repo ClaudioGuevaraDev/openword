@@ -335,6 +335,7 @@
     "size": {
       "label": "Size & Accessibility",
       "properties": "Size and Position",
+      "reset": "Reset size",
       "altText": "Alt Text",
       "altTextPrompt": "Describe the picture for people who are blind or have low vision:",
       "apply": "Apply"

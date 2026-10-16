@@ -335,6 +335,7 @@
     "size": {
       "label": "Tamaño y accesibilidad",
       "properties": "Tamaño y posición",
+      "reset": "Restablecer tamaño",
       "altText": "Texto alternativo",
       "altTextPrompt": "Describe la imagen para personas con discapacidad visual:",
       "apply": "Aplicar"
