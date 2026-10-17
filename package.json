@@ -1,7 +1,7 @@
 {
   "name": "openword",
   "productName": "OpenWord",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "description": "Procesador de textos de escritorio compatible con Word",
   "author": "OpenWord",
@@ -10,7 +10,7 @@
   "engines": {
     "node": ">=22.12"
   },
-  "packageManager": "pnpm@12.8.1",
+  "packageManager": "pnpm@12.14.0",
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "electron-vite build",
